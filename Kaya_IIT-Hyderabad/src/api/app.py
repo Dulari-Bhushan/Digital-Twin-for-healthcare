@@ -5,6 +5,7 @@ Docs: http://localhost:8000/docs
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import sys
@@ -12,7 +13,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -25,6 +26,7 @@ sys.path.insert(0, str(ROOT / "src" / "whatif"))
 from engine import Scenario, glucose_metrics, run as run_whatif  # noqa: E402
 from eye_risk import GRADES, progression_risk  # noqa: E402
 from kidney_dynamic import KidneyParams, projection  # noqa: E402
+from live import Calibration, LiveTwin, NumpyGRU  # noqa: E402
 from liver_dynamic import LiverParams, risk_timeline  # noqa: E402
 
 ART_DIR = Path(os.environ.get("KAYA_ARTIFACTS", ROOT / "artifacts" / "demo"))
@@ -39,6 +41,9 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 STORE: dict[int, dict] = {}
 META: dict = {}
+MODEL_DIR = Path(os.environ.get("KAYA_MODEL", ROOT / "artifacts" / "model"))
+LIVE: dict = {}
+SESSIONS: dict[int, LiveTwin] = {}
 
 
 def _tier(score: float) -> str:
@@ -85,6 +90,9 @@ def load() -> None:
     META.update(json.loads(idx.read_text()))
     for item in META["patients"]:
         STORE[item["id"]] = json.loads((ART_DIR / f"{item['id']}.json").read_text())
+    if (MODEL_DIR / "gru_numpy.npz").exists():
+        LIVE["net"] = NumpyGRU(MODEL_DIR / "gru_numpy.npz")
+        LIVE["cal"] = Calibration(MODEL_DIR / "calibration.json")
 
 
 def _get(pid: int) -> dict:
@@ -186,6 +194,63 @@ def whatif(pid: int, body: WhatIf):
         "kidney": {"before": k_before, "after": k_after},
         "assumptions": "Effect sizes are literature-informed assumptions, shown for transparency; this is a simulation, not a prediction.",
     }
+
+
+# ------------------------------------------------------------------ live mode: the model runs on every new reading
+class Reading(BaseModel):
+    glucose: float = Field(..., ge=20, le=600)
+    heart_rate: float = Field(70, ge=20, le=250)
+    steps: float = Field(0, ge=0, le=2000, description="steps in the last 5 minutes")
+    meal_carbs: float = Field(0, ge=0, le=300, description="grams of carbohydrate started in this interval")
+    minute_of_day: int = Field(0, ge=0, le=1439)
+
+
+def _new_twin(pid: int) -> LiveTwin:
+    if "net" not in LIVE:
+        raise HTTPException(503, "live model not available (artifacts/model missing)")
+    return LiveTwin(LIVE["net"], LIVE["cal"], _get(pid)["profile"])
+
+
+@app.post("/api/live/{pid}/reading")
+def live_reading(pid: int, body: Reading, reset: bool = False):
+    """Ingest one 5-minute reading from a device. Returns the twin's forecast once 2 hours of history exist."""
+    if reset or pid not in SESSIONS:
+        SESSIONS[pid] = _new_twin(pid)
+    out = SESSIONS[pid].push(body.glucose, body.heart_rate, body.steps, body.meal_carbs, body.minute_of_day)
+    return {"ready": out is not None, "readings_buffered": SESSIONS[pid].n, "forecast": out,
+            "note": "forecast values are changes in mg/dL from the current glucose: [horizon 30/60/120][low, median, high]"}
+
+
+@app.websocket("/ws/live/{pid}")
+async def ws_live(ws: WebSocket, pid: int, interval: float = 0.5, back_days: float = 3.0, prefill: int = 288):
+    """Simulated wearable feed: one 5-minute reading every `interval` seconds, with a live model forecast each time."""
+    await ws.accept()
+    if pid not in STORE or "net" not in LIVE:
+        await ws.close(code=4404)
+        return
+    a = STORE[pid]
+    sr = a["series"]
+    n = sr["n"]
+    start = max(L_WARM, n - int(back_days * 288))
+    twin = _new_twin(pid)
+    for i in range(start - L_WARM, start):
+        twin.push(sr["glucose"][i], sr["heart_rate"][i], sr["steps"][i], sr["meal_carbs"][i], (i * STEP_MIN) % 1440)
+    p0 = max(0, start - prefill)
+    try:
+        await ws.send_json({"type": "init", "t0": p0, "start": _iso(p0), "step_min": STEP_MIN, "glucose": sr["glucose"][p0:start],
+                            "meal_carbs": sr["meal_carbs"][p0:start], "steps": sr["steps"][p0:start],
+                            "thresholds": LIVE["cal"].thr})
+        for i in range(start, n):
+            out = twin.push(sr["glucose"][i], sr["heart_rate"][i], sr["steps"][i], sr["meal_carbs"][i], (i * STEP_MIN) % 1440)
+            await ws.send_json({"type": "tick", "t": i, "time": _iso(i), "glucose": sr["glucose"][i], "heart_rate": sr["heart_rate"][i],
+                                "steps": sr["steps"][i], "meal_carbs": sr["meal_carbs"][i], "forecast": out})
+            await asyncio.sleep(max(0.02, interval))
+        await ws.send_json({"type": "end"})
+    except WebSocketDisconnect:
+        return
+
+
+L_WARM = 24
 
 
 # ------------------------------------------------------------------ FHIR R4 (read-only, minimal)

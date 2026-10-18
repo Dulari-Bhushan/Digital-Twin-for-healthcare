@@ -148,3 +148,6 @@ input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 
 .xl { display: flex; gap: 7px; margin-top: 6px; } .xl span { flex: 1; text-align: center; font-size: 10px; font-weight: 700; color: var(--muted); }
 .big-btn { width: 100%; border: 0; border-radius: 22px; padding: 16px; font-weight: 800; font-size: 16px; color: #fff; background: var(--lav-d); box-shadow: 0 10px 22px rgba(113, 96, 230, .35); margin-top: 14px; }
 .big-btn.done { background: var(--mint-d); box-shadow: 0 10px 22px rgba(47, 161, 118, .3); }
+
+.livedot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--rose-d); animation: pulse 1s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(232, 95, 139, .6); } 100% { box-shadow: 0 0 0 10px rgba(232, 95, 139, 0); } }

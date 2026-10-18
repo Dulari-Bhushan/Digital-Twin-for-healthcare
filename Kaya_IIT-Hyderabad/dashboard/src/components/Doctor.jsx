@@ -58,7 +58,7 @@ export function Hero({ d }) {
   )
 }
 
-export function GlucoseCard({ series, cursor, at, metrics, playing, setPlaying, setCursor, range }) {
+export function GlucoseCard({ series, cursor, at, metrics, playing, setPlaying, setCursor, range, live }) {
   const g = series.glucose
   const slope = cursor >= 6 ? (g[cursor] - g[cursor - 6]) / 30 : 0
   const arrow = Math.abs(slope) < 0.4 ? '→' : slope > 0 ? (slope > 1.5 ? '⇈' : '↗') : slope < -1.5 ? '⇊' : '↘'
@@ -68,7 +68,11 @@ export function GlucoseCard({ series, cursor, at, metrics, playing, setPlaying, 
       <div className="card-h">
         <h2>Glucose twin</h2>
         <span className="chip lav">{fmtDT(series.start, cursor)}</span>
+        {live.on && <span className="chip rose"><span className="livedot" /> LIVE · model runs on every reading{live.latency != null ? ` · ${live.latency} ms` : ''}</span>}
         <span className="sp" style={{ flex: 1 }} />
+        <button className={`btn sm ${live.active ? '' : 'go'}`} onClick={live.active ? live.stop : live.start}>
+          {live.active ? '■ Stop live feed' : '● Go live'}
+        </button>
         <span className="chip mint">Real-data validated</span>
       </div>
       <div className="row wrap" style={{ alignItems: 'stretch', gap: 14, marginBottom: 14 }}>
@@ -88,6 +92,9 @@ export function GlucoseCard({ series, cursor, at, metrics, playing, setPlaying, 
         </div>
       </div>
       <GlucoseChart series={series} cursor={cursor} />
+      {live.on ? (
+        <div className="player"><div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: 'var(--rose-dd)' }}>Streaming a simulated wearable feed: a new reading every 5 minutes of patient time. {live.count} received. The twin forecasts from each one as it arrives.</div></div>
+      ) : (
       <div className="player">
         <button className="play" aria-label={playing ? 'Pause' : 'Play'}
           onClick={() => { if (cursor >= range[1]) setCursor(range[0]); setPlaying(!playing) }}>{playing ? '❚❚' : '▶'}</button>
@@ -98,6 +105,7 @@ export function GlucoseCard({ series, cursor, at, metrics, playing, setPlaying, 
         </div>
         <button className="btn sm" onClick={() => { setPlaying(false); setCursor(range[1]) }}>Now</button>
       </div>
+      )}
     </div>
   )
 }

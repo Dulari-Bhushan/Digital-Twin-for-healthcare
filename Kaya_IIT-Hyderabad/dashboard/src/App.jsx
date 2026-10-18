@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { getPatient, getPatients, getSeries } from './api'
 import { AlertsCard, GlucoseCard, Hero, Organs, ProbCard, RangeCard, Sidebar, WhatIfStudio } from './components/Doctor'
 import PatientApp from './components/PatientApp'
+import { useLive } from './live'
 import { Logo } from './ui'
 
 const HORIZ = [30, 60, 120]
@@ -35,6 +36,7 @@ export default function App() {
   const [playing, setPlaying] = useState(false)
   const [err, setErr] = useState(null)
   const timer = useRef(null)
+  const live = useLive(sel)
 
   useEffect(() => {
     getPatients().then((p) => {
@@ -67,7 +69,10 @@ export default function App() {
     return () => clearInterval(timer.current)
   }, [playing, range])
 
-  const at = useMemo(() => (series ? atCursor(series, cursor) : null), [series, cursor])
+  const liveOn = live.active && live.series && live.series.forecast.t.length > 0
+  const shownSeries = liveOn ? live.series : series
+  const shownCursor = liveOn ? live.series.glucose.length - 1 : cursor
+  const at = useMemo(() => (shownSeries ? atCursor(shownSeries, shownCursor) : null), [shownSeries, shownCursor])
   if (err) return <div style={{ padding: 40 }}>Could not reach the Kaya API: {err}. Start it with <code>uvicorn app:app --app-dir src/api</code>.</div>
   const ready = d && series && at
 
@@ -100,14 +105,14 @@ export default function App() {
             {!ready ? <div className="c12 muted">Loading the twin…</div> : (
               <>
                 <div className="c12"><Hero d={d} /></div>
-                <div className="c8"><GlucoseCard series={series} cursor={cursor} at={at} metrics={d.metrics} playing={playing} setPlaying={setPlaying} setCursor={setCursor} range={range} /></div>
+                <div className="c8"><GlucoseCard series={shownSeries} cursor={shownCursor} at={at} metrics={d.metrics} playing={playing} setPlaying={setPlaying} setCursor={setCursor} range={range} live={{ on: liveOn, active: live.active, latency: live.latency, count: live.count, ended: live.ended, start: live.start, stop: live.stop }} /></div>
                 <div className="c4" style={{ display: 'grid', gap: 20, gridTemplateRows: 'auto 1fr' }}>
                   <ProbCard at={at} />
                   <RangeCard metrics={d.metrics} />
                 </div>
                 <Organs d={d} />
                 <div className="c12"><WhatIfStudio pid={sel} /></div>
-                <div className="c12"><AlertsCard alerts={series.alerts.filter((a) => a.t - series.t0 <= cursor)} series={series} /></div>
+                <div className="c12"><AlertsCard alerts={shownSeries.alerts.filter((a) => a.t - shownSeries.t0 <= shownCursor)} series={shownSeries} /></div>
               </>
             )}
           </main>
