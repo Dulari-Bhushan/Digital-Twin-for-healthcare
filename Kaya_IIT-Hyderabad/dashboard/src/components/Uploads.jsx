@@ -145,12 +145,14 @@ export function PatientUploads({ t, pid, today, onChange, reports, onOpenReport 
       <div className="sect"><span>{t('up_mine')}</span><small>{items ? items.length : ''}</small></div>
       {items && items.length === 0 && <div className="muted" style={{ fontSize: 13, fontWeight: 600 }}>{t('up_none')}</div>}
       {items && items.map((u) => (
-        <div key={u.id} className="rep-row" style={{ cursor: 'default' }}>
+        <div key={u.id} className="rep-row up-row" style={{ cursor: 'default' }}>
           <Thumb pid={pid} u={u} />
           <span style={{ minWidth: 0, flex: 1 }}><b>{u.title}</b><small>{t(CAT[u.category] || 'cat_other')} · {fmt(u.date)}</small>{statusLine(u, t)}</span>
-          {avail && u.ocr && ['off', 'failed', 'no_text'].includes(u.ocr.state) && <button className="filt on" onClick={() => startRead(u)}>🤖 {t('up_readbtn')}</button>}
-          <a className="filt on" style={{ textDecoration: 'none' }} href={fileUrl(pid, u)} target="_blank" rel="noreferrer">{t('up_open')}</a>
-          <button className="filt" onClick={() => remove(u)}>{t('up_remove')}</button>
+          <div className="up-actions">
+            {avail && u.ocr && ['off', 'failed', 'no_text'].includes(u.ocr.state) && <button className="filt on" onClick={() => startRead(u)}>🤖 {t('up_readbtn')}</button>}
+            <a className="filt on" style={{ textDecoration: 'none' }} href={fileUrl(pid, u)} target="_blank" rel="noreferrer">{t('up_open')}</a>
+            <button className="filt" onClick={() => remove(u)}>{t('up_remove')}</button>
+          </div>
         </div>
       ))}
     </>

@@ -63,7 +63,12 @@ class Page:
 def header(p, title, sub):
     p.text(70, 68, title, 38, INK, 800)
     p.text(70, 102, sub, 18, MUTED)
-    p.pill(1500, 40, 350, 34, "Open + synthetic data only  ·  Decision support", TEAL, 14)
+    p.pill(1400, 40, 350, 34, "Open + synthetic data only  ·  Decision support", TEAL, 14)
+    # Kaya logo mark: amber and teal circles with the glucose wave
+    p.add('<clipPath id="lmk"><circle cx="1809" cy="57" r="25"/></clipPath>')
+    p.add('<circle cx="1830" cy="57" r="25" fill="#E8A03C"/><circle cx="1809" cy="57" r="25" fill="#0F7068"/>')
+    p.add('<circle cx="1830" cy="57" r="25" fill="#1C4E48" clip-path="url(#lmk)"/>')
+    p.add('<path d="M1796,63 C1803,55 1810,60 1817,62 C1824,64 1829,52 1841,53" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/>')
 
 
 def footer(p, left, y):

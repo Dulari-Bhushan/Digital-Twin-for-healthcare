@@ -9,8 +9,12 @@
 <rect width="1920" height="1080" fill="url(#bg)"/>
 <text x="70" y="68" font-size="38" fill="#14212b" font-weight="800" text-anchor="start" >Kaya: one twin per patient</text>
 <text x="70" y="102" font-size="18" fill="#5b6b77" font-weight="400" text-anchor="start" >It shows what glucose does to the liver, eyes and kidneys, and lets you test a change before trying it on the real patient.</text>
-<rect x="1500" y="40" width="350" height="34" rx="17.0" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>
-<text x="1675.0" y="61.9" font-size="14" fill="#0f766e" font-weight="600" text-anchor="middle" >Open + synthetic data only  ·  Decision support</text>
+<rect x="1400" y="40" width="350" height="34" rx="17.0" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>
+<text x="1575.0" y="61.9" font-size="14" fill="#0f766e" font-weight="600" text-anchor="middle" >Open + synthetic data only  ·  Decision support</text>
+<clipPath id="lmk"><circle cx="1809" cy="57" r="25"/></clipPath>
+<circle cx="1830" cy="57" r="25" fill="#E8A03C"/><circle cx="1809" cy="57" r="25" fill="#0F7068"/>
+<circle cx="1830" cy="57" r="25" fill="#1C4E48" clip-path="url(#lmk)"/>
+<path d="M1796,63 C1803,55 1810,60 1817,62 C1824,64 1829,52 1841,53" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/>
 <text x="70" y="150" font-size="14" fill="#5b6b77" font-weight="800" text-anchor="start" letter-spacing="1.6">1   WHAT GOES IN</text>
 <rect x="70" y="166" width="332" height="70" rx="14" fill="#fff" stroke="#1d6fb8" stroke-width="1.8" filter="url(#sh)"/>
 <circle cx="114" cy="201" r="24" fill="#e6eefb"/>

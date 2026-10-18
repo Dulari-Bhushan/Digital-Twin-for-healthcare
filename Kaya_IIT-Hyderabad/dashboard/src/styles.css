@@ -315,3 +315,9 @@ a.btn.go { color: #fff; }
 .rep-src pre { white-space: pre-wrap; background: #f0f5f4; border-radius: 12px; padding: 10px 12px; max-height: 280px; overflow: auto; font-family: inherit; font-size: 12.5px; }
 
 .big-btn.alt { background: #fff; color: var(--butter-dd); box-shadow: none; margin-top: 8px; }
+
+/* uploaded file rows: details on top, actions underneath */
+.up-row { flex-wrap: wrap; }
+.up-row > span { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; }
+.up-actions { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.up-actions .filt { white-space: nowrap; }

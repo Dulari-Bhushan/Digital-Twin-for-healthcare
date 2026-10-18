@@ -9,8 +9,12 @@
 <rect width="1920" height="1260" fill="url(#bg)"/>
 <text x="70" y="68" font-size="38" fill="#14212b" font-weight="800" text-anchor="start" >How Kaya works, at a glance</text>
 <text x="70" y="102" font-size="18" fill="#5b6b77" font-weight="400" text-anchor="start" >Learn from open data, build four AI models, make them trustworthy, then put them in people's hands.</text>
-<rect x="1500" y="40" width="350" height="34" rx="17.0" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>
-<text x="1675.0" y="61.9" font-size="14" fill="#0f766e" font-weight="600" text-anchor="middle" >Open + synthetic data only  ·  Decision support</text>
+<rect x="1400" y="40" width="350" height="34" rx="17.0" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>
+<text x="1575.0" y="61.9" font-size="14" fill="#0f766e" font-weight="600" text-anchor="middle" >Open + synthetic data only  ·  Decision support</text>
+<clipPath id="lmk"><circle cx="1809" cy="57" r="25"/></clipPath>
+<circle cx="1830" cy="57" r="25" fill="#E8A03C"/><circle cx="1809" cy="57" r="25" fill="#0F7068"/>
+<circle cx="1830" cy="57" r="25" fill="#1C4E48" clip-path="url(#lmk)"/>
+<path d="M1796,63 C1803,55 1810,60 1817,62 C1824,64 1829,52 1841,53" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/>
 <rect x="70" y="140" width="424" height="40" rx="12" fill="#1d6fb8" stroke="#1d6fb8" stroke-width="0"/>
 <text x="90" y="167" font-size="16" fill="#fff" font-weight="800" text-anchor="start" letter-spacing="1.4">1   LEARNED FROM</text>
 <rect x="70" y="196" width="424" height="112" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="1.8" filter="url(#sh)"/>
