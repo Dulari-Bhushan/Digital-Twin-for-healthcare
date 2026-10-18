@@ -97,3 +97,32 @@ SSH host `lab-server`: 3x RTX A5000 (24 GB), Python 3.11 venv at `~/kaya/.venv`,
 - [ ] Video of at least 20 minutes (unlisted YouTube or slides recording)
 - [x] Apache-2.0 license
 - [x] Folder named `Kaya_IIT-Hyderabad`
+
+## 11. Workflow and what each module tells the doctor
+
+Data in (static EHR, wearables, retina scan) -> patient state encoder -> glucose, liver, eye and kidney modules -> what-if engine -> doctor dashboard, patient view, FHIR API and PDF report.
+
+| Module | Question it answers | Output |
+|---|---|---|
+| Glucose | What will glucose do in the next 2 hours, and is an event coming? | 30/60/120 min forecast with 80% interval; calibrated hypo/hyper alerts with lead time |
+| Liver | How much metabolic load is the liver carrying, and is fibrosis developing? | Steatosis and advanced-fibrosis risk; rolling 30-90 day liver-fat state driven by CGM (dynamic part: next) |
+| Eye | What is the retinopathy grade, and where is it heading? | DR grade with Grad-CAM; 2-year progression risk; illustrative retina preview |
+| Kidney | Is kidney function declining? | eGFR slope and albuminuria risk (stretch) |
+| What-if | If this patient changes X, what happens? | Before/after glucose curve and 1-year organ risk change |
+
+## 12. Progress snapshot (2026-10-18)
+
+| Workstream | Weight | Done | Notes |
+|---|---|---|---|
+| Setup, repo, server | 5% | 100% | venv, GPU stack, license, scaffold |
+| Data layer | 8% | 55% | CGMacros, NHANES, synthetic cohort done; Synthea EHR, synthetic notes, retina images pending |
+| Glucose core | 14% | 90% | ensemble, calibration, alert replay done; only polish left |
+| Liver | 14% | 45% | static NHANES model done; dynamic state, NLP features, what-if hooks pending |
+| Eye | 14% | 0% | blocked on Kaggle token and IDRiD download |
+| Kidney | 4% | 0% | stretch |
+| What-if engine | 8% | 0% | |
+| Patient state, API, FHIR | 9% | 0% | |
+| Dashboard | 12% | 0% | |
+| Docs and media | 8% | 15% | plan and README skeleton |
+| Hardening (CI, Docker, tests) | 4% | 10% | two tests |
+| **Overall** | 100% | **about 30%** | model work is further along than product work |
