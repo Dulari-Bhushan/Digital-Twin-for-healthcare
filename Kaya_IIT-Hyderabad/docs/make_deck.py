@@ -195,7 +195,8 @@ if eye:
             ax.imshow(mpimg.imread(raw), extent=[53 + k * 15, 66 + k * 15, 27.5, 40.5], aspect="auto", zorder=2)
             ax.imshow(mpimg.imread(cam), extent=[53 + k * 15, 66 + k * 15, 12, 25], aspect="auto", zorder=2)
             ax.text(59.5 + k * 15, 41.5, ["No DR", "Moderate", "Proliferative"][k], ha="center", fontsize=11, fontweight="bold", color=INK)
-    ax.text(74, 9.4, "Top: IDRiD fundus.  Bottom: Grad-CAM, where the model looked.", ha="center", fontsize=10, color=MUTED)
+    if imgs[0][0].exists():
+        ax.text(74, 9.4, "Top: IDRiD fundus.  Bottom: Grad-CAM, where the model looked.", ha="center", fontsize=10, color=MUTED)
 else:
     ax.text(5, 30, "Results pending", fontsize=16, color=MUTED)
 
