@@ -14,3 +14,6 @@ export const postWhatIf = (id, body) =>
   }).then(j)
 export const getReports = (id) => fetch(`/api/patients/${id}/reports`).then(j)
 export const getChanges = (id) => fetch(`/api/patients/${id}/changes`).then(j)
+export const getLog = (id) => fetch(`/api/patients/${id}/log`).then(j)
+export const postLog = (id, body) =>
+  fetch(`/api/patients/${id}/log`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(j)

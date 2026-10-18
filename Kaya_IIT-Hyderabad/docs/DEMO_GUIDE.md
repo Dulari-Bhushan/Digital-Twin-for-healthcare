@@ -63,6 +63,12 @@ Press Esc or click outside to close. Link straight to a tab with `?p=1688&record
 
 The history is generated, not recorded: today's values come from each patient's profile and the 14-day glucose series, and earlier values are produced backwards from them with a seeded trend (scripted for the two demo patients), so every report agrees with the dashboard. Code: `src/api/reports.py`.
 
+## What to do now, quick log and the diary
+
+**Patient app, Today.** Rajesh's screen opens with **What to do now**: a 15-minute walk (forecast 228 in 2 hours), and below it a sugar check before bed (he takes insulin) and evening medicines not yet taken. Press **Mark as done** and the card moves on to the next action. **Quick log** below it records medicines (morning or evening), a walk of 10, 20 or 30 minutes, and how he feels. Priya's list is shorter because she already walked and took her morning medicines.
+
+**Doctor view.** The record's Overview has **Patient diary and adherence**: morning and evening medicines taken, days with a walk, days felt unwell, a 14-day grid, and the patient's own notes. Anything logged in the patient app appears here on reload. Rajesh logged evening medicines on about half of the days, and that shows up as a line in the attention list; Priya's diary is consistent. The 14 seeded days are synthetic and generated from each patient's own glucose and step data; entries made live are stored in `data/patient_logs/` (git-ignored). To reset the demo, delete that folder.
+
 ## Suggested flow (about 6 minutes)
 
 1. **Doctor view, Rajesh.** Show the triage list with the two demo cases pinned. Point at why he is flagged (time in range, liver, kidney, retinopathy). Press **Replay last 3 days**: the forecast fan appears before the evening spike.

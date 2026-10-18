@@ -84,3 +84,18 @@ def test_reports_changes_and_pdf_endpoints(client):
     assert pdf.status_code == 200 and pdf.content[:4] == b"%PDF"
     assert client.get("/api/patients/1688/reports/nope.pdf").status_code == 404
     assert client.get("/api/patients/99999/reports").status_code == 404
+
+
+def test_log_api_round_trip(client, tmp_path, monkeypatch):
+    import diary
+
+    monkeypatch.setattr(diary, "LOG_DIR", tmp_path)
+    before = client.get("/api/patients/1636/log").json()
+    assert before["today"]["med_evening"] is False and len(before["entries"]) > 10
+    after = client.post("/api/patients/1636/log", json={"kind": "med", "value": "evening"}).json()
+    assert after["today"]["med_evening"] is True
+    assert client.post("/api/patients/1636/log", json={"kind": "walk", "value": 9999}).status_code == 422
+    eid = after["today"]["patient_ids"] and next(iter(after["today"]["patient_ids"]))
+    assert client.delete(f"/api/patients/1636/log/{eid}").json()["today"]["med_evening"] is False
+    assert client.delete("/api/patients/1636/log/nope").status_code == 404
+    assert any("Evening medicines" in a["text"] for a in client.get("/api/patients/1688/changes").json()["attention"])

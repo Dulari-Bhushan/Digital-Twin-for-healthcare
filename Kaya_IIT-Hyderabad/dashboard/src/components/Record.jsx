@@ -4,10 +4,11 @@ import { DR, TONE, pct, tierTone } from '../ui'
 import { explain, fmtDT } from '../utils'
 import { FEATURE_NAMES, agp, dailyStats, dayLabel, egfrStage, eyeFactors, kidneySlope, labFlag, mealResponses, mean } from '../record'
 import LineChart from './LineChart'
+import DiarySection from './Diary'
 import { ChangesCard, ReportsTab } from './Reports'
 import { AgpChart, Bars, CgmChart, Contrib, DataTable, StackedTir } from './RecordCharts'
 
-export const TABS = [['overview', 'Overview'], ['reports', 'Reports'], ['glucose', 'Glucose'], ['liver', 'Liver'], ['eyes', 'Eyes'], ['kidneys', 'Kidneys'], ['alerts', 'Alerts'], ['profile', 'Profile and labs']]
+export const TABS = [['catchup', 'Catch-up'], ['overview', 'Overview'], ['reports', 'Reports'], ['glucose', 'Glucose'], ['liver', 'Liver'], ['eyes', 'Eyes'], ['kidneys', 'Kidneys'], ['alerts', 'Alerts'], ['profile', 'Profile and labs']]
 
 const Section = ({ title, hint, children, tone }) => (
   <section className={`card ${tone || 'soft'} rec-sec`} style={{ boxShadow: 'none' }}>
@@ -51,6 +52,38 @@ function Drivers({ items, title }) {
   )
 }
 
+/** One-screen catch-up: is anything alarming, then the key numbers, changes, graphs and reports. */
+function CatchUp({ d, days, series, go, changes, pid }) {
+  const m = d.metrics, lab = d.profile.labs, kp = d.kidney.projection, tl = d.liver.timeline
+  const alarms = []
+  if (m.tbr > 0.002) alarms.push(`Low glucose: ${pct(m.tbr, 1)} of the last 14 days below 70 mg/dL${d.profile.on_insulin_or_su ? ' (on low-glucose risk drugs)' : ''}`)
+  if (d.alerts.some((a) => a.type === 'hypo')) alarms.push('Low-glucose alert in the last 3 days')
+  if (m.tir < 0.5) alarms.push(`Time in range only ${pct(m.tir)} (goal above 70%)`)
+  if (d.profile.hba1c >= 9) alarms.push(`HbA1c ${d.profile.hba1c}% (target below 7%)`)
+  if (lab.egfr < 60) alarms.push(`eGFR ${lab.egfr.toFixed(0)}: kidney function reduced`)
+  if (lab.uacr_mg_g >= 30) alarms.push(`Urine albumin ${lab.uacr_mg_g.toFixed(0)} mg/g: albuminuria`)
+  if (d.eye.grade >= 2) alarms.push(`Eyes: ${DR[d.eye.grade]}`)
+  if (tl.adv_fibrosis.at(-1) > 0.2) alarms.push(`Liver: advanced fibrosis risk ${pct(tl.adv_fibrosis.at(-1), 1)} at 12 months`)
+  if (changes) changes.items.filter((i) => i.scope === 'visit' && i.direction === 'worse' && i.severity >= 2).forEach((i) => alarms.push(`Worse since last visit: ${i.label}`))
+  const bad = alarms.length > 0
+  const tone = d.summary.tier === 'high' || alarms.length >= 3 ? 'rose' : bad ? 'butter' : 'mint'
+  return (
+    <>
+      <section className="card rec-sec" style={{ boxShadow: 'none', background: TONE[tone].bg, color: TONE[tone].dd }}>
+        <div className="card-h"><h2>{tone === 'mint' ? '🌿 Nothing alarming right now' : tone === 'rose' ? '🔥 Needs attention' : '👀 Worth a look'}</h2>
+          <span className="chip">{d.summary.tier} priority</span></div>
+        {bad ? <ul style={{ margin: 0, paddingLeft: 20, fontWeight: 700 }}>{alarms.map((a) => <li key={a}>{a}</li>)}</ul>
+          : <div style={{ fontWeight: 700 }}>No low-glucose events, control and organ markers are within the usual targets.</div>}
+        {d.summary.reasons.length > 0 && <div className="row wrap" style={{ gap: 6, marginTop: 10 }}>{d.summary.reasons.map((r) => <span key={r} className="chip">{r}</span>)}</div>}
+      </section>
+      <Overview d={d} days={days} series={series} go={go} changes={changes} />
+      <Section title="Glucose, last 14 days" hint="Glucose tab for more"><CgmChart series={series} /></Section>
+      <h2 style={{ margin: '18px 0 8px' }}>Reports, trends and medicines</h2>
+      <ReportsTab pid={pid} d={d} />
+    </>
+  )
+}
+
 /* ------------------------------------------------------------------ tabs */
 function Overview({ d, days, series, go, changes }) {
   const m = d.metrics
@@ -78,6 +111,7 @@ function Overview({ d, days, series, go, changes }) {
         <Kpi label="Sleep" value={`${sleep.toFixed(1)} h`} sub="per night" tone={sleep < 6 ? 'butter' : 'mint'} />
       </div>
       <ChangesCard ch={changes} audience="doctor" onOpen={go} />
+      <DiarySection pid={d.profile.id} />
       <Section title="Problem list" hint="click a row to open it">
         <div style={{ display: 'grid', gap: 10 }}>
           {items.map((it) => (
@@ -350,6 +384,7 @@ export default function Record({ d, pid, tab, setTab, onClose, changes }) {
         </nav>
         <div className="rec-body">
           {!series ? <div className="muted" style={{ padding: 30 }}>Loading the full history…</div> : (
+            tab === 'catchup' ? <CatchUp d={d} days={days} series={series} go={setTab} changes={changes} pid={pid} /> :
             tab === 'overview' ? <Overview d={d} days={days} series={series} go={setTab} changes={changes} /> :
             tab === 'reports' ? <ReportsTab pid={pid} d={d} /> :
             tab === 'glucose' ? <GlucoseTab d={d} series={series} days={days} /> :

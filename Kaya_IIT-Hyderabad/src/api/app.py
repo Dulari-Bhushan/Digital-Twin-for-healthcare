@@ -27,6 +27,7 @@ from engine import Scenario, glucose_metrics, run as run_whatif  # noqa: E402
 from eye_risk import GRADES, progression_risk  # noqa: E402
 from kidney_dynamic import KidneyParams, projection  # noqa: E402
 import assistant as asst  # noqa: E402
+import diary  # noqa: E402
 import reports as rpt  # noqa: E402
 from live import Calibration, LiveTwin, NumpyGRU  # noqa: E402
 from names import DEMO_TAGS, name_of  # noqa: E402
@@ -246,7 +247,55 @@ def reports_list(pid: int):
 
 @app.get("/api/patients/{pid}/changes")
 def changes(pid: int):
-    return _record(pid)["changes"]
+    ch = dict(_record(pid)["changes"])
+    ch["attention"] = (ch["attention"] + diary.attention(_diary_summary(pid)))[:6]
+    return ch
+
+
+# ------------------------------------------------------------------ patient diary: medicines, walks, feelings, actions
+def _today(pid: int) -> datetime:
+    a = _get(pid)
+    return T0.replace(tzinfo=None) + timedelta(minutes=STEP_MIN * int(a["forecast"]["t"][-1]))
+
+
+def _diary_items(pid: int) -> list[dict]:
+    return diary.entries(_get(pid), _today(pid))
+
+
+def _diary_summary(pid: int) -> dict:
+    return diary.summary(_diary_items(pid), _today(pid))
+
+
+class LogEntry(BaseModel):
+    kind: str = Field(..., description="med | walk | feel | action")
+    value: str | int
+    note: str = Field("", max_length=200)
+
+
+@app.get("/api/patients/{pid}/log")
+def log_get(pid: int):
+    items = _diary_items(pid)
+    today = _today(pid)
+    recent = sorted([x for x in items if x["date"] >= (today - timedelta(days=13)).strftime("%Y-%m-%d")], key=lambda x: (x["date"], x["time"]), reverse=True)
+    return {"today": diary.today_state(items, today), "summary": diary.summary(items, today), "entries": recent}
+
+
+@app.post("/api/patients/{pid}/log")
+def log_add(pid: int, body: LogEntry, request: Request):
+    _rate_limit(request, limit=120)
+    _get(pid)
+    if not diary.valid(body.kind, body.value):
+        raise HTTPException(422, "unknown log entry")
+    diary.add(pid, _today(pid), body.kind, body.value, body.note)
+    return log_get(pid)
+
+
+@app.delete("/api/patients/{pid}/log/{entry_id}")
+def log_delete(pid: int, entry_id: str):
+    _get(pid)
+    if not diary.remove(pid, entry_id):
+        raise HTTPException(404, "entry not found")
+    return log_get(pid)
 
 
 @app.get("/api/patients/{pid}/reports/{rid}.pdf")

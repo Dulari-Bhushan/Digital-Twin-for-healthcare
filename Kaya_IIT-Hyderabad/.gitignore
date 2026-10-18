@@ -16,3 +16,5 @@ data/processed/*
 !dashboard/dist/
 
 docs/img/slide_*.png
+
+data/patient_logs/

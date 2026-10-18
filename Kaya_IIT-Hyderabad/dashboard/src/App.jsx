@@ -103,12 +103,12 @@ export default function App() {
         </div>
       </header>
 
-      {record && d && <Record d={d} pid={sel} tab={record.tab} setTab={(tab) => setRecord({ tab })} onClose={() => setRecord(null)} changes={changes} />}
+      {record && d && d.profile.id === sel && <Record d={d} pid={sel} tab={record.tab} setTab={(tab) => setRecord({ tab })} onClose={() => setRecord(null)} changes={changes} />}
       {mode === 'patient' ? (
         ready ? <PatientApp d={d} at={at} pid={sel} changes={changes} /> : <div className="stage muted">Loading…</div>
       ) : (
         <div className="layout">
-          <Sidebar patients={patients} selected={sel} onSelect={setSel} />
+          <Sidebar patients={patients} selected={sel} onSelect={(id) => { setSel(id); setRecord({ tab: 'catchup' }) }} />
           <main className="bento">
             {!ready ? <div className="c12 muted">Loading the twin…</div> : (
               <>

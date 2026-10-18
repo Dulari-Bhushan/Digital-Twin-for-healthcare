@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { getSeries, postWhatIf } from '../api'
+import { getLog, getSeries, postLog, postWhatIf } from '../api'
 import { LANGS, makeT } from '../i18n'
 import { getVoiceStatus } from '../voice'
 import { dayStats, fmtHM } from '../utils'
 import Assistant from './Assistant'
+import { NowCard, QuickLog } from './PatientActions'
 import { PatientReports } from './Reports'
 import { EyeArt, KidneyArt, LiverArt, Ring, SegRing, TONE, pct } from '../ui'
 
@@ -56,7 +57,7 @@ function DayChart({ st, series, color }) {
   )
 }
 
-function Today({ t, name, series, at, day, setDay, st, days, nudgeDone, setNudgeDone }) {
+function Today({ t, name, series, at, day, setDay, st, days, log, logIt, risky }) {
   const s = status(at)
   const cur = st[day]
   const live = day === 0
@@ -112,11 +113,10 @@ function Today({ t, name, series, at, day, setDay, st, days, nudgeDone, setNudge
         </div>
       </div>
       {live && (
-        <div className="p-card" style={{ background: 'var(--butter)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--butter-dd)' }}>{t('one_thing')}</div>
-          <div style={{ fontWeight: 800, fontSize: 20, margin: '4px 0', color: 'var(--butter-dd)', lineHeight: 1.3 }}>{s.nudgeE} {t(`${s.k}_nudge`)}</div>
-          <button className={`big-btn ${nudgeDone ? 'done' : ''}`} onClick={() => setNudgeDone(!nudgeDone)}>{nudgeDone ? `${t('well_done')} ✓` : t('mark_done')}</button>
-        </div>
+        <>
+          <NowCard t={t} status={s} at={at} hour={(((series.t0 + series.glucose.length - 1) % 288) * 5) / 60} stepsToday={cur.steps} onRiskyDrugs={risky} log={log} logIt={logIt} />
+          <QuickLog t={t} log={log} logIt={logIt} />
+        </>
       )}
       <div className="sect"><span>{t('my_habits')}</span><small>{t('n_of_m', { n: ok.length, m: habits.length })}</small></div>
       {ok.length > 0 && <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--muted)', margin: '4px 0 8px' }}>{t('completed')}</div>}
@@ -240,7 +240,7 @@ function initialLang() {
 export default function PatientApp({ d, at, pid, changes }) {
   const [tab, setTab] = useState(Number(new URLSearchParams(window.location.search).get('tab') || 0))
   const [day, setDay] = useState(0)
-  const [nudgeDone, setNudgeDone] = useState(false)
+  const [log, setLog] = useState(null)
   const [series14, setSeries14] = useState(null)
   const [lang, setLang] = useState(initialLang)
   const [voice, setVoice] = useState({ enabled: false })
@@ -250,7 +250,8 @@ export default function PatientApp({ d, at, pid, changes }) {
   const locale = LANGS.find((l) => l.code === lang).locale
   const t = useMemo(() => makeT(lang), [lang])
   const pick = (code) => { setLang(code); try { window.localStorage.setItem('kaya-lang', code) } catch (e) { /* ignore */ } }
-  useEffect(() => { setSeries14(null); setDay(Number(new URLSearchParams(window.location.search).get('day') || 0)); setNudgeDone(false); getSeries(pid, 14).then(setSeries14) }, [pid])
+  useEffect(() => { setSeries14(null); setDay(Number(new URLSearchParams(window.location.search).get('day') || 0)); setLog(null); getLog(pid).then(setLog).catch(() => {}); getSeries(pid, 14).then(setSeries14) }, [pid])
+  const logIt = (kind, value) => postLog(pid, { kind, value }).then(setLog).catch(() => {})
   const st = useMemo(() => (series14 ? [...Array(13)].map((_, k) => dayStats(series14, k)) : []), [series14])
   const days = useMemo(() => (series14 ? [3, 2, 1, 0].map((k) => ({ k, label: st[k] ? dayName(series14, st[k].startIdx + 144, locale, true) : '' })) : []), [series14, st, locale])
   const readout = () => {
@@ -280,7 +281,7 @@ export default function PatientApp({ d, at, pid, changes }) {
         </div>
         <div className="screen">
           {!series14 ? <div className="muted" style={{ padding: 30 }}>{t('loading')}</div> : (
-            tab === 0 ? <Today t={t} name={d.profile.name || `Patient ${d.profile.id}`} series={series14} at={at} day={day} setDay={setDay} st={st} days={days} nudgeDone={nudgeDone} setNudgeDone={setNudgeDone} /> :
+            tab === 0 ? <Today t={t} name={d.profile.name || `Patient ${d.profile.id}`} series={series14} at={at} day={day} setDay={setDay} st={st} days={days} log={log} logIt={logIt} risky={!!d.profile.on_insulin_or_su} /> :
             tab === 1 ? <Insights t={t} series={series14} st={st} d={d} locale={locale} /> :
             tab === 2 ? <Body t={t} d={d} /> : tab === 3 ? <Try t={t} pid={pid} /> : <PatientReports t={t} pid={pid} changes={changes} />
           )}

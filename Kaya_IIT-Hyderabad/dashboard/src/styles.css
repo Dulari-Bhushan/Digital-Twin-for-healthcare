@@ -259,3 +259,22 @@ figcaption { font-size: 12px; font-weight: 700; color: var(--muted); margin-top:
 .rep-med small { opacity: .85; font-weight: 600; }
 .rep-med.p { border-radius: 16px; }
 @media (max-width: 860px) { .rep-grid { grid-template-columns: 1fr; } .rep-list { position: static; } }
+
+/* what to do now, quick log, diary */
+.big-btn { margin-top: 12px; }
+.alsorow { display: flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, .7); border-radius: 16px; padding: 9px 12px; margin-top: 6px; }
+.alsorow b { display: block; font-size: 14px; line-height: 1.25; color: var(--butter-dd); }
+.alsorow small { display: block; font-size: 11.5px; font-weight: 600; color: var(--butter-dd); opacity: .8; }
+.mini { flex: none; width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--butter-d); color: #fff; font-weight: 800; font-size: 16px; }
+.logrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.logrow .lbl { font-weight: 800; font-size: 14px; }
+.logrow .opts { display: flex; gap: 6px; }
+.opt { border: 0; border-radius: 999px; padding: 9px 13px; min-height: 40px; font-weight: 800; font-size: 13px; background: #fff; color: var(--lav-dd); box-shadow: 0 2px 8px rgba(113, 96, 230, .12); }
+.opt.on { background: var(--mint-d); color: #fff; }
+.opt.face { font-size: 20px; padding: 6px 12px; }
+.opt.face.on { background: var(--lav-d); }
+.dg { display: grid; align-items: center; gap: 6px 3px; min-width: 560px; }
+.dg small { text-align: center; color: var(--muted); font-size: 10.5px; font-weight: 700; }
+.dg .lbl { font-size: 12px; font-weight: 800; color: var(--muted); }
+.dg i { display: grid; place-items: center; }
+.dgdot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
