@@ -14,6 +14,17 @@ export const postWhatIf = (id, body) =>
   }).then(j)
 export const getReports = (id) => fetch(`/api/patients/${id}/reports`).then(j)
 export const getChanges = (id) => fetch(`/api/patients/${id}/changes`).then(j)
+export const getUploads = (id) => fetch(`/api/patients/${id}/uploads`).then(j)
+export const uploadReport = async (id, file, { title, category, date }) => {
+  const r = await fetch(`/api/patients/${id}/uploads`, {
+    method: 'POST',
+    headers: { 'x-filename': encodeURIComponent(file.name), 'x-title': encodeURIComponent(title || ''), 'x-category': encodeURIComponent(category || 'other'), 'x-date': encodeURIComponent(date || '') },
+    body: file,
+  })
+  if (!r.ok) { let m = `${r.status}`; try { m = (await r.json()).detail || m } catch (e) { /* not json */ } throw new Error(m) }
+  return r.json()
+}
+export const deleteUpload = (id, uid) => fetch(`/api/patients/${id}/uploads/${uid}`, { method: 'DELETE' }).then(j)
 export const getLog = (id) => fetch(`/api/patients/${id}/log`).then(j)
 export const postLog = (id, body) =>
   fetch(`/api/patients/${id}/log`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(j)

@@ -17,6 +17,7 @@ import numpy as np
 from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
+from urllib.parse import unquote
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -30,6 +31,7 @@ from kidney_dynamic import KidneyParams, projection  # noqa: E402
 import assistant as asst  # noqa: E402
 import admin as adm  # noqa: E402
 import diary  # noqa: E402
+import uploads as upl  # noqa: E402
 import reports as rpt  # noqa: E402
 from live import Calibration, LiveTwin, NumpyGRU  # noqa: E402
 from names import DEMO_TAGS, name_of  # noqa: E402
@@ -475,6 +477,52 @@ def _assistant_inner(body: AssistantReq, request: Request):
     return {"kind": "medicine" if blocked else "chat", "reply": reply, "action": None}
 
 
+# ------------------------------------------------------------------ reports uploaded by the patient (PDF or photo)
+@app.get("/api/patients/{pid}/uploads")
+def uploads_list(pid: int):
+    _get(pid)
+    return {"items": upl.list_uploads(pid), "max_mb": upl.MAX_BYTES // (1024 * 1024), "categories": list(upl.CATEGORIES),
+            "note": "Uploaded by the patient. Not read automatically and not verified by a clinician."}
+
+
+@app.post("/api/patients/{pid}/uploads")
+async def uploads_add(pid: int, request: Request):
+    """Raw file bytes in the body; x-filename, x-title, x-category and x-date headers carry the label (URL-encoded)."""
+    _rate_limit(request, limit=20)
+    _get(pid)
+    if int(request.headers.get("content-length") or 0) > upl.MAX_BYTES + 4096:
+        raise HTTPException(413, f"The file is larger than {upl.MAX_BYTES // (1024 * 1024)} MB.")
+    data = await request.body()
+    h = request.headers
+    try:
+        meta = upl.save(pid, data, unquote(h.get("x-filename", "")), unquote(h.get("x-title", "")), unquote(h.get("x-category", "other")), unquote(h.get("x-date", "")), _today(pid))
+    except ValueError as e:
+        raise HTTPException(422, str(e)) from None
+    adm.TEL.audit("patient app", "report uploaded", f"patient {pid}: {meta['category']}, {meta['ext']}, {meta['size_kb']} KB")
+    return meta
+
+
+@app.get("/api/patients/{pid}/uploads/{uid}/file")
+def uploads_file(pid: int, uid: str):
+    _get(pid)
+    found = upl.get_file(pid, uid)
+    if found is None:
+        raise HTTPException(404, "file not found")
+    f, meta = found
+    adm.TEL.audit("clinician or patient", "uploaded report opened", f"patient {pid}: {meta['ext']}")
+    return FileResponse(f, media_type=meta["media"], headers={"X-Content-Type-Options": "nosniff", "Content-Disposition": f'inline; filename="report-{uid}.{meta["ext"]}"',
+                                                               "Cache-Control": "private, max-age=300"})
+
+
+@app.delete("/api/patients/{pid}/uploads/{uid}")
+def uploads_delete(pid: int, uid: str):
+    _get(pid)
+    if not upl.delete(pid, uid):
+        raise HTTPException(404, "file not found")
+    adm.TEL.audit("patient app", "uploaded report removed", f"patient {pid}")
+    return uploads_list(pid)
+
+
 # ------------------------------------------------------------------ IT admin: health, inventory, traffic, audit, self-test
 def _admin_guard(request: Request) -> None:
     if not adm.token_ok(request.headers.get("x-admin-token") or request.query_params.get("token")):
@@ -483,7 +531,7 @@ def _admin_guard(request: Request) -> None:
 
 def _admin_state() -> dict:
     return {"root": ROOT, "art_dir": ART_DIR, "model_dir": MODEL_DIR, "log_dir": diary.LOG_DIR, "live_loaded": "net" in LIVE, "live_sessions": len(SESSIONS),
-            "voice": VOICE.get("client") is not None, "voice_models": f"{STT_MODEL}, {TTS_MODEL}, {CHAT_MODEL}", "patients": len(STORE), "version": app.version}
+            "voice": VOICE.get("client") is not None, "voice_models": f"{STT_MODEL}, {TTS_MODEL}, {CHAT_MODEL}", "patients": len(STORE), "version": app.version, "uploads_dir": upl.UP_DIR}
 
 
 @app.get("/api/admin/overview")

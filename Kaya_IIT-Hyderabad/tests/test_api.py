@@ -127,3 +127,22 @@ def test_assistant_outcomes_are_counted_without_message_text(client):
     client.post("/api/assistant", json={"pid": 1688, "message": "how much insulin should I take tonight"})
     assert admin.TEL.assistant["medicine"] == before + 1
     assert "insulin" not in str(list(admin.TEL.audit_log)).lower()
+
+
+def test_upload_api_round_trip(client, tmp_path, monkeypatch):
+    import uploads
+
+    monkeypatch.setattr(uploads, "UP_DIR", tmp_path)
+    png = b"\x89PNG\r\n\x1a\n" + b"0" * 64
+    h = {"x-filename": "lipid%20photo.png", "x-title": "Lipid%20profile", "x-category": "blood%20test", "x-date": "2026-01-05"}
+    r = client.post("/api/patients/1636/uploads", content=png, headers=h)
+    assert r.status_code == 200 and r.json()["title"] == "Lipid profile"
+    uid = r.json()["id"]
+    got = client.get(f"/api/patients/1636/uploads/{uid}/file")
+    assert got.status_code == 200 and got.headers["content-type"] == "image/png" and got.headers["x-content-type-options"] == "nosniff"
+    assert client.post("/api/patients/1636/uploads", content=b"<html>", headers=h).status_code == 422
+    assert client.get("/api/patients/1636/uploads").json()["items"][0]["id"] == uid
+    assert client.get("/api/patients/1688/uploads").json()["items"] == []          # one patient's files are not listed for another
+    assert client.get(f"/api/patients/1688/uploads/{uid}/file").status_code == 404
+    assert client.delete(f"/api/patients/1636/uploads/{uid}").json()["items"] == []
+    assert client.get("/api/patients/99999/uploads").status_code == 404

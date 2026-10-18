@@ -291,3 +291,11 @@ a.btn.go { color: #fff; }
 .adm-chk { border-radius: 14px; padding: 9px 14px; display: grid; gap: 1px; font-size: 13.5px; }
 .adm-chk span { font-weight: 600; opacity: .9; }
 .admin .rt td { white-space: normal; vertical-align: top; }
+
+/* uploads */
+.up-file { display: flex; align-items: center; gap: 8px; background: #fff; border-radius: 14px; padding: 8px 10px; font-size: 13px; min-width: 0; }
+.up-file b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.up-file small { color: var(--muted); font-weight: 700; flex: none; }
+.up-l { display: grid; gap: 3px; font-size: 12px; font-weight: 800; color: var(--sky-dd); }
+.up-in { border: 2px solid #fff; border-radius: 12px; padding: 9px 12px; font: inherit; font-size: 14px; background: #fff; color: var(--ink); min-width: 0; width: 100%; }
+.big-btn:disabled { opacity: .6; }

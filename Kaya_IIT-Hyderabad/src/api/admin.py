@@ -116,6 +116,7 @@ def overview(state: dict) -> dict:
         {"item": "Data is synthetic", "ok": True, "note": "24 invented patients; no real health records are stored."},
         {"item": "Voice requests rate limited", "ok": True, "note": "40 per minute per address, 120 per minute for the diary."},
         {"item": "Medicine and emergency questions handled in code", "ok": True, "note": "The language model never sees them; see the assistant counters below."},
+        {"item": "Uploaded files are scanned for malware", "ok": False, "note": "Files are type-checked by content and size-limited, but not virus scanned or read; add scanning and encryption at rest in production."},
         {"item": "Audit trail kept in memory only", "ok": False, "note": "Resets on restart; send events to the hospital logging system in production."},
     ]
     return {
@@ -124,7 +125,7 @@ def overview(state: dict) -> dict:
                     "platform": platform.platform(terse=True), "api_version": state["version"]},
         "data": {"patients": state["patients"], "artifact_dir": str(art.relative_to(root)) if art.is_relative_to(root) else art.name, "artifact_files": len(files),
                  "artifact_mb": round(sum(_size(f) for f in files) / 1e6, 1), "built": datetime.fromtimestamp(built, timezone.utc).strftime("%d %b %Y %H:%M UTC") if built else "n/a",
-                 "synthetic": True, "diary_files": n_logs, "eye_images": len(list((root / "artifacts" / "eye").glob("*.jpg"))), "dashboard_build": (root / "dashboard" / "dist" / "index.html").exists()},
+                 "synthetic": True, "diary_files": n_logs, "uploaded_files": (len([f for f in state["uploads_dir"].rglob("*") if f.is_file() and f.name != "index.json"]) if state["uploads_dir"].exists() else 0), "eye_images": len(list((root / "artifacts" / "eye").glob("*.jpg"))), "dashboard_build": (root / "dashboard" / "dist" / "index.html").exists()},
         "integrations": [
             {"name": "Sarvam voice and chat", "status": "configured" if state["voice"] else "not configured", "detail": state["voice_models"]},
             {"name": "FHIR R4 read API", "status": "enabled", "detail": "Patient, Observation (read only)"},

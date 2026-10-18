@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { getReports } from '../api'
 import { DR, TONE } from '../ui'
 import LineChart from './LineChart'
+import { DoctorUploads, PatientUploads } from './Uploads'
 
 const TYPES = [['all', 'All'], ['lab', 'Blood and urine'], ['imaging', 'Scans'], ['cardiac', 'Heart'], ['clinic', 'Clinic'], ['device', 'Wearable']]
 const ICON = { lab: '🧪', imaging: '🩻', cardiac: '🫀', clinic: '📋', device: '⌚' }
@@ -223,6 +224,7 @@ export function ReportsTab({ pid, d }) {
         </section>
         <section className="card soft rep-view" style={{ boxShadow: 'none' }}>{cur && <ReportDoc rep={cur} pid={pid} audience="doctor" profile={d.profile} />}</section>
       </div>
+      <DoctorUploads pid={pid} />
       <section className="card soft rec-sec" style={{ boxShadow: 'none' }}>
         <div className="card-h"><h2>Current medicines</h2><span className="chip">{data.medications.length}</span></div>
         <table className="rt"><thead><tr><th>Medicine</th><th>Dose</th><th>Since</th><th>Why</th></tr></thead>
@@ -254,6 +256,7 @@ export function PatientReports({ t, pid, changes }) {
   return (
     <>
       <div className="p-h">{t('rep_title1')}<br /><span style={{ color: 'var(--muted)', fontWeight: 600 }}>{t('rep_title2')}</span></div>
+      <div style={{ marginTop: 6 }}><PatientUploads t={t} pid={pid} today={data.today} /></div>
       <div style={{ marginTop: 12 }}><ChangesCard ch={changes} audience="patient" /></div>
       <div className="sect"><span>{t('rep_trends')}</span></div>
       <div className="p-card" style={{ background: '#f0f5f4', marginTop: 4 }}>

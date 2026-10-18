@@ -85,7 +85,7 @@ export default function Admin() {
         <Sec title="Service and data">
           <div className="kvgrid">
             {[['API version', s.api_version], ['Started', s.started], ['Python', s.python], ['Platform', s.platform], ['Artifacts', `${dt.artifact_files} files, ${dt.artifact_mb} MB`], ['Last built', dt.built], ['Retina images', dt.eye_images],
-              ['Dashboard build', dt.dashboard_build ? 'present' : 'missing'], ['Diary files', dt.diary_files]].map(([k, v]) => <div key={k}><span className="muted">{k}</span><b>{String(v)}</b></div>)}
+              ['Dashboard build', dt.dashboard_build ? 'present' : 'missing'], ['Diary files', dt.diary_files], ['Patient uploads', dt.uploaded_files]].map(([k, v]) => <div key={k}><span className="muted">{k}</span><b>{String(v)}</b></div>)}
           </div>
         </Sec>
       </div>
