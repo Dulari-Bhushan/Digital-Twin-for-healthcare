@@ -25,6 +25,7 @@ import alerts as A  # noqa: E402
 import glucose as G  # noqa: E402
 from engine import glucose_metrics  # noqa: E402
 from eye_risk import implied_hba1c, progression_risk  # noqa: E402
+from kidney_dynamic import KIDNEY_FEATURES, projection  # noqa: E402
 from liver_dynamic import LiverParams, risk_timeline, static_risk  # noqa: E402
 from polish_glucose import LGBBundle, apply_iso, apply_offsets, blend, conformal_offsets, fit_iso  # noqa: E402
 from windows import load_synthetic, split_by_patient  # noqa: E402
@@ -74,6 +75,7 @@ def main():
     print("predictions done", flush=True)
 
     liver_bundle = joblib.load(ROOT / "models/liver_twin.joblib")
+    kidney_bundle = joblib.load(ROOT / "models/kidney_twin.joblib")
     index = []
     for pid in demo:
         row = pat[pat.patient_id == pid].iloc[0]
@@ -97,6 +99,10 @@ def main():
                               "hdl": row.hdl, "diabetes": 1}])
         p_static = {k: float(v[0]) for k, v in static_risk(liver_bundle, labs).items()}
         tl = risk_timeline(p_static, m, 12, LiverParams())
+        klabs = pd.DataFrame([{"age": row.age, "male": float(row.sex == "M"), "bmi": row.bmi, "waist_cm": row.waist_cm,
+                               "hba1c": row.hba1c, "sbp": row.sbp, "dbp": row.dbp, "hdl": row.hdl, "diabetes": 1}])[KIDNEY_FEATURES]
+        k_static = {k: float(v[0]) for k, v in static_risk(kidney_bundle, klabs).items()}
+        k_proj = projection(float(row.egfr), float(row.hba1c), float(row.sbp), float(row.uacr_mg_g), m, k_static["albuminuria"])
         eye_now = progression_risk(int(row.dr_grade), row.hba1c, row.diabetes_duration_yrs, row.sbp, m["gv_cv"], m["tir"])
 
         art = {
@@ -112,6 +118,7 @@ def main():
             "metrics": {k: round(float(v), 4) for k, v in m.items()},
             "liver": {"static": p_static, "timeline": tl},
             "eye": {"grade": int(row.dr_grade), "progression_2y": round(eye_now, 4)},
+            "kidney": {"static": k_static, "projection": k_proj},
             "series": {"n": int(len(g)), "glucose": r(g), "heart_rate": r(s.heart_rate, 0), "steps": r(s.steps, 0),
                        "meal_carbs": r(s.meal_carbs_g, 0), "sleep_stage": s.sleep_stage.astype(int).tolist()},
             "forecast": {"t": t_idx.astype(int).tolist(), "q": r(qs, 1), "p": r(ps, 3)},

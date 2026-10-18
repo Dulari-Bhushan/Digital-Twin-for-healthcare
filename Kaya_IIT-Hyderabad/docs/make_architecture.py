@@ -61,10 +61,10 @@ arrow(30, 18, 36, 18)
 box(70, 61, 28, 14, "Glucose core", "GRU + LightGBM ensemble\nconformal intervals,\ncalibrated alerts", "model")
 box(70, 46, 28, 12, "Liver", "NHANES-trained risk (AUROC 0.83)\n+ glycemic-load state, 90-day lag", "model")
 box(70, 30, 28, 12, "Eye", "EfficientNet DR grader\n+ progression risk, Grad-CAM", "model")
-box(70, 14, 28, 12, "Kidney (roadmap)", "eGFR and albuminuria risk", "road", dashed=True)
+box(70, 14, 28, 12, "Kidney", "NHANES-trained risk + eGFR path", "model")
 for y in (68, 52, 36):
     arrow(64, 48, 70, y, rad=0.0)
-arrow(64, 18, 70, 36, rad=0.0)
+arrow(64, 48, 70, 20, rad=0.0)
 
 # 4 simulation
 box(104, 40, 22, 28, "What-if engine", "Change carbs, walking,\nmedication, steps\n\nre-run glucose metrics,\nliver and eye risk,\nbefore vs after", "core")

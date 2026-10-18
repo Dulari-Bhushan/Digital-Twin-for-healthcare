@@ -24,6 +24,7 @@ sys.path.insert(0, str(ROOT / "src" / "whatif"))
 
 from engine import Scenario, glucose_metrics, run as run_whatif  # noqa: E402
 from eye_risk import GRADES, progression_risk  # noqa: E402
+from kidney_dynamic import KidneyParams, projection  # noqa: E402
 from liver_dynamic import LiverParams, risk_timeline  # noqa: E402
 
 ART_DIR = Path(os.environ.get("KAYA_ARTIFACTS", ROOT / "artifacts" / "demo"))
@@ -51,8 +52,10 @@ def _summary(a: dict) -> dict:
     liver12 = a["liver"]["timeline"]["steatosis"][-1]
     fib12 = a["liver"]["timeline"]["adv_fibrosis"][-1]
     eye = a["eye"]["progression_2y"]
+    kid = a["kidney"]["static"]["ckd"]
+    egfr = a["profile"]["labs"]["egfr"]
     glyc = min(1.0, (1 - m["tir"]) * 1.1 + m["tbr"] * 5)
-    score = 0.35 * glyc + 0.25 * liver12 + 0.15 * min(1.0, fib12 * 4) + 0.25 * eye + 0.05 * min(len(recent), 4) / 4
+    score = 0.32 * glyc + 0.22 * liver12 + 0.12 * min(1.0, fib12 * 4) + 0.2 * eye + 0.09 * kid + 0.05 * min(len(recent), 4) / 4
     reasons = []
     if m["tir"] < 0.5:
         reasons.append(f"Time in range {m['tir'] * 100:.0f}%")
@@ -64,11 +67,13 @@ def _summary(a: dict) -> dict:
         reasons.append(f"Advanced fibrosis risk {fib12 * 100:.0f}%")
     if eye > 0.35 or a["eye"]["grade"] >= 2:
         reasons.append(f"Retinopathy: {GRADES[a['eye']['grade']]}, 2-year progression {eye * 100:.0f}%")
+    if egfr < 60 or a["profile"]["labs"]["uacr_mg_g"] >= 30:
+        reasons.append(f"Kidney flag: eGFR {egfr:.0f}, UACR {a['profile']['labs']['uacr_mg_g']:.0f}")
     if recent:
         reasons.append(f"{len(recent)} alert(s) in the last 24 h")
     return {"id": pr["id"], "age": pr["age"], "sex": pr["sex"], "hba1c": pr["hba1c"], "tir": m["tir"], "tbr": m["tbr"],
             "mean_glucose": m["mean"], "score": round(score, 3), "tier": _tier(score), "reasons": reasons[:3],
-            "alerts_24h": len(recent), "steatosis_12m": liver12, "fibrosis_12m": fib12, "eye_progression_2y": eye,
+            "alerts_24h": len(recent), "steatosis_12m": liver12, "fibrosis_12m": fib12, "eye_progression_2y": eye, "kidney_ckd_risk": kid,
             "dr_grade": a["eye"]["grade"], "last_glucose": a["series"]["glucose"][-1]}
 
 
@@ -118,7 +123,7 @@ def patient(pid: int):
                          "hi": round(min(max(g_now + q[i][2], 40), 400), 1)} for i, m in enumerate(HORIZONS_MIN)],
            "p_hyper_2h": p[0], "p_hypo_2h": p[1]}
     return {"summary": s, "profile": a["profile"], "metrics": a["metrics"], "now": now,
-            "liver": a["liver"], "eye": {**a["eye"], "grade_label": GRADES[a["eye"]["grade"]]},
+            "liver": a["liver"], "kidney": a["kidney"], "eye": {**a["eye"], "grade_label": GRADES[a["eye"]["grade"]]},
             "alerts": [{**x, "time": _iso(x["t"])} for x in a["alerts"]][-20:]}
 
 
@@ -164,6 +169,11 @@ def whatif(pid: int, body: WhatIf):
     tl_new = risk_timeline(p_static, new_m, 12, params)
     eye_new = progression_risk(a["eye"]["grade"], pr["hba1c"] + (new_m["mean"] - base_m["mean"]) / 28.7,
                                pr["duration_yrs"], pr["sbp"], new_m["gv_cv"], new_m["tir"])
+    kp = KidneyParams()
+    lab = pr["labs"]
+    hb_new = pr["hba1c"] + (new_m["mean"] - base_m["mean"]) / 28.7
+    k_before = projection(lab["egfr"], pr["hba1c"], pr["sbp"], lab["uacr_mg_g"], base_m, a["kidney"]["static"]["albuminuria"], 5, kp)
+    k_after = projection(lab["egfr"], hb_new, pr["sbp"], lab["uacr_mg_g"], new_m, a["kidney"]["static"]["albuminuria"], 5, kp)
     last_day = slice(len(g) - 288, len(g))
     return {
         "scenario": sc.describe(),
@@ -173,6 +183,7 @@ def whatif(pid: int, body: WhatIf):
                              "meal_carbs": meals[last_day].tolist()},
         "liver": {"before": tl_base, "after": tl_new},
         "eye": {"before": a["eye"]["progression_2y"], "after": round(eye_new, 4)},
+        "kidney": {"before": k_before, "after": k_after},
         "assumptions": "Effect sizes are literature-informed assumptions, shown for transparency; this is a simulation, not a prediction.",
     }
 

@@ -108,7 +108,8 @@ function Body({ d }) {
   const lv = tl.steatosis.at(-1)
   const ep = d.eye.progression_2y
   const lab = d.profile.labs
-  const kidneyHigh = lab.uacr_mg_g >= 30 || lab.egfr < 60
+  const kp = d.kidney.projection
+  const kidneyHigh = lab.uacr_mg_g >= 30 || lab.egfr < 60 || kp.albuminuria.at(-1) >= 0.5
   const card = (tone, art, title, level, text, ring) => (
     <div className="p-card" style={{ background: TONE[tone].bg }}>
       <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
@@ -129,7 +130,7 @@ function Body({ d }) {
         <Ring value={lv} size={84} stroke={11} color={lv > 0.6 ? '#e85f8b' : lv > 0.3 ? '#e0a912' : '#2fa176'}><div className="num" style={{ fontSize: 18 }}>{pct(lv)}</div></Ring>)}
       {card(ep > 0.4 ? 'rose' : ep > 0.2 ? 'butter' : 'mint', <EyeArt size={30} />, 'Eyes', DR[d.eye.grade], 'Keep your yearly eye check.',
         <Ring value={ep} size={84} stroke={11} color={ep > 0.4 ? '#e85f8b' : ep > 0.2 ? '#e0a912' : '#2fa176'}><div className="num" style={{ fontSize: 18 }}>{pct(ep)}</div></Ring>)}
-      {card(kidneyHigh ? 'rose' : 'sky', <KidneyArt size={30} />, 'Kidneys', kidneyHigh ? 'Your doctor is watching' : 'Tests look healthy', `Kidney filter score ${lab.egfr.toFixed(0)}.`,
+      {card(kidneyHigh ? 'rose' : 'sky', <KidneyArt size={30} />, 'Kidneys', kidneyHigh ? 'Your doctor is watching' : 'Tests look healthy', `Kidney filter score ${lab.egfr.toFixed(0)} now, about ${kp.egfr.at(-1).toFixed(0)} in five years at current habits.`,
         <Ring value={Math.min(1, lab.egfr / 120)} size={84} stroke={11} color={kidneyHigh ? '#e85f8b' : '#4a8fe9'}><div className="num" style={{ fontSize: 18 }}>{lab.egfr.toFixed(0)}</div></Ring>)}
       <p className="note" style={{ marginTop: 14 }}>The rings show your estimated chance over the next year (liver, eyes) and your latest kidney score. These are estimates to guide a conversation with your doctor.</p>
     </>

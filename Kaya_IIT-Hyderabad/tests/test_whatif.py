@@ -36,3 +36,13 @@ def test_risk_timeline_moves_toward_target_and_orders_by_load():
     lo = risk_timeline(p, {"tar": 0.1, "gv_cv": 20, "steps_per_day": 9000})
     assert hi["steatosis"][-1] > hi["steatosis"][0] > lo["steatosis"][-1]
     assert glucose_metrics(np.full(100, 120.0), 5000)["tir"] == 1.0
+
+
+def test_kidney_projection_orders_by_risk_factors():
+    from kidney_dynamic import projection
+
+    good = projection(80, 6.8, 118, 10, {"tar": 0.1, "gv_cv": 22}, 0.1)
+    bad = projection(80, 10.0, 150, 80, {"tar": 0.7, "gv_cv": 38}, 0.1)
+    assert bad["slope_per_year"] > good["slope_per_year"]
+    assert bad["egfr"][-1] < good["egfr"][-1] < 80
+    assert bad["albuminuria"][-1] > good["albuminuria"][-1]

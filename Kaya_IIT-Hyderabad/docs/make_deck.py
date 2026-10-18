@@ -103,10 +103,10 @@ fig, ax = new("What Kaya does", "Two data streams fused into one twin, four ques
 mods = [("Glucose", "What will glucose do in the\nnext 2 hours? Is an event coming?", TEAL),
         ("Liver", "Is fat building up?\nIs fibrosis developing?", BLUE),
         ("Eye", "What is the retinopathy grade\nand where is it heading?", BLUE),
-        ("Kidney (next)", "Is kidney function\ndeclining?", MUTED)]
+        ("Kidney", "Is kidney function declining,\nand how fast?", BLUE)]
 for i, (t, s, c) in enumerate(mods):
     x = 5 + i * 23.3
-    ax.add_patch(FancyBboxPatch((x, 20), 21.5, 17, boxstyle="round,pad=0,rounding_size=1", fc="#f5f7f8", ec=c, lw=1.8, ls="--" if i == 3 else "-"))
+    ax.add_patch(FancyBboxPatch((x, 20), 21.5, 17, boxstyle="round,pad=0,rounding_size=1", fc="#f5f7f8", ec=c, lw=1.8, ls="-"))
     ax.text(x + 10.75, 33.5, t, ha="center", fontsize=16, fontweight="bold", color=c)
     ax.text(x + 10.75, 26.5, s, ha="center", va="center", fontsize=11, color=INK, linespacing=1.4)
 ax.add_patch(FancyBboxPatch((5, 8), 90, 9, boxstyle="round,pad=0,rounding_size=1", fc="#d9f0ec", ec=TEAL, lw=1.5))
@@ -179,6 +179,28 @@ bullets(ax, 66, 40, ["Fibrosis: 0.83 vs 0.63 for FIB-4", "Steatosis: 0.83 vs FLI
                      "Holds in adults with diabetes (0.76 / 0.80) and in Asian participants",
                      "On top: a transparent glycemic-load state that moves risk over 12 months (simulation)"], 12.5, 6.2)
 
+
+# 8b --------------------------------------------------------------- kidney
+kid = json.loads((ROOT / "results/kidney_static_metrics.json").read_text())
+fig, ax = new("Kidney: real NHANES data, with honest limits", "4,827 adults, 5-fold cross-validation; risk from routine measurements (no creatinine used)")
+ax2 = fig.add_axes([0.07, 0.17, 0.52, 0.53])
+names = [("albuminuria", "Albuminuria\n(UACR >= 30)"), ("low_egfr", "Reduced eGFR\n(< 60)"), ("ckd", "Any CKD")]
+b0 = [kid[k]["baseline_logistic_age_bp_hba1c_dm"]["all_adults"]["auroc"] for k, _ in names]
+b1 = [kid[k]["lightgbm"]["all_adults"]["auroc"] for k, _ in names]
+ax2.bar([i - 0.2 for i in range(3)], b0, 0.38, color="#b4bcc2", label="Simple baseline (age, BP, HbA1c, diabetes)")
+ax2.bar([i + 0.2 for i in range(3)], b1, 0.38, color=BLUE, label="Kaya (9 routine features)")
+for i in range(3):
+    ax2.text(i - 0.2, b0[i] + 0.008, f"{b0[i]:.2f}", ha="center", fontsize=10)
+    ax2.text(i + 0.2, b1[i] + 0.008, f"{b1[i]:.2f}", ha="center", fontsize=10, color=BLUE, fontweight="bold")
+ax2.set_xticks(range(3)); ax2.set_xticklabels([n for _, n in names]); ax2.set_ylim(0.5, 0.95); ax2.set_ylabel("AUROC")
+ax2.spines[["top", "right"]].set_visible(False); ax2.legend(frameon=False, fontsize=9, loc="upper left")
+import textwrap
+bullets(ax, 62, 41, [textwrap.fill(t, 40) for t in [
+    "Reduced eGFR 0.85, albuminuria 0.76",
+    "Adults with diabetes: 0.77 and 0.70",
+    "Honest: only a small edge over a simple baseline, which is already strong",
+    "On top: an eGFR path (about 1 to 4 mL/min per year) driven by HbA1c, BP, albuminuria and variability, as an editable simulation"]], 12.0, 7.4)
+
 # 9 ---------------------------------------------------------------- eye
 fig, ax = new("Eye: retinopathy grading, tested on Indian images", "EfficientNet-B2 trained on APTOS 2019, tested on IDRiD (Indian), ordinal grading")
 if eye:
@@ -249,7 +271,7 @@ bullets(ax, 5, 40.5, ["Glucose-to-organ links and what-if effect sizes are assum
                       "Glucose model validated on 34 real subjects; patients in the demo are synthetic",
                       "Decision support for clinicians, not a diagnostic device; not clinically validated"], 12.5, 4.6)
 ax.text(5, 24.5, "Roadmap", fontsize=15, fontweight="bold", color=TEAL)
-bullets(ax, 5, 21, ["Kidney risk module and an illustrative, clearly labelled retina progression preview",
+bullets(ax, 5, 21, ["An illustrative, clearly labelled retina progression preview and a blood-pressure what-if",
                     "Hindi, Telugu and Kannada patient view; PDF clinical summary",
                     "Consent records, audit log, role-based access, fuller FHIR and ABDM alignment",
                     "Validate the glucose-to-organ links on real longitudinal data when available"], 12.5, 4.6)

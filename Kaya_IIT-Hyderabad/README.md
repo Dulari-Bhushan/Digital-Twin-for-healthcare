@@ -44,7 +44,7 @@ From that twin, four modules answer four clinical questions:
 | **Glucose** | What will glucose do in the next 2 hours, and is an event coming? | 30 / 60 / 120 minute forecast with an 80% interval; calibrated hypo- and hyperglycemia alerts with lead time |
 | **Liver** | Is the liver carrying a heavy metabolic load, and is fibrosis developing? | Steatosis and advanced-fibrosis risk; a rolling liver-fat state driven by recent glucose |
 | **Eye** | What is the retinopathy grade, and where is it heading? | DR grade with an explanation heatmap, a 2-year progression risk, and an illustrative preview image |
-| **Kidney** *(stretch)* | Is kidney function declining? | eGFR slope and albuminuria risk |
+| **Kidney** | Is kidney function declining, and how fast? | Albuminuria and reduced-eGFR risk, plus a 5-year eGFR path |
 
 On top sits the **what-if engine**: change a meal, add a walk, improve sleep or alter a medication, and Kaya re-runs the twin to show the change in the glucose curve and in one-year organ risk.
 
@@ -118,6 +118,16 @@ All numbers below are **out-of-sample**: held-out patients for the synthetic coh
 
 Performance is similar in adults with diabetes (0.76 steatosis, 0.80 fibrosis) and in Asian participants. Full numbers with confidence intervals are in [`results/`](results/).
 
+### Kidney (real NHANES 2017-2018, 4,827 adults)
+
+| Target | Kaya (AUROC) | Simple baseline (age, BP, HbA1c, diabetes) |
+|---|---|---|
+| Reduced eGFR (< 60) | 0.85 | 0.85 |
+| Albuminuria (UACR >= 30) | 0.76 | 0.75 |
+| Any CKD | 0.79 | 0.78 |
+
+Honest reading: from routine measurements the learned model adds only a small edge over a strong simple baseline. The product value is the eGFR trajectory and what-if, which are labelled simulations.
+
 ### Eye (retinopathy grading from fundus photos)
 
 EfficientNet-B2, ordinal regression, trained on APTOS 2019 and tested on the Indian IDRiD dataset.
@@ -178,14 +188,14 @@ No public dataset links one person's glucose stream to their liver, eye and kidn
 | Glucose forecaster, alerts, calibration | Built |
 | Static liver model | Built |
 | Dynamic liver state | Built |
+| Kidney module (risk and eGFR path) | Built |
 | What-if engine | Built |
 | REST API with FHIR read endpoints | Built |
 | Web dashboard: doctor workspace, patient view, replay | Built |
 | Eye module (retinopathy grader, Grad-CAM, progression risk) | Built |
 | Illustrative retina preview | Planned |
-| Kidney module | Stretch goal |
 
-**Version 1 ships the glucose, liver and eye modules, the what-if engine, the API and the doctor and patient views (English).** The following are on the roadmap for later versions and are not claimed as built: kidney module, illustrative retina preview, PDF clinical summary, Hindi/Telugu/Kannada patient view, model-health page, authentication and audit log, fuller FHIR and ABDM coverage.
+**Version 1 ships the glucose, liver, eye and kidney modules, the what-if engine, the API and the doctor and patient views (English).** The following are on the roadmap for later versions and are not claimed as built: illustrative retina preview, PDF clinical summary, Hindi/Telugu/Kannada patient view, model-health page, authentication and audit log, fuller FHIR and ABDM coverage.
 
 See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the detailed plan and backlog.
 

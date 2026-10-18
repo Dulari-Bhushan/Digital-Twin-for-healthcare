@@ -152,6 +152,7 @@ export function Organs({ d }) {
   const lab = d.profile.labs
   const cl = d.profile.clinic
   const lv = tl.steatosis.at(-1)
+  const kp = d.kidney.projection
   const stage = lab.egfr >= 90 ? 'G1' : lab.egfr >= 60 ? 'G2' : lab.egfr >= 45 ? 'G3a' : lab.egfr >= 30 ? 'G3b' : 'G4+'
   const ep = d.eye.progression_2y
   return (
@@ -193,26 +194,29 @@ export function Organs({ d }) {
       <div className="card sky c4">
         <div className="organ-top">
           <div className="organ-ill"><KidneyArt size={44} /></div>
-          <div><h2>Kidneys</h2><span className="chip" style={{ marginTop: 4 }}>Monitoring</span></div>
+          <div><h2>Kidneys</h2><span className="chip mint" style={{ marginTop: 4 }}>Real-data model</span></div>
         </div>
         <div className="row" style={{ gap: 16 }}>
-          <Ring value={Math.min(1, lab.egfr / 120)} size={116} stroke={14} color={lab.egfr < 60 ? '#e85f8b' : '#4a8fe9'}>
-            <div className="num" style={{ fontSize: 28 }}>{lab.egfr.toFixed(0)}</div>
-            <div className="muted" style={{ fontSize: 10, fontWeight: 700 }}>eGFR · {stage}</div>
+          <Ring value={kp.albuminuria.at(-1)} size={112} stroke={14} color={kp.albuminuria.at(-1) >= 0.5 ? '#e85f8b' : kp.albuminuria.at(-1) >= 0.25 ? '#f0814f' : '#4a8fe9'}>
+            <div className="num" style={{ fontSize: 24 }}>{pct(kp.albuminuria.at(-1))}</div>
+            <div className="muted" style={{ fontSize: 10, fontWeight: 700 }}>albumin, 12 m</div>
           </Ring>
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, display: 'grid', gap: 8 }}>
+            <div className="stat"><div className="l">eGFR now → in 5 years</div><div className="v">{lab.egfr.toFixed(0)} → {kp.egfr.at(-1).toFixed(0)}</div></div>
             <div className="stat"><div className="l">Urine albumin / creatinine</div>
-              <div className="v" style={{ color: lab.uacr_mg_g >= 30 ? 'var(--rose-dd)' : 'inherit' }}>{lab.uacr_mg_g.toFixed(0)} <span style={{ fontSize: 12 }}>mg/g</span></div>
-              <div className="muted" style={{ fontSize: 12, fontWeight: 600 }}>{lab.uacr_mg_g >= 30 ? 'Albuminuria: review' : 'Normal'}</div>
-            </div>
+              <div className="v" style={{ color: lab.uacr_mg_g >= 30 ? 'var(--rose-dd)' : 'inherit' }}>{lab.uacr_mg_g.toFixed(0)} <span style={{ fontSize: 12 }}>mg/g</span></div></div>
           </div>
         </div>
-        <div className="row" style={{ gap: 10, marginTop: 12 }}>
-          <div className="stat" style={{ flex: 1 }}><div className="l">Blood pressure</div><div className="v">{d.profile.sbp}/{d.profile.dbp}</div></div>
-          <div className="stat" style={{ flex: 1 }}><div className="l">HbA1c</div><div className="v">{d.profile.hba1c}%</div></div>
-          <div className="stat" style={{ flex: 1 }}><div className="l">Diabetes</div><div className="v">{d.profile.duration_yrs} y</div></div>
+        <div style={{ marginTop: 10 }}>
+          <LineChart height={130} yDomain={[Math.floor(Math.min(...kp.egfr) / 10) * 10 - 5, Math.ceil(Math.max(...kp.egfr) / 10) * 10 + 5]} xTickEvery={2} xLabel={(i) => `${kp.month[i] / 12}y`}
+            series={[{ name: 'eGFR at current habits', y: kp.egfr, color: '#4a8fe9' }]} />
         </div>
-        <div className="note">Latest labs and the main kidney risk factors. Kidney risk forecasting is on the roadmap.</div>
+        <div className="row" style={{ gap: 8, marginTop: 6 }}>
+          <span className="chip">{stage}</span>
+          <span className="chip">{kp.slope_per_year.toFixed(1)} per year</span>
+          <span className="chip" style={{ background: kp.years_to_egfr60 && kp.years_to_egfr60 < 10 ? 'var(--rose)' : undefined }}>{lab.egfr < 60 ? 'Already below 60' : `eGFR 60 in ~${kp.years_to_egfr60} y`}</span>
+        </div>
+        <div className="note">Albuminuria and reduced-eGFR risk come from a model validated on real NHANES data (AUROC 0.76 and 0.85). The eGFR path and glucose-driven drift are simulations with editable assumptions.</div>
       </div>
     </>
   )
@@ -309,7 +313,8 @@ export function WhatIfStudio({ pid }) {
                 <Delta label="Liver fat risk, 12 m" before={res.liver.before.steatosis.at(-1)} after={res.liver.after.steatosis.at(-1)} fmt={(x) => pct(x)} />
                 <Delta label="Fibrosis risk, 12 m" before={res.liver.before.adv_fibrosis.at(-1)} after={res.liver.after.adv_fibrosis.at(-1)} fmt={(x) => pct(x, 1)} />
                 <Delta label="Eye progression, 2 y" before={res.eye.before} after={res.eye.after} fmt={(x) => pct(x)} />
-                <Delta label="Est. HbA1c" before={m.before.gmi} after={m.after.gmi} fmt={(x) => x.toFixed(1)} />
+                <Delta label="eGFR in 5 years" before={res.kidney.before.egfr.at(-1)} after={res.kidney.after.egfr.at(-1)} fmt={(x) => x.toFixed(0)} lowerBetter={false} />
+                <Delta label="Albuminuria risk, 12 m" before={res.kidney.before.albuminuria.at(-1)} after={res.kidney.after.albuminuria.at(-1)} fmt={(x) => pct(x)} />
               </div>
             </>
           )}

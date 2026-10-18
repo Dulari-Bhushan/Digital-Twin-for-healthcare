@@ -40,7 +40,19 @@ Kaya is clinical decision support built on open and synthetic data. It is not a 
 | **Progression risk** | A tabular 2-year progression score from HbA1c, duration, BP, glycemic variability and time in range. Coefficients are **assumptions**, not fitted, and it is shown as a simulation |
 | **Images in the dashboard** | Representative IDRiD photos (CC BY 4.0) matched to the patient's recorded grade; the demo patients are synthetic |
 
-## 4. What-if engine
+## 4. Kidney risk and eGFR path
+
+| | |
+|---|---|
+| **Purpose** | Probability of albuminuria (UACR >= 30 mg/g) and reduced eGFR (< 60), plus a 5-year eGFR path and the albuminuria drift over 12 months |
+| **Inputs** | Age, sex, BMI, waist, HbA1c, systolic and diastolic BP, HDL, diabetes status (creatinine is deliberately not an input) |
+| **Model** | Regularised LightGBM |
+| **Data** | NHANES 2017-2018, 4,827 adults with serum creatinine and urine albumin/creatinine; eGFR by CKD-EPI 2021 |
+| **Results** | AUROC 0.76 (albuminuria), 0.85 (reduced eGFR), 0.79 (any CKD); adults with diabetes 0.70, 0.77, 0.71. Only a small edge over a simple age, BP, HbA1c and diabetes baseline (0.75, 0.85, 0.78) |
+| **Trajectory** | eGFR declines linearly at a patient-specific slope: about 0.9 mL/min/1.73m2 per year for aging plus terms for HbA1c above 7, systolic BP above 120, existing albuminuria and glucose variability. These coefficients are literature-informed **assumptions**, exposed in `KidneyParams`, and shown as a simulation. Blood pressure is not changed by the what-if engine |
+| **Limits** | US population; single time point labels; the baseline is already strong, so the learned model adds little; the path is not fitted to longitudinal outcomes |
+
+## 5. What-if engine
 
 Splits a patient's glucose into a slow baseline and meal-driven excursions, rescales excursions after meals (portion size, walking after meals) and shifts the baseline (medication), then recomputes glucose metrics and feeds them to the liver and eye modules. Effect sizes (a walk after a meal blunts the excursion by about a third; a 25% carbohydrate reduction scales excursions by 0.75) are literature-informed assumptions. Output is a simulation to support a conversation, not a prediction.
 

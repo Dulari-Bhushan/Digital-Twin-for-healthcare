@@ -148,7 +148,7 @@ Anything in V2 is deliberately deferred so V1 ships complete. If time remains af
 ### V2 backlog: add if time allows, in priority order
 
 1. Illustrative generative retina preview (grade-conditioned image generation, clearly labelled illustrative)
-2. Kidney module (eGFR and albuminuria risk from NHANES, folded into the what-if engine)
+2. (done) Kidney module: NHANES risk model, eGFR path, what-if
 3. PDF clinical summary export from the doctor view
 4. Patient view in Hindi, Telugu and Kannada
 5. Model-health page (drift, performance) and access audit log
