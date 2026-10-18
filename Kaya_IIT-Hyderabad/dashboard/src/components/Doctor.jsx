@@ -37,7 +37,7 @@ function Drivers({ items, title }) {
 
 const guard = (fn) => (e) => { if (e.target.closest('button, a, input, select, label')) return; fn() }
 
-const avatarOf = (p) => (p.sex === 'F' ? (p.age >= 60 ? '👵' : '👩') : p.age >= 60 ? '👴' : '👨')
+export const initialsOf = (name) => (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('')
 
 export function Sidebar({ patients, selected, onSelect }) {
   return (
@@ -48,8 +48,8 @@ export function Sidebar({ patients, selected, onSelect }) {
         const t = TONE[tierTone(p.tier)]
         return (
           <button key={p.id} className={`pt ${selected === p.id ? 'on' : ''}`} onClick={() => onSelect(p.id)}>
-            <span className="av" style={{ background: t.bg, color: t.dd, fontSize: 22 }}>{avatarOf(p)}</span>
-            <span><b>{p.name}</b><small>{p.age} y · {p.sex === 'F' ? 'female' : 'male'} · HbA1c {p.hba1c}</small>{p.demo_tag && <small style={{ color: 'var(--lav-dd)', fontWeight: 800 }}>★ {p.demo_tag}</small>}</span>
+            <span className="av" style={{ background: t.bg, color: t.dd, fontSize: 16 }}>{initialsOf(p.name)}</span>
+            <span><b>{p.name}</b><small>Age {p.age} · {p.sex === 'F' ? 'Female' : 'Male'} · HbA1c {p.hba1c}</small>{p.demo_tag && <small style={{ color: 'var(--lav-dd)', fontWeight: 800 }}>★ {p.demo_tag}</small>}</span>
             <span className="chip" style={{ background: t.bg, color: t.dd }}>{p.tier}</span>
             <span className="why">{p.reasons.length ? p.reasons.join(' · ') : 'Stable, no flags'}</span>
           </button>
@@ -64,9 +64,10 @@ export function Hero({ d, onOpen }) {
   const t = TONE[tierTone(d.summary.tier)]
   return (
     <div className="card lav hero openable" onClick={guard(() => onOpen('profile'))}>
-      <div className="avatar">{avatarOf({ sex: p.sex, age: p.age })}</div>
+      <div className="avatar">{initialsOf(p.name)}</div>
       <div>
         <h1>{p.name}</h1>
+        <div className="muted" style={{ fontSize: 15, fontWeight: 700, margin: '-2px 0 8px' }}>{p.age} years old · {p.sex === 'F' ? 'Female' : 'Male'}</div>
         <div className="facts">
           {p.demo_tag && <span className="chip lav">★ {p.demo_tag}</span>}
           <span className="chip">ID {p.id}</span>
@@ -84,7 +85,7 @@ export function Hero({ d, onOpen }) {
         <a className="btn sm go" style={{ textDecoration: 'none', marginBottom: 10 }} href={`/api/patients/${p.id}/report.pdf`} target="_blank" rel="noreferrer">📄 Download clinical summary</a>
         <br />
         <span className="chip" style={{ background: t.bg, color: t.dd, fontSize: 14, padding: '9px 16px' }}>
-          {d.summary.tier === 'high' ? '🔥' : d.summary.tier === 'medium' ? '👀' : '🌿'} {d.summary.tier} priority
+          {d.summary.tier} priority
         </span>
         <div style={{ marginTop: 10, display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end', maxWidth: 360 }}>
           {d.summary.reasons.map((r) => <span key={r} className="chip">{r}</span>)}
@@ -148,8 +149,8 @@ export function GlucoseCard({ series, cursor, at, metrics, playing, setPlaying, 
 
 export function ProbCard({ at, onOpen }) {
   const items = [
-    { label: 'High in 2 h', p: at.p_hyper, tone: 'peach', color: '#f0814f', sub: 'chance of > 180' },
-    { label: 'Low in 2 h', p: at.p_hypo, tone: 'sky', color: '#4a8fe9', sub: 'chance of < 70' },
+    { label: 'High in 2 h', p: at.p_hyper, tone: 'peach', color: '#d9894a', sub: 'chance of > 180' },
+    { label: 'Low in 2 h', p: at.p_hypo, tone: 'sky', color: '#4f8196', sub: 'chance of < 70' },
   ]
   return (
     <div className="card peach openable" onClick={guard(() => onOpen('glucose'))}>
@@ -176,14 +177,14 @@ export function RangeCard({ metrics, onOpen }) {
       <div className="card-h"><h2>Time in range</h2><span className="chip">14 days</span></div>
       <div className="row" style={{ gap: 18, flex: 1, justifyContent: 'center' }}>
         <SegRing size={132} stroke={18}
-          segments={[{ v: metrics.tir, color: '#2fa176' }, { v: metrics.tar + mid, color: '#f6b26b' }, { v: metrics.tbr, color: '#e85f8b' }]}>
+          segments={[{ v: metrics.tir, color: '#4d8f6b' }, { v: metrics.tar + mid, color: '#e9a23b' }, { v: metrics.tbr, color: '#c4645b' }]}>
           <div className="num" style={{ fontSize: 30 }}>{pct(metrics.tir)}</div>
           <div className="muted" style={{ fontSize: 11, fontWeight: 700 }}>in range</div>
         </SegRing>
         <div style={{ display: 'grid', gap: 8, fontSize: 13, fontWeight: 700 }}>
-          <span><i style={{ background: '#2fa176', display: 'inline-block', width: 12, height: 12, borderRadius: 4, marginRight: 8 }} />70–180: {pct(metrics.tir)}</span>
-          <span><i style={{ background: '#f6b26b', display: 'inline-block', width: 12, height: 12, borderRadius: 4, marginRight: 8 }} />Above 180: {pct(metrics.tar)}</span>
-          <span><i style={{ background: '#e85f8b', display: 'inline-block', width: 12, height: 12, borderRadius: 4, marginRight: 8 }} />Below 70: {pct(metrics.tbr, 1)}</span>
+          <span><i style={{ background: '#4d8f6b', display: 'inline-block', width: 12, height: 12, borderRadius: 4, marginRight: 8 }} />70–180: {pct(metrics.tir)}</span>
+          <span><i style={{ background: '#e9a23b', display: 'inline-block', width: 12, height: 12, borderRadius: 4, marginRight: 8 }} />Above 180: {pct(metrics.tar)}</span>
+          <span><i style={{ background: '#c4645b', display: 'inline-block', width: 12, height: 12, borderRadius: 4, marginRight: 8 }} />Below 70: {pct(metrics.tbr, 1)}</span>
           <span className="muted">Est. HbA1c {metrics.gmi.toFixed(1)}</span>
         </div>
       </div>
@@ -207,7 +208,7 @@ export function Organs({ d, onOpen }) {
           <div><h2>Liver</h2><span className="chip mint" style={{ marginTop: 4 }}>Real-data model</span></div>
         </div>
         <div className="row" style={{ gap: 16 }}>
-          <Ring value={lv} size={116} stroke={14} color={lv >= 0.6 ? '#e85f8b' : lv >= 0.3 ? '#f0814f' : '#2fa176'}>
+          <Ring value={lv} size={116} stroke={14} color={lv >= 0.6 ? '#c4645b' : lv >= 0.3 ? '#d9894a' : '#4d8f6b'}>
             <div className="num" style={{ fontSize: 26 }}>{pct(lv)}</div>
             <div className="muted" style={{ fontSize: 10, fontWeight: 700 }}>fat risk, 12 m</div>
           </Ring>
@@ -242,7 +243,7 @@ export function Organs({ d, onOpen }) {
           <div><h2>Kidneys</h2><span className="chip mint" style={{ marginTop: 4 }}>Real-data model</span></div>
         </div>
         <div className="row" style={{ gap: 16 }}>
-          <Ring value={kp.albuminuria.at(-1)} size={112} stroke={14} color={kp.albuminuria.at(-1) >= 0.5 ? '#e85f8b' : kp.albuminuria.at(-1) >= 0.25 ? '#f0814f' : '#4a8fe9'}>
+          <Ring value={kp.albuminuria.at(-1)} size={112} stroke={14} color={kp.albuminuria.at(-1) >= 0.5 ? '#c4645b' : kp.albuminuria.at(-1) >= 0.25 ? '#d9894a' : '#4f8196'}>
             <div className="num" style={{ fontSize: 24 }}>{pct(kp.albuminuria.at(-1))}</div>
             <div className="muted" style={{ fontSize: 10, fontWeight: 700 }}>albumin, 12 m</div>
           </Ring>
@@ -254,7 +255,7 @@ export function Organs({ d, onOpen }) {
         </div>
         <div style={{ marginTop: 10 }}>
           <LineChart height={130} yDomain={[Math.floor(Math.min(...kp.egfr) / 10) * 10 - 5, Math.ceil(Math.max(...kp.egfr) / 10) * 10 + 5]} xTickEvery={2} xLabel={(i) => `${kp.month[i] / 12}y`}
-            series={[{ name: 'eGFR at current habits', y: kp.egfr, color: '#4a8fe9' }]} />
+            series={[{ name: 'eGFR at current habits', y: kp.egfr, color: '#4f8196' }]} />
         </div>
         <Drivers items={d.explain?.albuminuria} title="What drives the albuminuria risk" />
         <div className="row" style={{ gap: 8, marginTop: 6 }}>
@@ -344,12 +345,12 @@ export function WhatIfStudio({ pid }) {
             <>
               <div className="row" style={{ gap: 18, marginBottom: 14, justifyContent: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
-                  <Ring value={m.before.tir} size={104} stroke={13} color="#b9b3d8"><div className="num" style={{ fontSize: 22 }}>{pct(m.before.tir)}</div></Ring>
+                  <Ring value={m.before.tir} size={104} stroke={13} color="#a9c4c0"><div className="num" style={{ fontSize: 22 }}>{pct(m.before.tir)}</div></Ring>
                   <div className="muted" style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>Today</div>
                 </div>
                 <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--lav-d)' }}>→</div>
                 <div style={{ textAlign: 'center' }}>
-                  <Ring value={m.after.tir} size={104} stroke={13} color="#2fa176"><div className="num" style={{ fontSize: 22 }}>{pct(m.after.tir)}</div></Ring>
+                  <Ring value={m.after.tir} size={104} stroke={13} color="#4d8f6b"><div className="num" style={{ fontSize: 22 }}>{pct(m.after.tir)}</div></Ring>
                   <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4, color: 'var(--mint-dd)' }}>With the change</div>
                 </div>
               </div>
@@ -371,12 +372,12 @@ export function WhatIfStudio({ pid }) {
           <div className="card soft" style={{ boxShadow: 'none' }}>
             <h3 style={{ marginBottom: 8 }}>Yesterday, as lived vs with the change</h3>
             <LineChart height={190} yDomain={[40, 300]} xTickEvery={72} xLabel={(i) => fmtHM(res.glucose_last_day.start, i)} band={[70, 180]}
-              series={[{ name: 'As lived', y: res.glucose_last_day.before, color: '#b9b3d8' }, { name: 'With the change', y: res.glucose_last_day.after, color: '#2fa176' }]} />
+              series={[{ name: 'As lived', y: res.glucose_last_day.before, color: '#a9c4c0' }, { name: 'With the change', y: res.glucose_last_day.after, color: '#4d8f6b' }]} />
           </div>
           <div className="card soft" style={{ boxShadow: 'none' }}>
             <h3 style={{ marginBottom: 8 }}>Liver fat risk over 12 months</h3>
             <LineChart height={190} yDomain={[0, 1]} yFmt={(x) => `${Math.round(x * 100)}%`} xTickEvery={3} xLabel={(i) => `${i}m`}
-              series={[{ name: 'Current habits', y: res.liver.before.steatosis, color: '#b9b3d8' }, { name: 'With the change', y: res.liver.after.steatosis, color: '#7160e6' }]} />
+              series={[{ name: 'Current habits', y: res.liver.before.steatosis, color: '#a9c4c0' }, { name: 'With the change', y: res.liver.after.steatosis, color: '#0F6E68' }]} />
           </div>
         </div>
       )}
@@ -391,7 +392,7 @@ export function AlertsCard({ alerts, series, onOpen }) {
     <div className="card soft openable" onClick={guard(() => onOpen('alerts'))}>
       <div className="card-h"><h2>Alert timeline 🔔</h2><span className="chip peach">About 1 false alert per patient-day</span></div>
       <div className="tl">
-        {list.length === 0 && <div className="muted">No alerts in this window. 🌿</div>}
+        {list.length === 0 && <div className="muted">No alerts in this window.</div>}
         {list.map((a, i) => {
           const idx = a.t - series.t0
           const low = a.type === 'hypo'

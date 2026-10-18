@@ -87,8 +87,8 @@ export default function App() {
     <div className="app">
       <header className="top">
         <div className="logo">
-          <span className="mark"><Logo /></span>
-          <div><b>Kaya</b><small>multi-organ digital twin for Type 2 Diabetes</small></div>
+          <Logo />
+          <div><b>Kaya</b><small>Multi-Organ Digital Twin For Type 2 Diabetes</small></div>
         </div>
         <span className="sp" />
         <span className="tag" title="All patients are synthetic. Decision support for clinicians, not a diagnostic device.">🧪 Synthetic data · Decision support</span>
@@ -98,8 +98,8 @@ export default function App() {
           </select>
         )}
         <div className="switch" role="tablist">
-          <button className={mode === 'doctor' ? 'on' : ''} onClick={() => setMode('doctor')}>🩺 Doctor</button>
-          <button className={mode === 'patient' ? 'on' : ''} onClick={() => setMode('patient')}>🙂 Patient</button>
+          <button className={mode === 'doctor' ? 'on' : ''} onClick={() => setMode('doctor')}>Doctor</button>
+          <button className={mode === 'patient' ? 'on' : ''} onClick={() => setMode('patient')}>Patient</button>
         </div>
       </header>
 

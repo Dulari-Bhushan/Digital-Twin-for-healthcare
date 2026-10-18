@@ -23,7 +23,7 @@ export default function DiarySection({ pid }) {
   const kp = (label, value, sub, tn) => <div className="kpi2" style={{ background: TONE[tn].bg, color: TONE[tn].dd }}><div className="l">{label}</div><div className="v">{value}</div><div className="s">{sub}</div></div>
   const am = pct(s.morning.taken, s.morning.of)
   const pm = pct(s.evening.taken, s.evening.of)
-  const dot = (on, color) => <span className="dgdot" style={{ background: on ? color : 'rgba(42,39,66,.08)' }} />
+  const dot = (on, color) => <span className="dgdot" style={{ background: on ? color : 'rgba(28,52,50,.08)' }} />
   const seen = new Set()
   const notes = log.entries.filter((e) => e.note && !seen.has(e.note) && seen.add(e.note)).slice(0, 4)
   const mine = log.entries.filter((e) => e.source === 'patient')
@@ -40,13 +40,13 @@ export default function DiarySection({ pid }) {
         <div className="dg" style={{ gridTemplateColumns: `92px repeat(14, minmax(18px, 1fr))` }}>
           <span />
           {dates.map((d) => <small key={d}>{new Date(`${d}T00:00:00Z`).getUTCDate()}</small>)}
-          <span className="lbl">Morning</span>{dates.map((d) => <i key={d}>{dot(has(d, 'med', 'morning'), '#2fa176')}</i>)}
-          <span className="lbl">Evening</span>{dates.map((d, k) => <i key={d}>{dot(has(d, 'med', 'evening'), '#2fa176')}</i>)}
-          <span className="lbl">Walk</span>{dates.map((d) => <i key={d}>{dot(has(d, 'walk'), '#4a8fe9')}</i>)}
+          <span className="lbl">Morning</span>{dates.map((d) => <i key={d}>{dot(has(d, 'med', 'morning'), '#4d8f6b')}</i>)}
+          <span className="lbl">Evening</span>{dates.map((d, k) => <i key={d}>{dot(has(d, 'med', 'evening'), '#4d8f6b')}</i>)}
+          <span className="lbl">Walk</span>{dates.map((d) => <i key={d}>{dot(has(d, 'walk'), '#4f8196')}</i>)}
           <span className="lbl">Feeling</span>{dates.map((d) => { const f = has(d, 'feel'); return <i key={d} title={f ? FEEL[f.value][2] : 'not logged'}>{f ? dot(true, TONE[FEEL[f.value][1]].d) : dot(false)}</i> })}
         </div>
       </div>
-      <div className="legend"><span><i style={{ background: '#2fa176' }} />Medicine taken</span><span><i style={{ background: '#4a8fe9' }} />Walked</span><span><i style={{ background: TONE.mint.d }} />Felt good</span><span><i style={{ background: TONE.rose.d }} />Felt unwell</span><span>Grey: not logged</span></div>
+      <div className="legend"><span><i style={{ background: '#4d8f6b' }} />Medicine taken</span><span><i style={{ background: '#4f8196' }} />Walked</span><span><i style={{ background: TONE.mint.d }} />Felt good</span><span><i style={{ background: TONE.rose.d }} />Felt unwell</span><span>Grey: not logged</span></div>
       {notes.length > 0 && (
         <div style={{ marginTop: 12, display: 'grid', gap: 6 }}>
           {notes.map((e) => <div key={e.id} className="rep-med" style={{ background: TONE[FEEL[e.value]?.[1] || 'butter'].bg, color: TONE[FEEL[e.value]?.[1] || 'butter'].dd }}><b>{fmtDate(e.date)} · {e.time}</b><span>{e.note}</span></div>)}

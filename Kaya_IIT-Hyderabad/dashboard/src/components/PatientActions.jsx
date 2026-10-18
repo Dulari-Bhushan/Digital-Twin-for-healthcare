@@ -57,7 +57,7 @@ export function QuickLog({ t, log, logIt }) {
   const td = log.today
   const faces = [['good', '😊', 'f_good'], ['ok', '😐', 'f_ok'], ['low', '😟', 'f_low']]
   return (
-    <div className="p-card" style={{ background: '#f6f5fb' }}>
+    <div className="p-card" style={{ background: '#f0f5f4' }}>
       <div style={{ fontWeight: 800, fontSize: 16 }}>{t('log_title')}</div>
       <div className="muted" style={{ fontSize: 12, fontWeight: 600, marginBottom: 10 }}>{t('log_sub')}</div>
       <div className="logrow">

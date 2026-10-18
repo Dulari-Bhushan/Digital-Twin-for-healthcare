@@ -5,7 +5,7 @@ import LineChart from './LineChart'
 
 const TYPES = [['all', 'All'], ['lab', 'Blood and urine'], ['imaging', 'Scans'], ['cardiac', 'Heart'], ['clinic', 'Clinic'], ['device', 'Wearable']]
 const ICON = { lab: '🧪', imaging: '🩻', cardiac: '🫀', clinic: '📋', device: '⌚' }
-const TREND_KEYS = [['hba1c', 'HbA1c (%)', '#7160e6'], ['egfr', 'eGFR', '#4a8fe9'], ['uacr', 'Urine albumin (mg/g)', '#f0814f'], ['alt', 'ALT (U/L)', '#e0a912'], ['ldl', 'LDL (mg/dL)', '#2fa176'], ['sbp', 'Systolic BP', '#e85f8b'], ['weight', 'Weight (kg)', '#43379f']]
+const TREND_KEYS = [['hba1c', 'HbA1c (%)', '#0F6E68'], ['egfr', 'eGFR', '#4f8196'], ['uacr', 'Urine albumin (mg/g)', '#d9894a'], ['alt', 'ALT (U/L)', '#E9A23B'], ['ldl', 'LDL (mg/dL)', '#4d8f6b'], ['sbp', 'Systolic BP', '#c4645b'], ['weight', 'Weight (kg)', '#0B4F4B']]
 
 export const fmtDate = (iso, long = true) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-IN', long ? { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' } : { day: 'numeric', month: 'short', timeZone: 'UTC' })
 const num = (v, dec) => (typeof v === 'number' ? v.toLocaleString('en-IN', { minimumFractionDigits: dec, maximumFractionDigits: dec }) : v)
@@ -256,7 +256,7 @@ export function PatientReports({ t, pid, changes }) {
       <div className="p-h">{t('rep_title1')}<br /><span style={{ color: 'var(--muted)', fontWeight: 600 }}>{t('rep_title2')}</span></div>
       <div style={{ marginTop: 12 }}><ChangesCard ch={changes} audience="patient" /></div>
       <div className="sect"><span>{t('rep_trends')}</span></div>
-      <div className="p-card" style={{ background: '#f6f5fb', marginTop: 4 }}>
+      <div className="p-card" style={{ background: '#f0f5f4', marginTop: 4 }}>
         <Trends data={data.trends} keys={TREND_KEYS.filter(([k]) => ['hba1c', 'egfr', 'sbp'].includes(k))} height={150} />
       </div>
       <div className="sect"><span>{t('rep_meds')}</span><small>{data.medications.length}</small></div>

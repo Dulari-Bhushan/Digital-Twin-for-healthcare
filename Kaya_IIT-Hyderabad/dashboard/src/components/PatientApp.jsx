@@ -1,3 +1,4 @@
+import { Logo } from '../ui'
 import { useEffect, useMemo, useState } from 'react'
 import { getLog, getSeries, postLog, postWhatIf } from '../api'
 import { LANGS, makeT } from '../i18n'
@@ -27,7 +28,7 @@ function Habit({ e, name, sub, value, goal, done, tone }) {
   const t = TONE[tone]
   const p = Math.max(0, Math.min(1, value))
   return (
-    <div className="habit" style={{ background: done === false ? '#f6f5fb' : '#fff' }}>
+    <div className="habit" style={{ background: done === false ? '#f0f5f4' : '#fff' }}>
       <div className="fill" style={{ width: `${p * 100}%`, background: t.bg }} />
       <div className="bub">{e}</div>
       <div><b style={{ fontSize: 15 }}>{name}</b><div className="muted" style={{ fontSize: 12, fontWeight: 600 }}>{sub}</div></div>
@@ -45,14 +46,14 @@ function DayChart({ st, series, color }) {
   const pts = g.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ')
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Glucose through the day">
-      <rect x={pl} y={y(180)} width={W - pl - pr} height={y(70) - y(180)} rx="8" fill="#d6f3e5" opacity=".8" />
+      <rect x={pl} y={y(180)} width={W - pl - pr} height={y(70) - y(180)} rx="8" fill="#dfeee2" opacity=".8" />
       {[70, 180, 250].filter((v) => v <= ymax).map((v) => (
-        <g key={v}><line x1={pl} x2={W - pr} y1={y(v)} y2={y(v)} stroke="rgba(42,39,66,.08)" strokeDasharray="3 4" /><text x={pl - 4} y={y(v) + 3} fontSize="9" fontWeight="700" fill="#77748f" textAnchor="end">{v}</text></g>
+        <g key={v}><line x1={pl} x2={W - pr} y1={y(v)} y2={y(v)} stroke="rgba(28,52,50,.08)" strokeDasharray="3 4" /><text x={pl - 4} y={y(v) + 3} fontSize="9" fontWeight="700" fill="#667b78" textAnchor="end">{v}</text></g>
       ))}
-      {[0, 72, 144, 216].map((i) => <text key={i} x={x(i)} y={H - 5} fontSize="9" fontWeight="700" fill="#77748f" textAnchor="middle">{fmtHM(series.start, st.startIdx + i)}</text>)}
+      {[0, 72, 144, 216].map((i) => <text key={i} x={x(i)} y={H - 5} fontSize="9" fontWeight="700" fill="#667b78" textAnchor="middle">{fmtHM(series.start, st.startIdx + i)}</text>)}
       <polyline points={pts} fill="none" stroke={color} strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
-      {g.map((v, i) => (v < 70 ? <circle key={`l${i}`} cx={x(i)} cy={y(v)} r="2.6" fill="#e85f8b" /> : null))}
-      {st.mealSeries.map((c, i) => (c > 0 ? <circle key={`m${i}`} cx={x(i)} cy={H - pb - 3} r={2.5 + Math.min(c, 120) / 40} fill="#ffe08a" stroke="#e0a912" strokeWidth="1" /> : null))}
+      {g.map((v, i) => (v < 70 ? <circle key={`l${i}`} cx={x(i)} cy={y(v)} r="2.6" fill="#c4645b" /> : null))}
+      {st.mealSeries.map((c, i) => (c > 0 ? <circle key={`m${i}`} cx={x(i)} cy={H - pb - 3} r={2.5 + Math.min(c, 120) / 40} fill="#f5d58f" stroke="#E9A23B" strokeWidth="1" /> : null))}
     </svg>
   )
 }
@@ -104,7 +105,7 @@ function Today({ t, name, series, at, day, setDay, st, days, log, logIt, risky }
           </div>
         </div>
       )}
-      <div className="p-card" style={{ background: '#f6f5fb' }}>
+      <div className="p-card" style={{ background: '#f0f5f4' }}>
         <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--muted)', marginBottom: 4 }}>{t('day_chart')}</div>
         <DayChart st={cur} series={series} color={tn.d} />
         <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.5, marginTop: 4 }}>
@@ -147,7 +148,7 @@ function Insights({ t, series, st, d, locale }) {
         </div>
       </div>
       <div className="p-card" style={{ background: 'var(--mint)', display: 'flex', alignItems: 'center', gap: 16 }}>
-        <SegRing size={118} stroke={16} segments={[{ v: m.tir, color: '#2fa176' }, { v: Math.max(0, 1 - m.tir - m.tbr), color: '#f6b26b' }, { v: m.tbr, color: '#e85f8b' }]}>
+        <SegRing size={118} stroke={16} segments={[{ v: m.tir, color: '#4d8f6b' }, { v: Math.max(0, 1 - m.tir - m.tbr), color: '#e9a23b' }, { v: m.tbr, color: '#c4645b' }]}>
           <div className="num" style={{ fontSize: 24, color: 'var(--mint-dd)' }}>{pct(m.tir)}</div>
         </SegRing>
         <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--mint-dd)', lineHeight: 1.7 }}>
@@ -183,12 +184,12 @@ function Body({ t, d }) {
       <div className="p-h">{t('body_title1')}<br /><span style={{ color: 'var(--muted)', fontWeight: 600 }}>{t('body_title2')}</span></div>
       {card(lv > 0.6 ? 'rose' : lv > 0.3 ? 'butter' : 'mint', <LiverArt size={30} />, t('liver'), lv > 0.6 ? t('liver_high') : lv > 0.3 ? t('liver_mid') : t('liver_ok'),
         lv > 0.3 ? t('liver_text_mid') : t('liver_text_ok'),
-        <Ring value={lv} size={84} stroke={11} color={lv > 0.6 ? '#e85f8b' : lv > 0.3 ? '#e0a912' : '#2fa176'}><div className="num" style={{ fontSize: 18 }}>{pct(lv)}</div></Ring>)}
+        <Ring value={lv} size={84} stroke={11} color={lv > 0.6 ? '#c4645b' : lv > 0.3 ? '#E9A23B' : '#4d8f6b'}><div className="num" style={{ fontSize: 18 }}>{pct(lv)}</div></Ring>)}
       {card(ep > 0.4 ? 'rose' : ep > 0.2 ? 'butter' : 'mint', <EyeArt size={30} />, t('eyes'), t(`dr${d.eye.grade}`), t('eyes_text'),
-        <Ring value={ep} size={84} stroke={11} color={ep > 0.4 ? '#e85f8b' : ep > 0.2 ? '#e0a912' : '#2fa176'}><div className="num" style={{ fontSize: 18 }}>{pct(ep)}</div></Ring>)}
+        <Ring value={ep} size={84} stroke={11} color={ep > 0.4 ? '#c4645b' : ep > 0.2 ? '#E9A23B' : '#4d8f6b'}><div className="num" style={{ fontSize: 18 }}>{pct(ep)}</div></Ring>)}
       {card(kidneyHigh ? 'rose' : 'sky', <KidneyArt size={30} />, t('kidneys'), kidneyHigh ? t('kidney_watch') : t('kidney_ok'),
         t('kidney_text', { now: lab.egfr.toFixed(0), later: kp.egfr.at(-1).toFixed(0) }),
-        <Ring value={Math.min(1, lab.egfr / 120)} size={84} stroke={11} color={kidneyHigh ? '#e85f8b' : '#4a8fe9'}><div className="num" style={{ fontSize: 18 }}>{lab.egfr.toFixed(0)}</div></Ring>)}
+        <Ring value={Math.min(1, lab.egfr / 120)} size={84} stroke={11} color={kidneyHigh ? '#c4645b' : '#4f8196'}><div className="num" style={{ fontSize: 18 }}>{lab.egfr.toFixed(0)}</div></Ring>)}
       <p className="note" style={{ marginTop: 14 }}>{t('body_note')}</p>
     </>
   )
@@ -205,7 +206,7 @@ function Try({ t, pid }) {
       <div className="p-h">{t('try_title1')}<br /><span style={{ color: 'var(--muted)', fontWeight: 600 }}>{t('try_title2')}</span></div>
       <div style={{ display: 'grid', gap: 10, marginTop: 16 }}>
         {TRY.map((o, i) => (
-          <button key={o.key} onClick={() => setPick(i)} className="habit" style={{ border: pick === i ? '2px solid var(--lav-d)' : '2px solid transparent', textAlign: 'left', background: pick === i ? 'var(--lav)' : '#f6f5fb' }}>
+          <button key={o.key} onClick={() => setPick(i)} className="habit" style={{ border: pick === i ? '2px solid var(--lav-d)' : '2px solid transparent', textAlign: 'left', background: pick === i ? 'var(--lav)' : '#f0f5f4' }}>
             <div className="bub">{o.e}</div><b>{t(o.key)}</b><span style={{ color: 'var(--lav-d)', fontWeight: 800 }}>{pick === i ? '●' : '○'}</span>
           </button>
         ))}
@@ -213,9 +214,9 @@ function Try({ t, pid }) {
       {res && pick !== null && (
         <div className="p-card" style={{ background: 'var(--mint)' }}>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 14, alignItems: 'center' }}>
-            <div style={{ textAlign: 'center' }}><Ring value={res.metrics.before.tir} size={92} stroke={12} color="#b9b3d8"><div className="num" style={{ fontSize: 20 }}>{pct(res.metrics.before.tir)}</div></Ring><div className="muted" style={{ fontSize: 11, fontWeight: 700 }}>{t('today_lbl')}</div></div>
+            <div style={{ textAlign: 'center' }}><Ring value={res.metrics.before.tir} size={92} stroke={12} color="#a9c4c0"><div className="num" style={{ fontSize: 20 }}>{pct(res.metrics.before.tir)}</div></Ring><div className="muted" style={{ fontSize: 11, fontWeight: 700 }}>{t('today_lbl')}</div></div>
             <b style={{ fontSize: 24, color: 'var(--mint-d)' }}>→</b>
-            <div style={{ textAlign: 'center' }}><Ring value={res.metrics.after.tir} size={92} stroke={12} color="#2fa176"><div className="num" style={{ fontSize: 20, color: 'var(--mint-dd)' }}>{pct(res.metrics.after.tir)}</div></Ring><div style={{ fontSize: 11, fontWeight: 700, color: 'var(--mint-dd)' }}>{t('with_change')}</div></div>
+            <div style={{ textAlign: 'center' }}><Ring value={res.metrics.after.tir} size={92} stroke={12} color="#4d8f6b"><div className="num" style={{ fontSize: 20, color: 'var(--mint-dd)' }}>{pct(res.metrics.after.tir)}</div></Ring><div style={{ fontSize: 11, fontWeight: 700, color: 'var(--mint-dd)' }}>{t('with_change')}</div></div>
           </div>
           <p style={{ marginTop: 14, fontWeight: 700, color: 'var(--mint-dd)', lineHeight: 1.6 }}>
             {tirUp
@@ -279,6 +280,7 @@ export default function PatientApp({ d, at, pid, changes }) {
             {LANGS.map((l) => <button key={l.code} className={lang === l.code ? 'on' : ''} onClick={() => pick(l.code)} title={l.code}>{l.label}</button>)}
           </span>
         </div>
+        <div className="p-brand"><Logo size={26} /><b>Kaya</b></div>
         <div className="screen">
           {!series14 ? <div className="muted" style={{ padding: 30 }}>{t('loading')}</div> : (
             tab === 0 ? <Today t={t} name={d.profile.name || `Patient ${d.profile.id}`} series={series14} at={at} day={day} setDay={setDay} st={st} days={days} log={log} logIt={logIt} risky={!!d.profile.on_insulin_or_su} /> :

@@ -41,7 +41,7 @@ function Drivers({ items, title }) {
         return (
           <div key={it.feature} style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.4fr 60px', gap: 10, alignItems: 'center', padding: '5px 0', borderBottom: '1px solid var(--line)' }}>
             <div style={{ fontWeight: 700, fontSize: 13 }}>{name} <span className="muted" style={{ fontWeight: 600 }}>{val}</span></div>
-            <div style={{ height: 9, borderRadius: 6, background: 'rgba(42,39,66,.06)' }}>
+            <div style={{ height: 9, borderRadius: 6, background: 'rgba(28,52,50,.06)' }}>
               <div style={{ width: `${(Math.abs(it.shap) / mx) * 100}%`, height: '100%', borderRadius: 6, background: up ? 'var(--rose-d)' : 'var(--mint-d)' }} />
             </div>
             <div style={{ fontSize: 12, fontWeight: 800, textAlign: 'right', color: up ? 'var(--rose-dd)' : 'var(--mint-dd)' }}>{up ? 'raises' : 'lowers'}</div>
@@ -70,7 +70,7 @@ function CatchUp({ d, days, series, go, changes, pid }) {
   return (
     <>
       <section className="card rec-sec" style={{ boxShadow: 'none', background: TONE[tone].bg, color: TONE[tone].dd }}>
-        <div className="card-h"><h2>{tone === 'mint' ? '🌿 Nothing alarming right now' : tone === 'rose' ? '🔥 Needs attention' : '👀 Worth a look'}</h2>
+        <div className="card-h"><h2>{tone === 'mint' ? 'Nothing alarming right now' : tone === 'rose' ? 'Needs attention' : 'Worth a look'}</h2>
           <span className="chip">{d.summary.tier} priority</span></div>
         {bad ? <ul style={{ margin: 0, paddingLeft: 20, fontWeight: 700 }}>{alarms.map((a) => <li key={a}>{a}</li>)}</ul>
           : <div style={{ fontWeight: 700 }}>No low-glucose events, control and organ markers are within the usual targets.</div>}
@@ -125,12 +125,12 @@ function Overview({ d, days, series, go, changes }) {
         <Section title="Time in range, by day" hint="Glucose tab"><StackedTir days={days} series={series} height={170} /></Section>
         <Section title="Kidney filter path" hint="Kidneys tab">
           <LineChart height={170} yDomain={[Math.floor(Math.min(...kp.egfr) / 10) * 10 - 5, Math.ceil(Math.max(...kp.egfr) / 10) * 10 + 5]} xTickEvery={2} xLabel={(i) => `${kp.month[i] / 12}y`}
-            series={[{ name: 'eGFR at current habits', y: kp.egfr, color: '#4a8fe9' }]} />
+            series={[{ name: 'eGFR at current habits', y: kp.egfr, color: '#4f8196' }]} />
         </Section>
       </div>
       <Section title="Liver risk path" hint="Liver tab">
         <LineChart height={150} yDomain={[0, 1]} yFmt={(v) => `${Math.round(v * 100)}%`} xTickEvery={3} xLabel={(i) => `${i}m`}
-          series={[{ name: 'Fat in the liver', y: tl.steatosis, color: '#2fa176' }, { name: 'Advanced fibrosis', y: tl.adv_fibrosis, color: '#e85f8b' }]} />
+          series={[{ name: 'Fat in the liver', y: tl.steatosis, color: '#4d8f6b' }, { name: 'Advanced fibrosis', y: tl.adv_fibrosis, color: '#c4645b' }]} />
       </Section>
     </>
   )
@@ -170,10 +170,10 @@ function GlucoseTab({ d, series, days }) {
         <div className="note">* the latest day is partial (up to the most recent reading).</div>
       </Section>
       <div className="rec-grid2">
-        <Section title="Steps a day"><Bars values={days.map((x) => x.steps)} labels={labels} color="#4a8fe9" goal={6000} fmt={(v) => (v >= 1000 ? `${(v / 1000).toFixed(1)}k` : Math.round(v))} /></Section>
-        <Section title="Carbohydrate a day (g)"><Bars values={days.map((x) => x.carbs)} labels={labels} color="#e0a912" goal={220} /></Section>
-        <Section title="Sleep (hours)"><Bars values={days.map((x) => x.sleep)} labels={labels} color="#7160e6" goal={7} fmt={(v) => v.toFixed(1)} /></Section>
-        <Section title="Mean glucose (mg/dL)"><Bars values={days.map((x) => x.mean)} labels={labels} color="#f0814f" goal={154} /></Section>
+        <Section title="Steps a day"><Bars values={days.map((x) => x.steps)} labels={labels} color="#4f8196" goal={6000} fmt={(v) => (v >= 1000 ? `${(v / 1000).toFixed(1)}k` : Math.round(v))} /></Section>
+        <Section title="Carbohydrate a day (g)"><Bars values={days.map((x) => x.carbs)} labels={labels} color="#E9A23B" goal={220} /></Section>
+        <Section title="Sleep (hours)"><Bars values={days.map((x) => x.sleep)} labels={labels} color="#0F6E68" goal={7} fmt={(v) => v.toFixed(1)} /></Section>
+        <Section title="Mean glucose (mg/dL)"><Bars values={days.map((x) => x.mean)} labels={labels} color="#d9894a" goal={154} /></Section>
       </div>
       <Section title="How glucose responds to meals" hint="3 hours after each logged meal">
         <DataTable head={['Meal', 'Meals logged', 'Avg carbs', 'Avg rise', 'Avg peak', 'Time to peak']}
@@ -213,7 +213,7 @@ function LiverTab({ d }) {
       </div>
       <Section title="12-month projection" hint="steady habits assumed" tone="butter">
         <LineChart height={210} yDomain={[0, 1]} yFmt={(v) => `${Math.round(v * 100)}%`} xTickEvery={1} xLabel={(i) => `${i}m`}
-          series={[{ name: 'Fat in the liver', y: tl.steatosis, color: '#2fa176' }, { name: 'Advanced fibrosis', y: tl.adv_fibrosis, color: '#e85f8b' }]} />
+          series={[{ name: 'Fat in the liver', y: tl.steatosis, color: '#4d8f6b' }, { name: 'Advanced fibrosis', y: tl.adv_fibrosis, color: '#c4645b' }]} />
         <Evidence>The starting point comes from a model validated on real NHANES FibroScan data. The drift over the year comes from the glucose-habit inputs below, with a 90-day lag; its coefficients are editable assumptions.</Evidence>
       </Section>
       <Section title="Liver labs and measurements">
@@ -272,12 +272,12 @@ function KidneyTab({ d }) {
       </div>
       <Section title="eGFR path over 5 years" hint="current habits" tone="sky">
         <LineChart height={220} yDomain={[Math.min(25, Math.floor(Math.min(...kp.egfr) / 10) * 10 - 5), Math.ceil(Math.max(...kp.egfr, 90) / 10) * 10 + 5]} xTickEvery={2} xLabel={(i) => `${kp.month[i] / 12}y`}
-          series={[{ name: 'eGFR at current habits', y: kp.egfr, color: '#4a8fe9' }, { name: 'Stage G3 boundary (60)', y: flat(60), color: '#f0814f', dash: '5 5' }, { name: 'Stage G4 boundary (30)', y: flat(30), color: '#e85f8b', dash: '5 5' }]} />
+          series={[{ name: 'eGFR at current habits', y: kp.egfr, color: '#4f8196' }, { name: 'Stage G3 boundary (60)', y: flat(60), color: '#d9894a', dash: '5 5' }, { name: 'Stage G4 boundary (30)', y: flat(30), color: '#c4645b', dash: '5 5' }]} />
         <Evidence>A straight-line decline at a patient-specific slope. The slope components are literature-informed assumptions, shown below; they are not fitted to outcome data.</Evidence>
       </Section>
       <div className="rec-grid2">
         <Section title="Albuminuria risk, next 12 months"><LineChart height={190} yDomain={[0, 1]} yFmt={(v) => `${Math.round(v * 100)}%`} xTickEvery={3} xLabel={(i) => `${i}m`}
-          series={[{ name: 'Chance of albuminuria', y: kp.albuminuria, color: '#4a8fe9' }]} /></Section>
+          series={[{ name: 'Chance of albuminuria', y: kp.albuminuria, color: '#4f8196' }]} /></Section>
         <Section title="Why this slope" hint={`${slopeSum.toFixed(1)} mL/min per year`}>
           <Contrib items={comp} unitNote="Each term adds to the yearly eGFR decline (mL/min/1.73m2 per year)." />
         </Section>
@@ -303,7 +303,7 @@ function AlertsTab({ d, series }) {
         <Kpi label="Low-glucose alerts" value={d.alerts.filter((a) => a.type === 'hypo').length} sub="below 70 expected" tone={d.alerts.some((a) => a.type === 'hypo') ? 'rose' : 'mint'} />
         <Kpi label="High-glucose alerts" value={d.alerts.filter((a) => a.type === 'hyper').length} sub="above 180 expected" tone="peach" />
       </div>
-      {keys.length > 0 && <Section title="Alerts per day"><Bars values={keys.map((k) => perDay[k])} labels={keys.map((k) => dayLabel(series, k * 288 + series.t0, { weekday: 'short' }).slice(0, 3))} color="#f0814f" fmt={(v) => Math.round(v)} /></Section>}
+      {keys.length > 0 && <Section title="Alerts per day"><Bars values={keys.map((k) => perDay[k])} labels={keys.map((k) => dayLabel(series, k * 288 + series.t0, { weekday: 'short' }).slice(0, 3))} color="#d9894a" fmt={(v) => Math.round(v)} /></Section>}
       <Section title="Alert history" hint="most recent first">
         <DataTable head={['When', 'Alert', 'Probability', 'Why it fired']}
           rows={list.map((a) => [fmtDT(series.start, a.t - series.t0), <b key="t">{a.type === 'hypo' ? 'Low glucose expected' : 'High glucose expected'}</b>, pct(a.prob), explain(series, a.t - series.t0)])} />
@@ -368,10 +368,10 @@ export default function Record({ d, pid, tab, setTab, onClose, changes }) {
       <aside className="rec" role="dialog" aria-label={`Full record for ${p.name}`}>
         <header className="rec-h">
           <div className="row" style={{ gap: 14 }}>
-            <div className="av" style={{ background: t.bg, color: t.dd, fontSize: 24, width: 52, height: 52 }}>{p.sex === 'F' ? '👩' : '👨'}</div>
+            <div className="av" style={{ background: t.bg, color: t.dd, fontSize: 18, width: 52, height: 52 }}>{(p.name || '?').split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase()}</div>
             <div>
               <h1 style={{ fontSize: 24, letterSpacing: '-.02em' }}>{p.name}</h1>
-              <div className="muted" style={{ fontSize: 13, fontWeight: 600 }}>{p.age} y · {p.sex === 'F' ? 'female' : 'male'} · ID {p.id} · T2D {p.duration_yrs} y · HbA1c {p.hba1c}%</div>
+              <div className="muted" style={{ fontSize: 13, fontWeight: 600 }}>Age {p.age} · {p.sex === 'F' ? 'Female' : 'Male'} · ID {p.id} · T2D {p.duration_yrs} y · HbA1c {p.hba1c}%</div>
             </div>
           </div>
           <div className="row" style={{ gap: 8 }}>

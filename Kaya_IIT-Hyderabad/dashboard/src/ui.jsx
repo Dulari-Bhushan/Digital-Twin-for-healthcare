@@ -68,30 +68,30 @@ export function SegRing({ segments, size = 140, stroke = 18, children }) {
   )
 }
 
-const ILL = { stroke: 'rgba(42,39,66,.28)', sw: 2 }
-export function LiverArt({ size = 46, fill = '#ffc9a8' }) {
+const ILL = { stroke: 'rgba(28,52,50,.28)', sw: 2 }
+export function LiverArt({ size = 46, fill = '#ebc9a3' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
       <path d="M6 30C6 18 20 10 38 12c14 2 22 10 20 20-2 12-14 20-28 18-9-1-15-4-19-10-3-3-5-6-5-10Z" fill={fill} stroke={ILL.stroke} strokeWidth={ILL.sw} />
       <path d="M22 18c4 6 6 14 4 24" fill="none" stroke="rgba(255,255,255,.8)" strokeWidth="3" strokeLinecap="round" />
-      <ellipse cx="46" cy="46" rx="6" ry="8" fill="#9fd9b5" stroke={ILL.stroke} strokeWidth={ILL.sw} />
+      <ellipse cx="46" cy="46" rx="6" ry="8" fill="#a9cdb4" stroke={ILL.stroke} strokeWidth={ILL.sw} />
     </svg>
   )
 }
-export function EyeArt({ size = 46 }) {
+export function EyeArt({ size = 48 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
       <path d="M3 32C13 16 25 10 32 10s19 6 29 22C51 48 39 54 32 54S13 48 3 32Z" fill="#fff" stroke={ILL.stroke} strokeWidth={ILL.sw} />
-      <circle cx="32" cy="32" r="12" fill="#8fc4ff" stroke={ILL.stroke} strokeWidth={ILL.sw} />
-      <circle cx="32" cy="32" r="5.5" fill="#2a2742" />
+      <circle cx="32" cy="32" r="12" fill="#9fc2ce" stroke={ILL.stroke} strokeWidth={ILL.sw} />
+      <circle cx="32" cy="32" r="5.5" fill="#1c3432" />
       <circle cx="28" cy="28" r="2.2" fill="#fff" />
     </svg>
   )
 }
-export function KidneyArt({ size = 46 }) {
+export function KidneyArt({ size = 48 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
-      <path d="M40 8c15 2 21 17 13 31-6 11-16 18-24 16-9-2-5-12 1-18 4-5 3-9-3-13C18 19 22 6 40 8Z" fill="#a9d3ff" stroke={ILL.stroke} strokeWidth={ILL.sw} />
+      <path d="M40 8c15 2 21 17 13 31-6 11-16 18-24 16-9-2-5-12 1-18 4-5 3-9-3-13C18 19 22 6 40 8Z" fill="#b5d0d9" stroke={ILL.stroke} strokeWidth={ILL.sw} />
       <path d="M38 18c8 2 11 10 7 18" fill="none" stroke="rgba(255,255,255,.85)" strokeWidth="3" strokeLinecap="round" />
     </svg>
   )
@@ -103,6 +103,12 @@ export function Spark({ values, color = 'var(--lav-d)', w = 120, h = 36 }) {
   return <svg width={w} height={h}><polyline points={pts} fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
 }
 
-export const Logo = () => (
-  <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><path d="M9 6v20M9 16l12-10M9 16l12 10" stroke="#fff" strokeWidth="4.2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+/** Kaya mark: two overlapping circles (the patient and their twin) with a glucose wave. */
+export const Logo = ({ size = 48 }) => (
+  <svg width={size * 1.32} height={size} viewBox="12 34 174 132" aria-hidden="true">
+    <circle cx="122" cy="100" r="62" fill="#E9A23B" />
+    <circle cx="78" cy="100" r="62" fill="#0F6E68" />
+    <path d="M100 42.03 A62 62 0 0 1 100 157.97 A62 62 0 0 1 100 42.03 Z" fill="#1B4D49" />
+    <path d="M40 112 C 65 86, 86 132, 108 106 S 146 84, 166 98" fill="none" stroke="#fff" strokeWidth="7" strokeLinecap="round" />
+  </svg>
 )
