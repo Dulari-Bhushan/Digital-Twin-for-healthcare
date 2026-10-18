@@ -12,7 +12,7 @@ All patients are synthetic and the names are invented. Start the app with `uvico
 | Eyes | **Moderate retinopathy**, 53% chance of progressing in 2 years | No retinopathy, 2% |
 | Kidneys | **Albuminuria** (UACR 231 mg/g), eGFR 63 heading to about 48 in 5 years | Healthy: eGFR 108, UACR 12 |
 | Low-sugar risk | Yes (insulin or sulfonylurea), has a night-time low | None |
-| Priority | **High**, pinned first in the doctor list | **Low**, pinned second |
+| Priority | **High**, near the top of the doctor list | **Low**, further down the list |
 
 Why these two: they show the whole range. Rajesh needs attention on every organ and has treatment-related lows. Priya shows what a well-controlled patient looks like, with the twin mostly reassuring and one bad day to learn from.
 
@@ -71,7 +71,7 @@ The history is generated, not recorded: today's values come from each patient's 
 
 ## Suggested flow (about 6 minutes)
 
-1. **Doctor view, Rajesh.** Show the triage list with the two demo cases pinned. Point at why he is flagged (time in range, liver, kidney, retinopathy). Press **Replay last 3 days**: the forecast fan appears before the evening spike.
+1. **Doctor view, Rajesh.** Show the triage list (sorted by priority; Priya is further down, pick her by name). Point at why he is flagged (time in range, liver, kidney, retinopathy). Press **Replay last 3 days**: the forecast fan appears before the evening spike.
 2. **What-if studio.** Press **All three**: time in range improves, liver and kidney projections move. Say it is a simulation with editable assumptions.
 3. **Switch to Priya** in the list. Same screens, very different picture: green rings, low risks, forecasts that stay in range.
 4. **Patient app, Rajesh.** Tap Sun, Mon, Tue and Today to show how each day differs. On Mon, point at the low in the chart.

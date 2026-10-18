@@ -43,13 +43,13 @@ export function Sidebar({ patients, selected, onSelect }) {
   return (
     <aside className="side">
       <h2>Today's priorities</h2>
-      <div className="muted" style={{ fontSize: 13, padding: '0 6px 4px' }}>{patients.length} patients · demo cases first, then by who needs you most</div>
-      {[...patients].sort((a, b) => (b.demo_tag ? 1 : 0) - (a.demo_tag ? 1 : 0)).map((p) => {
+      <div className="muted" style={{ fontSize: 13, padding: '0 6px 4px' }}>{patients.length} patients · sorted by who needs you most</div>
+      {patients.map((p) => {
         const t = TONE[tierTone(p.tier)]
         return (
           <button key={p.id} className={`pt ${selected === p.id ? 'on' : ''}`} onClick={() => onSelect(p.id)}>
             <span className="av" style={{ background: t.bg, color: t.dd, fontSize: 16 }}>{initialsOf(p.name)}</span>
-            <span><b>{p.name}</b><small>Age {p.age} · {p.sex === 'F' ? 'Female' : 'Male'} · HbA1c {p.hba1c}</small>{p.demo_tag && <small style={{ color: 'var(--lav-dd)', fontWeight: 800 }}>★ {p.demo_tag}</small>}</span>
+            <span><b>{p.name}</b><small>Age {p.age} · {p.sex === 'F' ? 'Female' : 'Male'} · HbA1c {p.hba1c}</small></span>
             <span className="chip" style={{ background: t.bg, color: t.dd }}>{p.tier}</span>
             <span className="why">{p.reasons.length ? p.reasons.join(' · ') : 'Stable, no flags'}</span>
           </button>
@@ -69,7 +69,6 @@ export function Hero({ d, onOpen }) {
         <h1>{p.name}</h1>
         <div className="muted" style={{ fontSize: 15, fontWeight: 700, margin: '-2px 0 8px' }}>{p.age} years old · {p.sex === 'F' ? 'Female' : 'Male'}</div>
         <div className="facts">
-          {p.demo_tag && <span className="chip lav">★ {p.demo_tag}</span>}
           <span className="chip">ID {p.id}</span>
           <span className="chip">{p.age} y, {p.sex === 'F' ? 'female' : 'male'}</span>
           <span className="chip">BMI {p.bmi}</span>

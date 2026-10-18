@@ -3,7 +3,7 @@ from pathlib import Path
 from xml.sax.saxutils import escape
 
 OUT = Path(__file__).parent / "architecture_flow.svg"
-W, H = 1920, 1270
+W, H = 1920, 1400
 INK, MUTED, LINE = "#14212b", "#5b6b77", "#9aa8b2"
 TEAL, BLUE, AMBER, SLATE = "#0f766e", "#1d6fb8", "#b45309", "#475569"
 TINT = {TEAL: "#e4f5f2", BLUE: "#e6eefb", AMBER: "#fdf1dc", SLATE: "#eef2f5"}
@@ -96,10 +96,10 @@ for k, (hd, sb) in enumerate([("STATIC  ·  EHR", "labs, genetics, history"), ("
 
 # modules
 mods = [
-    (430, 396, "Glucose", "GRU + LightGBM ensemble", "30 / 60 / 120 min forecast, 80% band", "Catches 72% of lows, 45 min ahead"),
-    (780, 396, "Liver", "Trained on 4,745 real NHANES adults", "Steatosis + fibrosis risk, AUROC 0.83", "Liver-fat state driven by recent glucose"),
-    (430, 546, "Eye", "EfficientNet-B2 retinopathy grader", "Grad-CAM shows where it looked", "2-year progression risk"),
-    (780, 546, "Kidney", "Albuminuria + low-eGFR risk", "AUROC 0.85 on real NHANES", "5-year eGFR path"),
+    (430, 396, "Glucose", "GRU (PyTorch) + LightGBM ensemble", "Conformal band, isotonic-calibrated alerts", "72% of lows caught, 45 min ahead"),
+    (780, 396, "Liver", "LightGBM + logistic, SHAP drivers", "Steatosis + fibrosis, AUROC 0.83 (NHANES)", "Mechanistic liver-fat state from glucose"),
+    (430, 546, "Eye", "EfficientNet-B2 (timm), ordinal grade", "Grad-CAM heatmap, kappa 0.89 on APTOS", "2-year progression: simulation"),
+    (780, 546, "Kidney", "LightGBM + logistic, SHAP drivers", "Low-eGFR / albuminuria, AUROC 0.85", "5-year eGFR path: simulation"),
 ]
 for (x, y, t, a, b, c) in mods:
     rect(x, y, 330, 134, "#fff", BLUE, 16, 2)
@@ -210,10 +210,36 @@ py = LY0 + LH / 2
 arrow(f"M{SX0 + 5 * SW + 4 * SG + 2},{py} L1888,{py} L1888,222 L1854,222", TEAL, 2.4, dash=True)
 add(f'<text transform="translate(1906,520) rotate(-90)" font-size="12.5" fill="{TEAL}" font-weight="700" text-anchor="middle" letter-spacing="1">LOOP: LOGS AND QUESTIONS FEED THE TWIN</text>')
 
+
+# ---------------------------------------------------------------- 4 stack
+text(70, 1236, "4   AI / ML MODELS AND FRAMEWORKS USED", 15, MUTED, 800, extra='letter-spacing="1.5"')
+groups = [
+    (BLUE, "AI / ML MODELS", ["GRU with quantile + event heads (PyTorch), also run as pure NumPy for live use",
+                              "LightGBM and logistic regression (scikit-learn) for liver and kidney risk",
+                              "EfficientNet-B2 (timm) retinopathy grader, ordinal regression",
+                              "Conformal prediction + isotonic calibration; SHAP and Grad-CAM explanations"]),
+    (TEAL, "LANGUAGE AND VOICE AI", ["Sarvam AI, called from the server only:",
+                                     "saaras:v4 speech-to-text, sarvam-105b chat, bulbul:v4-flash text-to-speech",
+                                     "Safety rules in code run before and after the model",
+                                     "English, Hindi, Telugu, Kannada"]),
+    (AMBER, "FRAMEWORKS AND DELIVERY", ["FastAPI + Pydantic, WebSocket, FHIR R4, ReportLab PDFs",
+                                        "React 18 + Vite dashboard (doctor and patient views)",
+                                        "pandas, NumPy; simglucose for synthetic cohort",
+                                        "Docker Compose, GitHub Actions CI; trained on 3x RTX A5000"]),
+]
+GX, GW, GGAP = 70, 580, 20
+for gi, (col, hd, lines) in enumerate(groups):
+    x = GX + gi * (GW + GGAP)
+    rect(x, 1252, GW, 100, "#fff", col, 14, 1.8)
+    add(f'<rect x="{x}" y="1252" width="8" height="100" rx="4" fill="{col}"/>')
+    text(x + 24, 1274, hd, 12.5, col, 800, extra='letter-spacing="1"')
+    for li2, l in enumerate(lines):
+        text(x + 24, 1294 + li2 * 17, l, 12.5, MUTED if li2 else INK, 400 if li2 else 600)
+
 # footer
-add(f'<line x1="70" x2="1850" y1="1236" y2="1236" stroke="{LINE}" stroke-width="1"/>')
-text(70, 1258, "Kaya is decision support for clinicians, not a diagnostic device. All patients are synthetic; metrics are out-of-sample.", 13.5, MUTED)
-text(1850, 1258, "Team Kaya · IIT Hyderabad · Digital Twin Challenge, Phase 1", 13.5, MUTED, 600, "end")
+add(f'<line x1="70" x2="1850" y1="1366" y2="1366" stroke="{LINE}" stroke-width="1"/>')
+text(70, 1388, "Kaya is decision support for clinicians, not a diagnostic device. All patients are synthetic; metrics are out-of-sample.", 13.5, MUTED)
+text(1850, 1388, "Team Kaya · IIT Hyderabad · Digital Twin Challenge, Phase 1", 13.5, MUTED, 600, "end")
 
 add("</svg>")
 OUT.write_text("\n".join(o), encoding="utf-8")
