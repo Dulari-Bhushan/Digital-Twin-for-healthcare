@@ -5,6 +5,36 @@ import { DR, EyeArt, KidneyArt, LiverArt, Ring, SegRing, TONE, pct, tierTone } f
 import GlucoseChart from './GlucoseChart'
 import LineChart from './LineChart'
 
+const FEAT = {
+  age: ['Age', ' y'], male: ['Male sex', ''], bmi: ['BMI', ''], waist_cm: ['Waist', ' cm'], alt: ['ALT', ' U/L'], ast: ['AST', ' U/L'],
+  platelets: ['Platelets', ''], hba1c: ['HbA1c', '%'], hdl: ['HDL', ' mg/dL'], diabetes: ['Diabetes', ''], sbp: ['Systolic BP', ' mmHg'], dbp: ['Diastolic BP', ' mmHg'],
+}
+
+/** Top drivers of a model's risk for this patient (SHAP): bars grow with influence, rose raises risk, mint lowers it. */
+function Drivers({ items, title }) {
+  if (!items || !items.length) return null
+  const top = items.slice(0, 4)
+  const mx = Math.max(...top.map((i) => Math.abs(i.shap)), 0.01)
+  return (
+    <div style={{ marginTop: 12 }}>
+      <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--muted)', marginBottom: 6 }}>{title}</div>
+      {top.map((it) => {
+        const [name, unit] = FEAT[it.feature] || [it.feature, '']
+        const up = it.shap > 0
+        return (
+          <div key={it.feature} style={{ display: 'grid', gridTemplateColumns: '1fr 70px', gap: 8, alignItems: 'center', marginBottom: 5 }}>
+            <div style={{ fontSize: 12, fontWeight: 700 }}>{name} {it.feature === 'diabetes' || it.feature === 'male' ? (it.value ? 'yes' : 'no') : (Math.abs(it.value) >= 10 ? Math.round(it.value) : it.value) + unit}
+              <span style={{ color: up ? 'var(--rose-dd)' : 'var(--mint-dd)', fontWeight: 800 }}> {up ? 'raises' : 'lowers'}</span></div>
+            <div style={{ height: 8, borderRadius: 6, background: 'rgba(255,255,255,.8)' }}>
+              <div style={{ width: `${(Math.abs(it.shap) / mx) * 100}%`, height: '100%', borderRadius: 6, background: up ? 'var(--rose-d)' : 'var(--mint-d)' }} />
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 const avatarOf = (p) => (p.sex === 'F' ? (p.age >= 60 ? '👵' : '👩') : p.age >= 60 ? '👴' : '👨')
 
 export function Sidebar({ patients, selected, onSelect }) {
@@ -182,6 +212,7 @@ export function Organs({ d }) {
             <div className="stat"><div className="l">Advanced fibrosis</div><div className="v">{pct(tl.adv_fibrosis[0], 1)} → {pct(tl.adv_fibrosis.at(-1), 1)}</div></div>
           </div>
         </div>
+        <Drivers items={d.explain?.steatosis} title="What drives this liver risk" />
         <div className="note">Baseline from a model validated on real NHANES FibroScan data (AUROC 0.83). The drift from glucose habits is a simulation with editable assumptions. Latest simulated FibroScan {cl.liver_stiffness_kpa} kPa.</div>
       </div>
 
@@ -221,6 +252,7 @@ export function Organs({ d }) {
           <LineChart height={130} yDomain={[Math.floor(Math.min(...kp.egfr) / 10) * 10 - 5, Math.ceil(Math.max(...kp.egfr) / 10) * 10 + 5]} xTickEvery={2} xLabel={(i) => `${kp.month[i] / 12}y`}
             series={[{ name: 'eGFR at current habits', y: kp.egfr, color: '#4a8fe9' }]} />
         </div>
+        <Drivers items={d.explain?.albuminuria} title="What drives the albuminuria risk" />
         <div className="row" style={{ gap: 8, marginTop: 6 }}>
           <span className="chip">{stage}</span>
           <span className="chip">{kp.slope_per_year.toFixed(1)} per year</span>

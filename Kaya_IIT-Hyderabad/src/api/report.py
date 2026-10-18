@@ -30,6 +30,26 @@ def _styles():
     }
 
 
+FEAT = {"age": ("age", "y"), "male": ("male sex", ""), "bmi": ("BMI", ""), "waist_cm": ("waist", " cm"), "alt": ("ALT", " U/L"), "ast": ("AST", " U/L"),
+        "platelets": ("platelets", ""), "hba1c": ("HbA1c", "%"), "hdl": ("HDL", " mg/dL"), "diabetes": ("diabetes", ""), "sbp": ("systolic BP", " mmHg"),
+        "dbp": ("diastolic BP", " mmHg")}
+
+
+def _drivers(a, key, k=3):
+    items = a.get("explain", {}).get(key, [])[:k]
+    if not items:
+        return ""
+    parts = []
+    for it in items:
+        name, unit = FEAT.get(it["feature"], (it["feature"], ""))
+        if it["feature"] in ("diabetes", "male"):
+            val, unit = ("yes" if it["value"] else "no"), ""
+        else:
+            val = f"{it['value']:.0f}" if abs(it["value"]) >= 10 else f"{it['value']:.1f}"
+        parts.append(f"{name} {val}{unit} ({'raises' if it['shap'] > 0 else 'lowers'})")
+    return "Main drivers: " + ", ".join(parts) + "."
+
+
 def _pct(x, d=0):
     return f"{x * 100:.{d}f}%"
 
@@ -140,14 +160,14 @@ def build_report(a: dict, summary: dict, now: dict, scenarios: list[tuple[str, d
     org = [[P("<b>Organ</b>"), P("<b>Finding</b>"), P("<b>Evidence</b>")],
            [P("<b>Liver</b>"), P(f"Steatosis risk {_pct(tl['steatosis'][0])}, {_pct(tl['steatosis'][-1])} at 12 months at current habits.<br/>"
                                 f"Advanced fibrosis {_pct(tl['adv_fibrosis'][0], 1)}, {_pct(tl['adv_fibrosis'][-1], 1)} at 12 months. "
-                                f"Last FibroScan {a['profile']['clinic']['liver_stiffness_kpa']} kPa; FIB-4 {lab['fib4']}."),
+                                f"Last FibroScan {a['profile']['clinic']['liver_stiffness_kpa']} kPa; FIB-4 {lab['fib4']}.<br/>{_drivers(a, 'steatosis')}"),
             P("Baseline: model validated on real NHANES FibroScan data (AUROC 0.83). 12-month drift from glucose habits: simulation.")],
            [P("<b>Eyes</b>"), P(f"{GRADES[a['eye']['grade']]} (grade {a['eye']['grade']}). Two-year progression risk {_pct(a['eye']['progression_2y'])}."),
             P("Image grader validated on APTOS (kappa 0.89) and Indian IDRiD (0.71 after fine-tuning). Progression risk: simulation.")],
            [P("<b>Kidneys</b>"), P(f"eGFR {lab['egfr']:.0f}, UACR {lab['uacr_mg_g']:.0f} mg/g. Albuminuria risk {_pct(kp['albuminuria'][0])} now, "
                                   f"{_pct(kp['albuminuria'][-1])} at 12 months. eGFR about {kp['egfr'][-1]:.0f} in 5 years "
                                   f"({kp['slope_per_year']:.1f} per year); "
-                                  + ("already below 60." if lab["egfr"] < 60 else f"reaches 60 in about {kp['years_to_egfr60']} years at this rate.")),
+                                  + ("already below 60." if lab["egfr"] < 60 else f"reaches 60 in about {kp['years_to_egfr60']} years at this rate.") + f"<br/>{_drivers(a, 'albuminuria')}"),
             P("Risk model validated on real NHANES data (AUROC 0.76 albuminuria, 0.85 reduced eGFR). eGFR path: simulation.")]]
     story.append(_table(org, [W * 0.1, W * 0.55, W * 0.35]))
 

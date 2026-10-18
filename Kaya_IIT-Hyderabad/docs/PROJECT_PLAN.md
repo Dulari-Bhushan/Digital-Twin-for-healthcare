@@ -149,17 +149,25 @@ Anything in V2 is deliberately deferred so V1 ships complete. If time remains af
 
 1. Illustrative generative retina preview (grade-conditioned image generation, clearly labelled illustrative)
 2. (done) Kidney module: NHANES risk model, eGFR path, what-if
-3. PDF clinical summary export from the doctor view
-4. Patient view in Hindi, Telugu and Kannada
+3. (done) PDF clinical summary export from the doctor view
+4. (done) Patient view in Hindi, Telugu and Kannada (drafts, native review pending)
 5. Model-health page (drift, performance) and access audit log
 6. Authentication and role-based access (doctor, patient, admin)
 7. Fuller FHIR R4 coverage (DiagnosticReport, Condition) and a mocked ABDM consent flow
 8. Synthea EHR and synthetic clinical notes with a clinical-text encoder for the liver module
-9. SHAP explanations surfaced in the dashboard
+9. (done) SHAP explanations surfaced in the dashboard
+12. (done) GitHub Actions CI
 10. Use the Shanghai T2DM dataset for an extra external check of the glucose model
 11. Finer alert-threshold tuning for rare hypoglycemia on the synthetic cohort
-12. GitHub Actions CI
 13. Subgroup performance analysis (age, sex, ethnicity) in model cards
 14. Real-data validation of the CGM-to-liver link, if a suitable dataset becomes available
 
 The README marks V1 versus later items so nothing is claimed that is not built.
+
+### Added after V1
+
+- Live mode: numpy GRU inference on every reading, ingest endpoint, WebSocket feed
+- PDF clinical summary
+- Hindi, Telugu and Kannada patient app
+- SHAP drivers for liver and kidney risk
+- GitHub Actions CI and API tests

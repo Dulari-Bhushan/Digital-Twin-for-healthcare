@@ -6,6 +6,7 @@
 
 *Submission to the Happiest Health "Reimagining and Reforming Healthcare in India" Summit 2026, Digital Twin Challenge, Phase 1.*
 
+![CI](https://github.com/Dulari-Bhushan/Digital-Twin-for-healthcare/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 ![Data](https://img.shields.io/badge/data-open%20%2B%20synthetic%20only-green)
 ![Status](https://img.shields.io/badge/status-in%20active%20development-orange)
@@ -59,7 +60,7 @@ On top sits the **what-if engine**: change a meal, add a walk, improve sleep or 
 
 ## Screenshots
 
-**Doctor workspace**: triaged patients, the glucose twin with a forecast fan you can replay, organ cards, and the what-if studio.
+**Doctor workspace** (with **Go live** and **Download clinical summary**): triaged patients, the glucose twin with a forecast fan you can replay, organ cards, and the what-if studio.
 
 ![Doctor workspace](docs/img/doctor_view.png)
 
@@ -91,6 +92,16 @@ flowchart TD
     W --> P[Patient view]
     W --> R[FHIR API and PDF report]
 ```
+
+## Product features
+
+| Feature | What it does |
+|---|---|
+| **Live mode** | The glucose model runs on every incoming 5-minute reading (about 1 ms, pure numpy, no GPU) and the dashboard updates in real time. Press **Go live** in the doctor view, or POST readings from a device to `/api/live/{id}/reading`. A WebSocket feed (`/ws/live/{id}`) simulates a wearable. |
+| **Explanations** | Why an alert fired (glucose trend and recent meal), what drives each liver and kidney risk for this patient (SHAP), and where the retina model looked (Grad-CAM). |
+| **Clinical summary PDF** | One click from the doctor view (`/api/patients/{id}/report.pdf`): glucose chart with forecast, organ risks with their evidence level, what-if table and recent alerts. |
+| **Four languages** | The patient app in English, Hindi, Telugu and Kannada with a one-tap switcher. The Indian-language texts are drafts and should be reviewed by a native speaker. |
+| **Tests and CI** | 15 tests (data, what-if, live inference against PyTorch, API, PDF, FHIR) run on every push with GitHub Actions. |
 
 ## 5. Results so far
 

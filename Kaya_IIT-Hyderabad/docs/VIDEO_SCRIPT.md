@@ -15,9 +15,10 @@ Record the screen with the dashboard open (`uvicorn app:app --app-dir src/api --
 | 14:00 | Eye results | Slide 10 | APTOS result, then IDRiD zero-shot and fine-tuned. Explain domain shift. Show Grad-CAM. |
 | 15:00 | Live demo: doctor | Dashboard, doctor view | Show the triage list and why patients are flagged (including kidney flags). Pick a patient. Press **Replay last 3 days** and talk through the forecast fan, the alerts, and the faded actual future. Show an alert's "why". |
 | 18:30 | Live demo: what-if | What-if panel | Press the presets one at a time, then **All three**. Read the before and after: time in range, liver, eye. State that these are assumptions shown as a simulation. |
-| 20:30 | Live demo: patient | Patient view | One sugar status, one nudge, organ lights, "try a change". |
+| 20:00 | Live demo: live mode | Doctor view, **Go live** | Start the live feed. Say: the model runs on every reading, about a millisecond each, and forecasts update as data arrives. Mention the ingest endpoint for real devices. |
+| 20:30 | Live demo: patient | Patient view | One sugar status, one nudge, organ rings, "try a change". Switch the language to Hindi, Telugu and Kannada with the buttons at the top of the phone. Open **Download clinical summary** from the doctor view and scroll the PDF. |
 | 21:30 | Product depth | API docs at /docs, FHIR | Show `/docs`, `/fhir/Patient/{id}`, and mention Docker. |
-| 22:30 | Limits and roadmap | Slide 13 | State limitations plainly. Roadmap: retina preview, multilingual, consent and audit. |
-| 24:00 | Close | Slide 14 | Repeat the one-line message. Thank the organisers. |
+| 22:30 | Limits and roadmap | Slide 14 | State limitations plainly. Roadmap: retina preview, multilingual, consent and audit. |
+| 24:00 | Close | Slide 15 | Repeat the one-line message. Thank the organisers. |
 
 Tips: keep the replay running while you speak so the forecast fan is visible; do not claim clinical validation; say "simulation" every time you show a what-if number.

@@ -15,6 +15,7 @@ Kaya is clinical decision support built on open and synthetic data. It is not a 
 | **Alerts** | At about one false alert per patient-day: 72% of hypoglycemia episodes caught, median 45 minutes of warning |
 | **Limits** | Only 34 real subjects, mostly without diabetes complications; CGMacros has few hypoglycemia events; activity channels are mapped between sources with a simple scaling; hypoglycemia alert thresholds on the synthetic cohort are coarse |
 | **Not for** | Insulin dosing or automated treatment decisions |
+| **Live inference** | The dashboard's live mode and the ingest endpoint run the GRU alone (exported to numpy, verified against PyTorch to within 1e-3), with conformal offsets and isotonic calibration fitted for the GRU alone. The offline results above use the GRU + LightGBM ensemble |
 
 ## 2. Liver risk
 
@@ -55,6 +56,10 @@ Kaya is clinical decision support built on open and synthetic data. It is not a 
 ## 5. What-if engine
 
 Splits a patient's glucose into a slow baseline and meal-driven excursions, rescales excursions after meals (portion size, walking after meals) and shifts the baseline (medication), then recomputes glucose metrics and feeds them to the liver and eye modules. Effect sizes (a walk after a meal blunts the excursion by about a third; a 25% carbohydrate reduction scales excursions by 0.75) are literature-informed assumptions. Output is a simulation to support a conversation, not a prediction.
+
+## Explanations
+
+Liver and kidney risk drivers are SHAP values from the same LightGBM models (log-odds contributions). They describe the model's behaviour for one patient and are not causal claims. Alert reasons are rule-based summaries of the inputs the model saw (glucose trend and recent meal). Retina heatmaps are Grad-CAM.
 
 ## Data and privacy
 

@@ -131,7 +131,7 @@ def patient(pid: int):
                          "hi": round(min(max(g_now + q[i][2], 40), 400), 1)} for i, m in enumerate(HORIZONS_MIN)],
            "p_hyper_2h": p[0], "p_hypo_2h": p[1]}
     return {"summary": s, "profile": a["profile"], "metrics": a["metrics"], "now": now,
-            "liver": a["liver"], "kidney": a["kidney"], "eye": {**a["eye"], "grade_label": GRADES[a["eye"]["grade"]]},
+            "liver": a["liver"], "kidney": a["kidney"], "explain": a.get("explain", {}), "eye": {**a["eye"], "grade_label": GRADES[a["eye"]["grade"]]},
             "alerts": [{**x, "time": _iso(x["t"])} for x in a["alerts"]][-20:]}
 
 

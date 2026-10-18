@@ -264,6 +264,20 @@ for path, (y0, y1, c0, c1) in shots:
 ax.text(18.5, 5.2, "Doctor workspace", ha="center", fontsize=11, color=MUTED)
 ax.text(66, 5.2, "Patient app: today, insights, try a change", ha="center", fontsize=11, color=MUTED)
 
+# 11b -------------------------------------------------------------- product features
+fig, ax = new("Built like a product, not a notebook", "Four features that make the twin usable in a clinic")
+feats = [("Live mode", "The glucose model runs on every incoming reading, about 1 ms each, and the dashboard updates in real time. Devices can POST readings to the API.", TEAL),
+         ("Explained", "Why an alert fired, what drives each organ risk (SHAP), and where the retina model looked (Grad-CAM).", BLUE),
+         ("One-click report", "A clinical summary PDF with the glucose chart, organ risks with their evidence level, a what-if table and recent alerts.", AMBER),
+         ("Four languages", "The patient app in English, Hindi, Telugu and Kannada, with a one-tap switcher. Drafts pending native review.", "#7160e6")]
+import textwrap
+for i, (t_, d_, c_) in enumerate(feats):
+    x = 5 + (i % 2) * 46
+    y = 24 - (i // 2) * 20
+    ax.add_patch(FancyBboxPatch((x, y), 44, 17, boxstyle="round,pad=0,rounding_size=1.2", fc="#f5f7f8", ec=c_, lw=1.8))
+    ax.text(x + 2.5, y + 13.2, t_, fontsize=16, fontweight="bold", color=c_, va="center")
+    ax.text(x + 2.5, y + 6.4, textwrap.fill(d_, 58), fontsize=10.6, color=INK, va="center", linespacing=1.45)
+
 # 12 --------------------------------------------------------------- limits and roadmap
 fig, ax = new("Limitations, ethics and what is next")
 ax.text(5, 44, "Limitations we state openly", fontsize=15, fontweight="bold", color=AMBER)
@@ -272,8 +286,8 @@ bullets(ax, 5, 40.5, ["Glucose-to-organ links and what-if effect sizes are assum
                       "Decision support for clinicians, not a diagnostic device; not clinically validated"], 12.5, 4.6)
 ax.text(5, 24.5, "Roadmap", fontsize=15, fontweight="bold", color=TEAL)
 bullets(ax, 5, 21, ["An illustrative, clearly labelled retina progression preview and a blood-pressure what-if",
-                    "Hindi, Telugu and Kannada patient view; PDF clinical summary",
                     "Consent records, audit log, role-based access, fuller FHIR and ABDM alignment",
+                    "Native-speaker review of the Hindi, Telugu and Kannada patient app; synthetic clinical notes with a text model",
                     "Validate the glucose-to-organ links on real longitudinal data when available"], 12.5, 4.6)
 
 # 13 --------------------------------------------------------------- close
