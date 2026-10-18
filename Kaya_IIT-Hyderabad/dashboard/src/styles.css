@@ -282,3 +282,12 @@ figcaption { font-size: 12px; font-weight: 700; color: var(--muted); margin-top:
 .dgdot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
 a.btn { color: var(--ink); }
 a.btn.go { color: #fff; }
+
+/* admin */
+.admin { max-width: 1240px; margin: 0 auto; padding: 8px 24px 48px; display: grid; gap: 16px; align-content: start; }
+.adm-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.adm-in { border: 2px solid var(--lav); border-radius: 999px; padding: 11px 16px; font: inherit; min-width: 260px; outline: none; }
+.adm-in:focus { border-color: var(--lav-d); }
+.adm-chk { border-radius: 14px; padding: 9px 14px; display: grid; gap: 1px; font-size: 13.5px; }
+.adm-chk span { font-weight: 600; opacity: .9; }
+.admin .rt td { white-space: normal; vertical-align: top; }

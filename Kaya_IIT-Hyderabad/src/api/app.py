@@ -9,6 +9,7 @@ import asyncio
 import json
 import os
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -27,6 +28,7 @@ from engine import Scenario, glucose_metrics, run as run_whatif  # noqa: E402
 from eye_risk import GRADES, progression_risk  # noqa: E402
 from kidney_dynamic import KidneyParams, projection  # noqa: E402
 import assistant as asst  # noqa: E402
+import admin as adm  # noqa: E402
 import diary  # noqa: E402
 import reports as rpt  # noqa: E402
 from live import Calibration, LiveTwin, NumpyGRU  # noqa: E402
@@ -43,6 +45,18 @@ app = FastAPI(title="Kaya API", version="1.0.0",
               description="Multi-organ digital twin for Type 2 Diabetes. Decision support for clinicians, not a diagnostic device. "
                           "All patients are synthetic.")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+@app.middleware("http")
+async def _telemetry(request: Request, call_next):
+    t = time.perf_counter()
+    try:
+        resp = await call_next(request)
+    except Exception:
+        adm.TEL.record(request.method, request.url.path, 500, (time.perf_counter() - t) * 1000)
+        raise
+    adm.TEL.record(request.method, request.url.path, resp.status_code, (time.perf_counter() - t) * 1000)
+    return resp
+
 
 STORE: dict[int, dict] = {}
 META: dict = {}
@@ -216,6 +230,7 @@ def report_pdf(pid: int):
     from report import build_report
 
     a = _get(pid)
+    adm.TEL.audit("clinician", "clinical summary PDF", f"patient {pid}")
     presets = [("Walk 20 min after meals", WhatIf(walk_after_meals=20, steps_delta=2000)),
                ("Smaller carb portions (-25%)", WhatIf(carb_scale=0.75)),
                ("Medication optimised (-15 mg/dL)", WhatIf(baseline_shift=-15)),
@@ -287,6 +302,7 @@ def log_add(pid: int, body: LogEntry, request: Request):
     if not diary.valid(body.kind, body.value):
         raise HTTPException(422, "unknown log entry")
     diary.add(pid, _today(pid), body.kind, body.value, body.note)
+    adm.TEL.audit("patient app", "diary entry", f"patient {pid}: {body.kind}")
     return log_get(pid)
 
 
@@ -295,6 +311,7 @@ def log_delete(pid: int, entry_id: str):
     _get(pid)
     if not diary.remove(pid, entry_id):
         raise HTTPException(404, "entry not found")
+    adm.TEL.audit("patient app", "diary entry removed", f"patient {pid}")
     return log_get(pid)
 
 
@@ -304,6 +321,7 @@ def report_one_pdf(pid: int, rid: str):
     rep = next((r for r in rec["reports"] if r["id"] == rid), None)
     if rep is None:
         raise HTTPException(404, "report not found")
+    adm.TEL.audit("clinician", "report PDF", f"patient {pid}: {rep['code']} {rep['date']}")
     return Response(rpt.report_pdf(_get(pid)["profile"], rep), media_type="application/pdf",
                     headers={"Content-Disposition": f'inline; filename="{rid}.pdf"'})
 
@@ -328,6 +346,7 @@ def live_reading(pid: int, body: Reading, reset: bool = False):
     """Ingest one 5-minute reading from a device. Returns the twin's forecast once 2 hours of history exist."""
     if reset or pid not in SESSIONS:
         SESSIONS[pid] = _new_twin(pid)
+        adm.TEL.audit("device", "live session started", f"patient {pid}")
     out = SESSIONS[pid].push(body.glucose, body.heart_rate, body.steps, body.meal_carbs, body.minute_of_day)
     return {"ready": out is not None, "readings_buffered": SESSIONS[pid].n, "forecast": out,
             "note": "forecast values are changes in mg/dL from the current glucose: [horizon 30/60/120][low, median, high]"}
@@ -428,6 +447,13 @@ class AssistantReq(BaseModel):
 
 @app.post("/api/assistant")
 def assistant(body: AssistantReq, request: Request):
+    out = _assistant_inner(body, request)
+    adm.TEL.assistant[out["kind"]] += 1
+    adm.TEL.audit("patient app", "assistant", f"{out['kind']} reply, patient {body.pid}, {body.lang}")
+    return out
+
+
+def _assistant_inner(body: AssistantReq, request: Request):
     """Safety rules run first; only an ordinary question reaches the language model."""
     _rate_limit(request)
     a = _get(body.pid)
@@ -447,6 +473,102 @@ def assistant(body: AssistantReq, request: Request):
     except VoiceError:
         return {"kind": "error", "reply": asst.FALLBACK_MSG[lang], "action": None}
     return {"kind": "medicine" if blocked else "chat", "reply": reply, "action": None}
+
+
+# ------------------------------------------------------------------ IT admin: health, inventory, traffic, audit, self-test
+def _admin_guard(request: Request) -> None:
+    if not adm.token_ok(request.headers.get("x-admin-token") or request.query_params.get("token")):
+        raise HTTPException(401, "admin token required")
+
+
+def _admin_state() -> dict:
+    return {"root": ROOT, "art_dir": ART_DIR, "model_dir": MODEL_DIR, "log_dir": diary.LOG_DIR, "live_loaded": "net" in LIVE, "live_sessions": len(SESSIONS),
+            "voice": VOICE.get("client") is not None, "voice_models": f"{STT_MODEL}, {TTS_MODEL}, {CHAT_MODEL}", "patients": len(STORE), "version": app.version}
+
+
+@app.get("/api/admin/overview")
+def admin_overview(request: Request):
+    _admin_guard(request)
+    return adm.overview(_admin_state())
+
+
+@app.post("/api/admin/selftest")
+def admin_selftest(request: Request):
+    """Runs the main code paths once and reports pass or fail with timings. Uses one patient; changes nothing."""
+    import tempfile
+
+    _admin_guard(request)
+    adm.TEL.audit("admin", "self-test run")
+    pid = next(iter(STORE))
+    checks = []
+
+    def run(name, fn, warn=False):
+        t = time.perf_counter()
+        try:
+            detail = fn()
+            ok = True
+        except Exception as e:  # noqa: BLE001
+            detail, ok = f"{type(e).__name__}: {e}", False
+        checks.append({"name": name, "ok": ok, "warn": warn and not ok, "ms": round((time.perf_counter() - t) * 1000, 1), "detail": str(detail)[:140]})
+
+    def artifacts():
+        assert len(STORE) >= 1
+        return f"{len(STORE)} patients loaded"
+
+    def triage():
+        rows = patients()
+        return f"{len(rows)} summaries, top score {rows[0]['score']}"
+
+    def whatif_run():
+        r = _whatif_compute(_get(pid), WhatIf(carb_scale=0.75, walk_after_meals=20))
+        return f"time in range {r['metrics']['before']['tir']:.2f} to {r['metrics']['after']['tir']:.2f}"
+
+    def live_model():
+        twin = _new_twin(pid)
+        sr = _get(pid)["series"]
+        out = None
+        t = time.perf_counter()
+        n = L_WARM + 6
+        for i in range(n):
+            out = twin.push(sr["glucose"][i], sr["heart_rate"][i], sr["steps"][i], sr["meal_carbs"][i], (i * STEP_MIN) % 1440)
+        assert out is not None, "no forecast after warm-up"
+        return f"{(time.perf_counter() - t) * 1000 / n:.2f} ms per reading"
+
+    def records():
+        r = _record(pid)
+        return f"{len(r['record']['reports'])} reports, {len(r['changes']['items'])} comparisons"
+
+    def pdf():
+        rec = _record(pid)["record"]["reports"][0]
+        b = rpt.report_pdf(_get(pid)["profile"], rec)
+        assert b[:4] == b"%PDF"
+        return f"{len(b) / 1024:.0f} KB"
+
+    def diary_dir():
+        d = diary.LOG_DIR
+        d.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(dir=d, suffix=".tmp") as f:
+            f.write(b"ok")
+        return "writable"
+
+    def voice_key():
+        assert VOICE.get("client") is not None, "no key configured"
+        return "configured"
+
+    def dashboard():
+        assert (ROOT / "dashboard" / "dist" / "index.html").exists(), "dashboard not built"
+        return "built"
+
+    run("Artifacts loaded", artifacts)
+    run("Triage list", triage)
+    run("What-if engine", whatif_run)
+    run("Live model (numpy GRU)", live_model)
+    run("Medical record history", records)
+    run("PDF rendering", pdf)
+    run("Diary storage writable", diary_dir)
+    run("Voice key present", voice_key, warn=True)
+    run("Dashboard build present", dashboard, warn=True)
+    return {"ok": all(c["ok"] or c["warn"] for c in checks), "checks": checks}
 
 
 # ------------------------------------------------------------------ FHIR R4 (read-only, minimal)

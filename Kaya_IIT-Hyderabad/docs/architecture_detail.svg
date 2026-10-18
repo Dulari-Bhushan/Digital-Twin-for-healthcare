@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 860" width="1920" height="860" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+<defs><filter id="sh" x="-5%" y="-5%" width="110%" height="120%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f2530" flood-opacity="0.10"/></filter><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7fafb"/><stop offset="1" stop-color="#eef3f5"/></linearGradient><linearGradient id="core" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9f7f4"/><stop offset="1" stop-color="#eaf1fc"/></linearGradient>
+<marker id="a9aa8b2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9aa8b2"/></marker>
+<marker id="a0f766e" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0f766e"/></marker>
+<marker id="a1d6fb8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d6fb8"/></marker>
+<marker id="ab45309" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker>
+<marker id="a475569" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+</defs>
+<rect width="1920" height="860" fill="url(#bg)"/>
+<text x="70" y="68" font-size="38" fill="#14212b" font-weight="800" text-anchor="start" >Under the hood</text>
+<text x="70" y="102" font-size="18" fill="#5b6b77" font-weight="400" text-anchor="start" >The models, what they were trained and tested on, and the software around them.</text>
+<rect x="1500" y="40" width="350" height="34" rx="17.0" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>
+<text x="1675.0" y="61.9" font-size="14" fill="#0f766e" font-weight="600" text-anchor="middle" >Open + synthetic data only  ·  Decision support</text>
+<text x="70" y="150" font-size="14" fill="#5b6b77" font-weight="800" text-anchor="start" letter-spacing="1.6">MODELS AND EVIDENCE</text>
+<rect x="70" y="168" width="435" height="248" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
+<rect x="70" y="168" width="8" height="248" rx="4" fill="#1d6fb8"/>
+<text x="98" y="208" font-size="24" fill="#14212b" font-weight="800" text-anchor="start" >Glucose</text>
+<text x="98" y="236" font-size="15.5" fill="#1d6fb8" font-weight="600" text-anchor="start" >GRU (PyTorch) + LightGBM ensemble</text>
+<text x="98" y="268" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Quantile + adverse-event heads</text>
+<text x="98" y="293" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Conformal 80% bands, isotonic-calibrated alerts</text>
+<text x="98" y="318" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Trained on real CGMacros + synthetic cohort</text>
+<text x="98" y="343" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >RMSE 12.6 / 21.1 / 28.2 mg/dL at 30 / 60 / 120 min</text>
+<text x="98" y="368" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Catches 72% of lows, median 45 min ahead</text>
+<rect x="525" y="168" width="435" height="248" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
+<rect x="525" y="168" width="8" height="248" rx="4" fill="#1d6fb8"/>
+<text x="553" y="208" font-size="24" fill="#14212b" font-weight="800" text-anchor="start" >Liver</text>
+<text x="553" y="236" font-size="15.5" fill="#1d6fb8" font-weight="600" text-anchor="start" >LightGBM + logistic regression, SHAP</text>
+<text x="553" y="268" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >NHANES 2017-18, 4,745 adults, FibroScan labels</text>
+<text x="553" y="293" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Advanced fibrosis AUROC 0.83 (FIB-4: 0.63)</text>
+<text x="553" y="318" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Steatosis AUROC 0.83 (FLI: 0.82)</text>
+<text x="553" y="343" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Liver-fat state: mechanistic, driven by glucose</text>
+<rect x="70" y="436" width="435" height="248" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
+<rect x="70" y="436" width="8" height="248" rx="4" fill="#1d6fb8"/>
+<text x="98" y="476" font-size="24" fill="#14212b" font-weight="800" text-anchor="start" >Eye</text>
+<text x="98" y="504" font-size="15.5" fill="#1d6fb8" font-weight="600" text-anchor="start" >EfficientNet-B2 (timm) + Grad-CAM</text>
+<text x="98" y="536" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Ordinal regression on APTOS 2019</text>
+<text x="98" y="561" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Kappa 0.89 on APTOS; 0.71 on Indian IDRiD</text>
+<text x="98" y="586" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >after fine-tuning (0.57 without)</text>
+<text x="98" y="611" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >2-year progression risk: simulation</text>
+<rect x="525" y="436" width="435" height="248" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
+<rect x="525" y="436" width="8" height="248" rx="4" fill="#1d6fb8"/>
+<text x="553" y="476" font-size="24" fill="#14212b" font-weight="800" text-anchor="start" >Kidney</text>
+<text x="553" y="504" font-size="15.5" fill="#1d6fb8" font-weight="600" text-anchor="start" >LightGBM + logistic regression, SHAP</text>
+<text x="553" y="536" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >NHANES 2017-18, 4,827 adults</text>
+<text x="553" y="561" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Low eGFR AUROC 0.85, albuminuria 0.76</text>
+<text x="553" y="586" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Modest gain over a simple baseline, stated openly</text>
+<text x="553" y="611" font-size="14.5" fill="#5b6b77" font-weight="400" text-anchor="start" >5-year eGFR path: simulation</text>
+<rect x="1000" y="168" width="850" height="164" rx="16" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="1000" y="168" width="8" height="164" rx="4" fill="#0f766e"/>
+<text x="1030" y="204" font-size="14" fill="#0f766e" font-weight="800" text-anchor="start" letter-spacing="1.4">LANGUAGE AND VOICE AI</text>
+<text x="1030" y="238" font-size="15" fill="#14212b" font-weight="600" text-anchor="start" >Sarvam AI, called from the server only (the key never reaches the browser)</text>
+<text x="1030" y="268" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >saaras:v4 speech-to-text  ·  sarvam-105b-conversations chat  ·  bulbul:v4-flash text-to-speech</text>
+<text x="1030" y="298" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >English, Hindi, Telugu, Kannada. Emergency and dose rules run in code, before and after the model</text>
+<rect x="1000" y="348" width="850" height="164" rx="16" fill="#fff" stroke="#b45309" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="1000" y="348" width="8" height="164" rx="4" fill="#b45309"/>
+<text x="1030" y="384" font-size="14" fill="#b45309" font-weight="800" text-anchor="start" letter-spacing="1.4">FRAMEWORKS AND DELIVERY</text>
+<text x="1030" y="418" font-size="15" fill="#14212b" font-weight="600" text-anchor="start" >FastAPI, Pydantic, WebSocket, FHIR R4, ReportLab PDFs   ·   React 18 + Vite</text>
+<text x="1030" y="448" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >Live mode runs the GRU in pure NumPy, about 1 ms per reading, no GPU</text>
+<text x="1030" y="478" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >pandas, scikit-learn, SHAP, simglucose   ·   Docker Compose, GitHub Actions CI   ·   trained on 3x RTX A5000</text>
+<rect x="1000" y="528" width="850" height="164" rx="16" fill="#fff" stroke="#b45309" stroke-width="1.8" stroke-dasharray="7 5" filter="url(#sh)"/>
+<rect x="1000" y="528" width="8" height="164" rx="4" fill="#b45309"/>
+<text x="1030" y="564" font-size="14" fill="#b45309" font-weight="800" text-anchor="start" letter-spacing="1.4">HOSPITAL IT: TODAY AND ROADMAP</text>
+<text x="1030" y="598" font-size="15" fill="#14212b" font-weight="600" text-anchor="start" >Today: REST API, live readings, FHIR Patient and Observation, Docker deploy</text>
+<text x="1030" y="628" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >Roadmap, not built: consent records, access audit log, model-health page,</text>
+<text x="1030" y="658" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >ABDM alignment, FHIR DiagnosticReport and Condition</text>
+<rect x="70" y="718" width="1780" height="60" rx="12" fill="#eef2f5" stroke="none" stroke-width="0"/>
+<text x="960" y="754" font-size="16" fill="#475569" font-weight="600" text-anchor="middle" >All metrics are out-of-sample. The links from glucose patterns to organ outcomes are simulated on a synthetic cohort and are not clinically validated.</text>
+<line x1="70" x2="1850" y1="812" y2="812" stroke="#9aa8b2" stroke-width="1"/>
+<text x="70" y="836" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >Kaya is decision support for clinicians, not a diagnostic device.</text>
+<text x="1850" y="836" font-size="14" fill="#5b6b77" font-weight="600" text-anchor="end" >Team Kaya · IIT Hyderabad · Digital Twin Challenge, Phase 1</text>
+</svg>

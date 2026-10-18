@@ -69,6 +69,10 @@ The history is generated, not recorded: today's values come from each patient's 
 
 **Doctor view.** The record's Overview has **Patient diary and adherence**: morning and evening medicines taken, days with a walk, days felt unwell, a 14-day grid, and the patient's own notes. Anything logged in the patient app appears here on reload. Rajesh logged evening medicines on about half of the days, and that shows up as a line in the attention list; Priya's diary is consistent. The 14 seeded days are synthetic and generated from each patient's own glucose and step data; entries made live are stored in `data/patient_logs/` (git-ignored). To reset the demo, delete that folder.
 
+## The IT admin page
+
+Open **Admin** in the header (or `?view=admin`). It shows service health and uptime, request counts with p50 and p95 latency, the model and data inventory, integrations (voice, FHIR, live feed), assistant safety counters, an audit trail of recent actions (diary entries, PDF downloads, assistant outcomes, live sessions) and a hardening checklist. Press **Run self-test** (or open `?view=admin&selftest=1`) to run the main code paths once: artifacts, triage, what-if, the live model, record history, PDF rendering and storage. Start the server with `KAYA_ADMIN_TOKEN=...` to require a token. Counters and the audit trail are in memory and reset when the server restarts; no patient data or keys are shown.
+
 ## Suggested flow (about 6 minutes)
 
 1. **Doctor view, Rajesh.** Show the triage list (sorted by priority; Priya is further down, pick her by name). Point at why he is flagged (time in range, liver, kidney, retinopathy). Press **Replay last 3 days**: the forecast fan appears before the evening spike.

@@ -99,3 +99,31 @@ def test_log_api_round_trip(client, tmp_path, monkeypatch):
     assert client.delete(f"/api/patients/1636/log/{eid}").json()["today"]["med_evening"] is False
     assert client.delete("/api/patients/1636/log/nope").status_code == 404
     assert any("Evening medicines" in a["text"] for a in client.get("/api/patients/1688/changes").json()["attention"])
+
+
+def test_admin_overview_and_selftest(client, monkeypatch):
+    client.get("/api/patients")
+    o = client.get("/api/admin/overview").json()
+    assert o["service"]["status"] == "ok" and o["data"]["patients"] == 24 and o["data"]["synthetic"] is True
+    assert any(m["name"] == "Glucose forecaster" for m in o["models"]) and o["traffic"]["total"] >= 1
+    assert not any("sk_" in str(v) for v in o["integrations"])
+    st = client.post("/api/admin/selftest").json()
+    required = [c for c in st["checks"] if not c["warn"]]
+    assert required and all(c["ok"] for c in required)
+
+
+def test_admin_token_is_enforced_when_set(client, monkeypatch):
+    monkeypatch.setenv("KAYA_ADMIN_TOKEN", "s3cret")
+    assert client.get("/api/admin/overview").status_code == 401
+    assert client.get("/api/admin/overview", headers={"x-admin-token": "wrong"}).status_code == 401
+    assert client.get("/api/admin/overview", headers={"x-admin-token": "s3cret"}).json()["auth"] == "token"
+    assert client.post("/api/admin/selftest").status_code == 401
+
+
+def test_assistant_outcomes_are_counted_without_message_text(client):
+    import admin
+
+    before = admin.TEL.assistant["medicine"]
+    client.post("/api/assistant", json={"pid": 1688, "message": "how much insulin should I take tonight"})
+    assert admin.TEL.assistant["medicine"] == before + 1
+    assert "insulin" not in str(list(admin.TEL.audit_log)).lower()

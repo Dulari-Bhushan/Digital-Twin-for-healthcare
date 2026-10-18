@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1010" width="1920" height="1010" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+<defs><filter id="sh" x="-5%" y="-5%" width="110%" height="120%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f2530" flood-opacity="0.10"/></filter><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7fafb"/><stop offset="1" stop-color="#eef3f5"/></linearGradient><linearGradient id="core" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9f7f4"/><stop offset="1" stop-color="#eaf1fc"/></linearGradient>
+<marker id="a9aa8b2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9aa8b2"/></marker>
+<marker id="a0f766e" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0f766e"/></marker>
+<marker id="a1d6fb8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d6fb8"/></marker>
+<marker id="ab45309" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker>
+<marker id="a475569" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+</defs>
+<rect width="1920" height="1010" fill="url(#bg)"/>
+<text x="70" y="68" font-size="38" fill="#14212b" font-weight="800" text-anchor="start" >Kaya: one twin per patient</text>
+<text x="70" y="102" font-size="18" fill="#5b6b77" font-weight="400" text-anchor="start" >It shows what glucose does to the liver, eyes and kidneys, and lets you test a change before trying it on the real patient.</text>
+<rect x="1500" y="40" width="350" height="34" rx="17.0" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>
+<text x="1675.0" y="61.9" font-size="14" fill="#0f766e" font-weight="600" text-anchor="middle" >Open + synthetic data only  ·  Decision support</text>
+<text x="70" y="150" font-size="14" fill="#5b6b77" font-weight="800" text-anchor="start" letter-spacing="1.6">1   WHAT GOES IN</text>
+<rect x="70" y="166" width="332" height="70" rx="14" fill="#fff" stroke="#1d6fb8" stroke-width="1.8" filter="url(#sh)"/>
+<circle cx="114" cy="201" r="24" fill="#e6eefb"/>
+<text x="114" y="210" font-size="24" fill="#14212b" font-weight="400" text-anchor="middle" >⌚</text>
+<text x="152" y="209" font-size="20" fill="#14212b" font-weight="700" text-anchor="start" >Wearable stream</text>
+<path d="M236,236 L236,284" fill="none" stroke="#1d6fb8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a1d6fb8)"/>
+<rect x="432" y="166" width="332" height="70" rx="14" fill="#fff" stroke="#1d6fb8" stroke-width="1.8" filter="url(#sh)"/>
+<circle cx="476" cy="201" r="24" fill="#e6eefb"/>
+<text x="476" y="210" font-size="24" fill="#14212b" font-weight="400" text-anchor="middle" >🧪</text>
+<text x="514" y="209" font-size="20" fill="#14212b" font-weight="700" text-anchor="start" >EHR and labs</text>
+<path d="M598,236 L598,284" fill="none" stroke="#1d6fb8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a1d6fb8)"/>
+<rect x="794" y="166" width="332" height="70" rx="14" fill="#fff" stroke="#1d6fb8" stroke-width="1.8" filter="url(#sh)"/>
+<circle cx="838" cy="201" r="24" fill="#e6eefb"/>
+<text x="838" y="210" font-size="24" fill="#14212b" font-weight="400" text-anchor="middle" >👁</text>
+<text x="876" y="209" font-size="20" fill="#14212b" font-weight="700" text-anchor="start" >Retina scan</text>
+<path d="M960,236 L960,284" fill="none" stroke="#1d6fb8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a1d6fb8)"/>
+<rect x="1156" y="166" width="332" height="70" rx="14" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
+<circle cx="1200" cy="201" r="24" fill="#e4f5f2"/>
+<text x="1200" y="210" font-size="24" fill="#14212b" font-weight="400" text-anchor="middle" >✍</text>
+<text x="1238" y="209" font-size="20" fill="#14212b" font-weight="700" text-anchor="start" >Patient quick log</text>
+<path d="M1322,236 L1322,284" fill="none" stroke="#0f766e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a0f766e)"/>
+<rect x="1518" y="166" width="332" height="70" rx="14" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
+<circle cx="1562" cy="201" r="24" fill="#e4f5f2"/>
+<text x="1562" y="210" font-size="24" fill="#14212b" font-weight="400" text-anchor="middle" >🎙</text>
+<text x="1600" y="209" font-size="20" fill="#14212b" font-weight="700" text-anchor="start" >Voice or chat</text>
+<path d="M1684,236 L1684,284" fill="none" stroke="#0f766e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a0f766e)"/>
+<rect x="70" y="288" width="1780" height="216" rx="20" fill="url(#core)" stroke="#0f766e" stroke-width="2.2" filter="url(#sh)"/>
+<text x="98" y="320" font-size="14" fill="#5b6b77" font-weight="800" text-anchor="start" letter-spacing="1.6">2   THE KAYA TWIN</text>
+<rect x="98" y="336" width="276" height="118" rx="16" fill="#fff" stroke="#0f766e" stroke-width="2" filter="url(#sh)"/>
+<text x="236" y="378" font-size="21" fill="#14212b" font-weight="800" text-anchor="middle" >Patient state</text>
+<text x="236" y="404" font-size="21" fill="#14212b" font-weight="800" text-anchor="middle" >encoder</text>
+<text x="236" y="432" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="middle" >one fused twin</text>
+<path d="M374,395 L408,395" fill="none" stroke="#0f766e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a0f766e)"/>
+<rect x="412" y="336" width="226" height="118" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
+<rect x="412" y="336" width="8" height="118" rx="4" fill="#1d6fb8"/>
+<text x="440" y="380" font-size="24" fill="#14212b" font-weight="800" text-anchor="start" >Glucose</text>
+<text x="440" y="410" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >2-hour forecast and alerts</text>
+<rect x="656" y="336" width="226" height="118" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
+<rect x="656" y="336" width="8" height="118" rx="4" fill="#1d6fb8"/>
+<text x="684" y="380" font-size="24" fill="#14212b" font-weight="800" text-anchor="start" >Liver</text>
+<text x="684" y="410" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >fat and fibrosis risk</text>
+<rect x="900" y="336" width="226" height="118" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
+<rect x="900" y="336" width="8" height="118" rx="4" fill="#1d6fb8"/>
+<text x="928" y="380" font-size="24" fill="#14212b" font-weight="800" text-anchor="start" >Eye</text>
+<text x="928" y="410" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >retinopathy grade and path</text>
+<rect x="1144" y="336" width="226" height="118" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
+<rect x="1144" y="336" width="8" height="118" rx="4" fill="#1d6fb8"/>
+<text x="1172" y="380" font-size="24" fill="#14212b" font-weight="800" text-anchor="start" >Kidney</text>
+<text x="1172" y="410" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >eGFR path and risk</text>
+<path d="M1388,395 L1426,395" fill="none" stroke="#0f766e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a0f766e)"/>
+<rect x="1430" y="336" width="392" height="118" rx="16" fill="#fff" stroke="#0f766e" stroke-width="2.6" filter="url(#sh)"/>
+<text x="1626" y="378" font-size="22" fill="#14212b" font-weight="800" text-anchor="middle" >What-if engine</text>
+<text x="1626" y="406" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="middle" >change a meal, walk, sleep or medicine</text>
+<text x="1626" y="430" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="middle" >see the new glucose curve and organ risk</text>
+<text x="960" y="486" font-size="15" fill="#0f766e" font-weight="600" text-anchor="middle" >Explainable   ·   calibrated uncertainty   ·   safety rules in code   ·   served by one REST API</text>
+<text x="70" y="552" font-size="14" fill="#5b6b77" font-weight="800" text-anchor="start" letter-spacing="1.6">3   WHO USES IT, AND HOW</text>
+<rect x="70" y="570" width="220" height="118" rx="16" fill="#0f766e" stroke="#0f766e" stroke-width="0" filter="url(#sh)"/>
+<text x="180" y="624" font-size="25" fill="#fff" font-weight="800" text-anchor="middle" letter-spacing="1.5">PATIENT</text>
+<text x="180" y="650" font-size="13.5" fill="#fff" font-weight="400" text-anchor="middle" >on a phone, in 4 languages</text>
+<rect x="314" y="570" width="366" height="118" rx="14" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="315" y="571" width="364" height="116" rx="13" fill="#e4f5f2" opacity="0.55"/>
+<circle cx="348" cy="612" r="15" fill="#0f766e"/>
+<text x="348" y="617.5" font-size="15" fill="#fff" font-weight="700" text-anchor="middle" >1</text>
+<text x="376" y="620" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >Today</text>
+<text x="376" y="652" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >one next action, and why</text>
+<path d="M683,629.0 L701,629.0" fill="none" stroke="#0f766e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a0f766e)"/>
+<rect x="704" y="570" width="366" height="118" rx="14" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="705" y="571" width="364" height="116" rx="13" fill="#e4f5f2" opacity="0.55"/>
+<circle cx="738" cy="612" r="15" fill="#0f766e"/>
+<text x="738" y="617.5" font-size="15" fill="#fff" font-weight="700" text-anchor="middle" >2</text>
+<text x="766" y="620" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >Quick log</text>
+<text x="766" y="652" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >medicines, walk, mood</text>
+<path d="M1073,629.0 L1091,629.0" fill="none" stroke="#0f766e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a0f766e)"/>
+<rect x="1094" y="570" width="366" height="118" rx="14" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="1095" y="571" width="364" height="116" rx="13" fill="#e4f5f2" opacity="0.55"/>
+<circle cx="1128" cy="612" r="15" fill="#0f766e"/>
+<text x="1128" y="617.5" font-size="15" fill="#fff" font-weight="700" text-anchor="middle" >3</text>
+<text x="1156" y="620" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >Try a change</text>
+<text x="1156" y="652" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >see tonight's curve</text>
+<path d="M1463,629.0 L1481,629.0" fill="none" stroke="#0f766e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a0f766e)"/>
+<rect x="1484" y="570" width="366" height="118" rx="14" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="1485" y="571" width="364" height="116" rx="13" fill="#e4f5f2" opacity="0.55"/>
+<circle cx="1518" cy="612" r="15" fill="#0f766e"/>
+<text x="1518" y="617.5" font-size="15" fill="#fff" font-weight="700" text-anchor="middle" >4</text>
+<text x="1546" y="620" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >Ask</text>
+<text x="1546" y="652" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >by voice or text</text>
+<path d="M42,629.0 L68,629.0" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a475569)"/>
+<rect x="70" y="728" width="220" height="118" rx="16" fill="#1d6fb8" stroke="#1d6fb8" stroke-width="0" filter="url(#sh)"/>
+<text x="180" y="782" font-size="25" fill="#fff" font-weight="800" text-anchor="middle" letter-spacing="1.5">DOCTOR</text>
+<text x="180" y="808" font-size="13.5" fill="#fff" font-weight="400" text-anchor="middle" >triage, understand, decide</text>
+<rect x="314" y="728" width="366" height="118" rx="14" fill="#fff" stroke="#1d6fb8" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="315" y="729" width="364" height="116" rx="13" fill="#e6eefb" opacity="0.55"/>
+<circle cx="348" cy="770" r="15" fill="#1d6fb8"/>
+<text x="348" y="775.5" font-size="15" fill="#fff" font-weight="700" text-anchor="middle" >1</text>
+<text x="376" y="778" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >Triage</text>
+<text x="376" y="810" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >sorted by risk, with reasons</text>
+<path d="M683,787.0 L701,787.0" fill="none" stroke="#1d6fb8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a1d6fb8)"/>
+<rect x="704" y="728" width="366" height="118" rx="14" fill="#fff" stroke="#1d6fb8" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="705" y="729" width="364" height="116" rx="13" fill="#e6eefb" opacity="0.55"/>
+<circle cx="738" cy="770" r="15" fill="#1d6fb8"/>
+<text x="738" y="775.5" font-size="15" fill="#fff" font-weight="700" text-anchor="middle" >2</text>
+<text x="766" y="778" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >Full record</text>
+<text x="766" y="810" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >glucose, organs, labs</text>
+<path d="M1073,787.0 L1091,787.0" fill="none" stroke="#1d6fb8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a1d6fb8)"/>
+<rect x="1094" y="728" width="366" height="118" rx="14" fill="#fff" stroke="#1d6fb8" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="1095" y="729" width="364" height="116" rx="13" fill="#e6eefb" opacity="0.55"/>
+<circle cx="1128" cy="770" r="15" fill="#1d6fb8"/>
+<text x="1128" y="775.5" font-size="15" fill="#fff" font-weight="700" text-anchor="middle" >3</text>
+<text x="1156" y="778" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >What-if studio</text>
+<text x="1156" y="810" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >test before the real patient</text>
+<path d="M1463,787.0 L1481,787.0" fill="none" stroke="#1d6fb8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a1d6fb8)"/>
+<rect x="1484" y="728" width="366" height="118" rx="14" fill="#fff" stroke="#1d6fb8" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="1485" y="729" width="364" height="116" rx="13" fill="#e6eefb" opacity="0.55"/>
+<circle cx="1518" cy="770" r="15" fill="#1d6fb8"/>
+<text x="1518" y="775.5" font-size="15" fill="#fff" font-weight="700" text-anchor="middle" >4</text>
+<text x="1546" y="778" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >PDF summary</text>
+<text x="1546" y="810" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >reports with trends</text>
+<path d="M42,787.0 L68,787.0" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a475569)"/>
+<path d="M70,500 L42,500 L42,787.0" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M890,691 L890,725" fill="none" stroke="#475569" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a475569)" marker-start="url(#a475569)"/>
+<text x="904" y="714" font-size="13.5" fill="#475569" font-weight="600" text-anchor="start" >the log becomes the doctor's adherence diary</text>
+<path d="M1280,691 L1280,725" fill="none" stroke="#475569" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a475569)" marker-start="url(#a475569)"/>
+<text x="1294" y="714" font-size="13.5" fill="#475569" font-weight="600" text-anchor="start" >same twin, same what-if engine</text>
+<path d="M1850,629.0 L1888,629.0 L1888,201 L1854,201" fill="none" stroke="#0f766e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 6" marker-end="url(#a0f766e)"/>
+<rect x="70" y="872" width="1780" height="54" rx="14" fill="#fff" stroke="#b45309" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="70" y="872" width="220" height="54" rx="14" fill="#b45309"/>
+<text x="180" y="906" font-size="19" fill="#fff" font-weight="800" text-anchor="middle" letter-spacing="1.5">HOSPITAL IT</text>
+<text x="314" y="906" font-size="16.5" fill="#14212b" font-weight="500" text-anchor="start" >Plugs in through the REST API:  live readings in  ·  FHIR R4 out  ·  Docker deploy.   Governance and ABDM are on the roadmap.</text>
+<line x1="70" x2="1850" y1="962" y2="962" stroke="#9aa8b2" stroke-width="1"/>
+<text x="70" y="986" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >Kaya is decision support for clinicians, not a diagnostic device. All patients are synthetic.     Models, metrics and frameworks are on the next page.</text>
+<text x="1850" y="986" font-size="14" fill="#5b6b77" font-weight="600" text-anchor="end" >Team Kaya · IIT Hyderabad · Digital Twin Challenge, Phase 1</text>
+</svg>
