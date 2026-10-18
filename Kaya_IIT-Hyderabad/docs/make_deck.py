@@ -269,7 +269,7 @@ fig, ax = new("Built like a product, not a notebook", "Four features that make t
 feats = [("Live mode", "The glucose model runs on every incoming reading, about 1 ms each, and the dashboard updates in real time. Devices can POST readings to the API.", TEAL),
          ("Explained", "Why an alert fired, what drives each organ risk (SHAP), and where the retina model looked (Grad-CAM).", BLUE),
          ("One-click report", "A clinical summary PDF with the glucose chart, organ risks with their evidence level, a what-if table and recent alerts.", AMBER),
-         ("Four languages", "The patient app in English, Hindi, Telugu and Kannada, with a one-tap switcher. Drafts pending native review.", "#7160e6")]
+         ("Voice and languages", "Speak or type in English, Hindi, Telugu or Kannada; the app answers aloud. Safety rules run in code before the AI. Drafts pending native review.", "#7160e6")]
 import textwrap
 for i, (t_, d_, c_) in enumerate(feats):
     x = 5 + (i % 2) * 46

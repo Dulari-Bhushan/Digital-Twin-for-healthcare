@@ -13,7 +13,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
-from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
@@ -26,7 +26,9 @@ sys.path.insert(0, str(ROOT / "src" / "whatif"))
 from engine import Scenario, glucose_metrics, run as run_whatif  # noqa: E402
 from eye_risk import GRADES, progression_risk  # noqa: E402
 from kidney_dynamic import KidneyParams, projection  # noqa: E402
+import assistant as asst  # noqa: E402
 from live import Calibration, LiveTwin, NumpyGRU  # noqa: E402
+from voice import CHAT_MODEL, LANG_CODES, STT_MODEL, TTS_MODEL, SarvamClient, VoiceError, load_key  # noqa: E402
 from liver_dynamic import LiverParams, risk_timeline  # noqa: E402
 
 ART_DIR = Path(os.environ.get("KAYA_ARTIFACTS", ROOT / "artifacts" / "demo"))
@@ -44,6 +46,8 @@ META: dict = {}
 MODEL_DIR = Path(os.environ.get("KAYA_MODEL", ROOT / "artifacts" / "model"))
 LIVE: dict = {}
 SESSIONS: dict[int, LiveTwin] = {}
+VOICE: dict = {}
+HITS: dict[str, list[float]] = {}
 
 
 def _tier(score: float) -> str:
@@ -90,6 +94,8 @@ def load() -> None:
     META.update(json.loads(idx.read_text()))
     for item in META["patients"]:
         STORE[item["id"]] = json.loads((ART_DIR / f"{item['id']}.json").read_text())
+    key = load_key(ROOT)
+    VOICE["client"] = SarvamClient(key) if key else None
     if (MODEL_DIR / "gru_numpy.npz").exists():
         LIVE["net"] = NumpyGRU(MODEL_DIR / "gru_numpy.npz")
         LIVE["cal"] = Calibration(MODEL_DIR / "calibration.json")
@@ -269,6 +275,90 @@ async def ws_live(ws: WebSocket, pid: int, interval: float = 0.5, back_days: flo
 
 
 L_WARM = 24
+
+
+# ------------------------------------------------------------------ voice and assistant (Sarvam AI; key stays on the server)
+def _rate_limit(request: Request, limit: int = 40, window: float = 60.0) -> None:
+    import time
+
+    ip = request.client.host if request.client else "local"
+    now = time.time()
+    hits = [t for t in HITS.get(ip, []) if now - t < window]
+    if len(hits) >= limit:
+        raise HTTPException(429, "too many voice requests, please wait a moment")
+    HITS[ip] = hits + [now]
+
+
+def _client() -> SarvamClient:
+    c = VOICE.get("client")
+    if c is None:
+        raise HTTPException(503, "voice is not configured on this server")
+    return c
+
+
+@app.get("/api/voice/status")
+def voice_status():
+    return {"enabled": VOICE.get("client") is not None, "languages": list(LANG_CODES),
+            "stt": STT_MODEL, "tts": TTS_MODEL, "chat": CHAT_MODEL}
+
+
+class TTSReq(BaseModel):
+    text: str = Field(..., min_length=1, max_length=600)
+    lang: str = "en"
+
+
+@app.post("/api/voice/tts")
+def voice_tts(body: TTSReq, request: Request):
+    _rate_limit(request)
+    try:
+        wav = _client().tts(body.text, body.lang if body.lang in LANG_CODES else "en")
+    except VoiceError as e:
+        raise HTTPException(502, str(e)) from None
+    return Response(wav, media_type="audio/wav", headers={"Cache-Control": "private, max-age=3600"})
+
+
+@app.post("/api/voice/stt")
+async def voice_stt(request: Request):
+    """Raw audio in the request body (audio/wav); returns the transcript and detected language."""
+    _rate_limit(request)
+    audio = await request.body()
+    if not audio or len(audio) > 3_000_000:
+        raise HTTPException(413, "audio must be between 1 byte and 3 MB")
+    try:
+        return _client().stt(audio, content_type=request.headers.get("content-type", "audio/wav").split(";")[0])
+    except VoiceError as e:
+        raise HTTPException(502, str(e)) from None
+
+
+class AssistantReq(BaseModel):
+    pid: int
+    lang: str = "en"
+    message: str = Field(..., min_length=1, max_length=400)
+    history: list[dict] = Field(default_factory=list)
+    tab: int = Field(0, ge=0, le=3)
+
+
+@app.post("/api/assistant")
+def assistant(body: AssistantReq, request: Request):
+    """Safety rules run first; only an ordinary question reaches the language model."""
+    _rate_limit(request)
+    a = _get(body.pid)
+    lang = body.lang if body.lang in asst.LANGS else "en"
+    cls = asst.classify(body.message, lang)
+    if cls["kind"] == "navigate":
+        return {"kind": "navigate", "reply": cls["reply"], "action": {"type": "navigate", "tab": cls["tab"]}}
+    if cls["kind"] in ("emergency", "medicine"):
+        return {"kind": cls["kind"], "reply": cls["reply"], "action": None}
+    client = VOICE.get("client")
+    if client is None:
+        return {"kind": "unavailable", "reply": asst.FALLBACK_MSG[lang], "action": None}
+    history = [{"role": h["role"], "content": str(h.get("content", ""))[:400]} for h in body.history[-6:] if h.get("role") in ("user", "assistant")]
+    messages = [{"role": "system", "content": asst.system_prompt(lang, asst.patient_context(a, body.tab))}] + history + [{"role": "user", "content": body.message}]
+    try:
+        reply, blocked = asst.clean_reply(client.chat(messages), lang)
+    except VoiceError:
+        return {"kind": "error", "reply": asst.FALLBACK_MSG[lang], "action": None}
+    return {"kind": "medicine" if blocked else "chat", "reply": reply, "action": None}
 
 
 # ------------------------------------------------------------------ FHIR R4 (read-only, minimal)

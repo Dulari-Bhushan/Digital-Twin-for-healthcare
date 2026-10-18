@@ -100,8 +100,10 @@ flowchart TD
 | **Live mode** | The glucose model runs on every incoming 5-minute reading (about 1 ms, pure numpy, no GPU) and the dashboard updates in real time. Press **Go live** in the doctor view, or POST readings from a device to `/api/live/{id}/reading`. A WebSocket feed (`/ws/live/{id}`) simulates a wearable. |
 | **Explanations** | Why an alert fired (glucose trend and recent meal), what drives each liver and kidney risk for this patient (SHAP), and where the retina model looked (Grad-CAM). |
 | **Clinical summary PDF** | One click from the doctor view (`/api/patients/{id}/report.pdf`): glucose chart with forecast, organ risks with their evidence level, what-if table and recent alerts. |
+| **Voice and chat assistant** | In the patient app, tap the speaker to hear any screen read aloud, tap the microphone to ask a question in your own language, and chat about what a number means or how to use the app. Speech and chat use [Sarvam AI](https://docs.sarvam.ai) (speech-to-text, text-to-speech, chat), called from the server so the key never reaches the browser. Safety rules run in code before the model: emergency words get a fixed "call 108" message, medicine or dose questions are deflected to the doctor, navigation ("show my kidneys") is handled without the model, and any reply containing dose advice is replaced. Works without a key too: navigation, emergency and medicine rules still work, and speech falls back to the browser. |
+| **Large text** | An A+ toggle enlarges the patient app for older users. |
 | **Four languages** | The patient app in English, Hindi, Telugu and Kannada with a one-tap switcher. The Indian-language texts are drafts and should be reviewed by a native speaker. |
-| **Tests and CI** | 15 tests (data, what-if, live inference against PyTorch, API, PDF, FHIR) run on every push with GitHub Actions. |
+| **Tests and CI** | 36 tests (data, what-if, live inference against PyTorch, API, PDF, FHIR) run on every push with GitHub Actions. |
 
 ## 5. Results so far
 
@@ -250,6 +252,8 @@ uvicorn app:app --app-dir src/api --port 8000
 Or with Docker: `docker compose up --build`.
 
 In the dashboard, switch between **Doctor** and **Patient** at the top right. In the doctor view, press **Replay last 3 days** to watch the twin forecast glucose ahead of what actually happens, then try the **What-if** presets to see the change in glucose and organ risk.
+
+**Voice assistant (optional).** Copy `.env.example` to `.env` and set `SARVAM_API_KEY`. The `.env` file is git-ignored. Without a key the rest of the app works unchanged.
 
 To regenerate the artifacts from the models (needs the trained weights): `PYTHONPATH=src/models:src/whatif python src/api/build_artifacts.py`.
 

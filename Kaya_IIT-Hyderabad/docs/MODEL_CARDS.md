@@ -57,6 +57,17 @@ Kaya is clinical decision support built on open and synthetic data. It is not a 
 
 Splits a patient's glucose into a slow baseline and meal-driven excursions, rescales excursions after meals (portion size, walking after meals) and shifts the baseline (medication), then recomputes glucose metrics and feeds them to the liver and eye modules. Effect sizes (a walk after a meal blunts the excursion by about a third; a 25% carbohydrate reduction scales excursions by 0.75) are literature-informed assumptions. Output is a simulation to support a conversation, not a prediction.
 
+## Voice and chat assistant
+
+| | |
+|---|---|
+| **Purpose** | Help older patients understand their screens and numbers, and navigate the app, by voice or text in English, Hindi, Telugu and Kannada |
+| **Models** | Sarvam AI: Saaras v4 (speech to text), Bulbul v4 Flash (text to speech), Sarvam-105B conversations (chat). Called from the server; the key never reaches the browser |
+| **Grounding** | The model sees only a compact summary of this patient's twin (glucose now and forecast, 14-day time in range, organ risks), a glossary and a description of the app. It is told to use only those facts |
+| **Safety (in code, before and after the model)** | Emergency words in four languages return a fixed "call 108 or go to the nearest hospital" message and never reach the model. Medicine, insulin and dose questions return a fixed referral to the doctor. Navigation requests are handled by rules. Any model reply containing dose advice is replaced, and replies are stripped of formatting and length-limited |
+| **Tests** | 21 tests cover emergency, medicine and navigation rules in four languages, the reply filter (including that "mg/dL" is not treated as a dose), that rule-handled messages never call the model, and graceful behaviour without a key |
+| **Limits** | The language model can still be wrong or too cheerful; the Hindi, Telugu and Kannada wording and speech quality need native-speaker review; it gives general guidance, not medical advice; the demo uses synthetic data only, and a real deployment needs patient consent and a data-processing agreement with the provider |
+
 ## Explanations
 
 Liver and kidney risk drivers are SHAP values from the same LightGBM models (log-odds contributions). They describe the model's behaviour for one patient and are not causal claims. Alert reasons are rule-based summaries of the inputs the model saw (glucose trend and recent meal). Retina heatmaps are Grad-CAM.

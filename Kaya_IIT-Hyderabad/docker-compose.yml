@@ -3,4 +3,6 @@ services:
     build: .
     ports:
       - "8000:8000"
+    environment:
+      SARVAM_API_KEY: ${SARVAM_API_KEY:-}
     restart: unless-stopped

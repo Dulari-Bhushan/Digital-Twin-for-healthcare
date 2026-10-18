@@ -171,3 +171,4 @@ The README marks V1 versus later items so nothing is claimed that is not built.
 - Hindi, Telugu and Kannada patient app
 - SHAP drivers for liver and kidney risk
 - GitHub Actions CI and API tests
+- Voice and chat assistant (Sarvam AI): speech to text, text to speech, grounded chat with safety rules in code, voice navigation, large-text mode

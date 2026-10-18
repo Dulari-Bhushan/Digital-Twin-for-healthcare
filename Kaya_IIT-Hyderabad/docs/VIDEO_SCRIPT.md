@@ -17,6 +17,7 @@ Record the screen with the dashboard open (`uvicorn app:app --app-dir src/api --
 | 18:30 | Live demo: what-if | What-if panel | Press the presets one at a time, then **All three**. Read the before and after: time in range, liver, eye. State that these are assumptions shown as a simulation. |
 | 20:00 | Live demo: live mode | Doctor view, **Go live** | Start the live feed. Say: the model runs on every reading, about a millisecond each, and forecasts update as data arrives. Mention the ingest endpoint for real devices. |
 | 20:30 | Live demo: patient | Patient view | One sugar status, one nudge, organ rings, "try a change". Switch the language to Hindi, Telugu and Kannada with the buttons at the top of the phone. Open **Download clinical summary** from the doctor view and scroll the PDF. |
+| 21:15 | Live demo: voice assistant | Patient app, 💬 Ask | Tap Ask. Type a question in Hindi, then tap the microphone and speak one in Telugu or Kannada; show the spoken reply. Say "show my kidneys" to navigate. Try "how much insulin should I take" to show the safety rule, and the large-text toggle (A+). Needs the Sarvam key in `.env`. |
 | 21:30 | Product depth | API docs at /docs, FHIR | Show `/docs`, `/fhir/Patient/{id}`, and mention Docker. |
 | 22:30 | Limits and roadmap | Slide 14 | State limitations plainly. Roadmap: retina preview, multilingual, consent and audit. |
 | 24:00 | Close | Slide 15 | Repeat the one-line message. Thank the organisers. |
