@@ -27,6 +27,7 @@ from engine import Scenario, glucose_metrics, run as run_whatif  # noqa: E402
 from eye_risk import GRADES, progression_risk  # noqa: E402
 from kidney_dynamic import KidneyParams, projection  # noqa: E402
 import assistant as asst  # noqa: E402
+import reports as rpt  # noqa: E402
 from live import Calibration, LiveTwin, NumpyGRU  # noqa: E402
 from names import DEMO_TAGS, name_of  # noqa: E402
 from voice import CHAT_MODEL, LANG_CODES, STT_MODEL, TTS_MODEL, SarvamClient, VoiceError, load_key  # noqa: E402
@@ -221,6 +222,41 @@ def report_pdf(pid: int):
     results = [(n, _whatif_compute(a, b)) for n, b in presets]
     pdf = build_report(a, _summary(a), patient(pid)["now"], results)
     return Response(pdf, media_type="application/pdf", headers={"Content-Disposition": f'inline; filename="kaya_patient_{pid}.pdf"'})
+
+
+# ------------------------------------------------------------------ medical records (reports) and "what changed since the last visit"
+RECORDS: dict[int, dict] = {}
+
+
+def _record(pid: int) -> dict:
+    if pid not in RECORDS:
+        a = _get(pid)
+        today = T0 + timedelta(minutes=STEP_MIN * int(a["forecast"]["t"][-1]))
+        rec = rpt.build_record(a, today)
+        RECORDS[pid] = {"record": rec, "changes": rpt.build_changes(a, rec)}
+    return RECORDS[pid]
+
+
+@app.get("/api/patients/{pid}/reports")
+def reports_list(pid: int):
+    """Every report in the patient's history (labs, imaging, clinic notes, device summaries), newest first."""
+    rec = _record(pid)["record"]
+    return {k: v for k, v in rec.items() if not k.startswith("_")}
+
+
+@app.get("/api/patients/{pid}/changes")
+def changes(pid: int):
+    return _record(pid)["changes"]
+
+
+@app.get("/api/patients/{pid}/reports/{rid}.pdf")
+def report_one_pdf(pid: int, rid: str):
+    rec = _record(pid)["record"]
+    rep = next((r for r in rec["reports"] if r["id"] == rid), None)
+    if rep is None:
+        raise HTTPException(404, "report not found")
+    return Response(rpt.report_pdf(_get(pid)["profile"], rep), media_type="application/pdf",
+                    headers={"Content-Disposition": f'inline; filename="{rid}.pdf"'})
 
 
 # ------------------------------------------------------------------ live mode: the model runs on every new reading

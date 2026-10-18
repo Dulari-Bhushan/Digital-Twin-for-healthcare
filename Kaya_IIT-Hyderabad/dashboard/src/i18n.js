@@ -9,7 +9,7 @@ export const LANGS = [
 ]
 
 const en = {
-  tab_today: 'Today', tab_insights: 'Insights', tab_body: 'Body', tab_try: 'Try',
+  tab_today: 'Today', tab_insights: 'Insights', tab_body: 'Body', tab_try: 'Try', tab_reports: 'Reports', rep_title1: 'My medical', rep_title2: 'reports', rep_trends: 'How my results are changing', rep_meds: 'My medicines', rep_all_title: 'All reports', rep_all: 'All', rep_back: 'Back to reports', rep_note: 'Reports are shown in English, as issued. The simple explanations are written for you, not by your doctor.', 
   today_title1: 'Your day', today_title2: 'for today', day_today: 'TODAY',
   st_low_title: 'Your sugar may dip soon', st_low_body: 'Have a small snack with some carbohydrate and check again in 15 minutes.', st_low_nudge: 'Have a small snack now',
   st_high_title: 'Your sugar may run high', st_high_body: 'A short walk after your meal helps your body use the sugar.', st_high_nudge: 'Take a 15-minute walk',
@@ -41,7 +41,7 @@ const en = {
 }
 
 const hi = {
-  tab_today: 'आज', tab_insights: 'जानकारी', tab_body: 'शरीर', tab_try: 'आज़माएँ',
+  tab_today: 'आज', tab_insights: 'जानकारी', tab_body: 'शरीर', tab_try: 'आज़माएँ', tab_reports: 'रिपोर्ट', rep_title1: 'मेरी मेडिकल', rep_title2: 'रिपोर्ट', rep_trends: 'मेरे नतीजे कैसे बदल रहे हैं', rep_meds: 'मेरी दवाइयाँ', rep_all_title: 'सभी रिपोर्ट', rep_all: 'सभी', rep_back: 'रिपोर्ट पर वापस', rep_note: 'रिपोर्ट अंग्रेज़ी में जारी रूप में दिखती हैं। सरल व्याख्याएँ आपके लिए लिखी गई हैं, आपके डॉक्टर ने नहीं।', 
   today_title1: 'आपका दिन', today_title2: 'आज के लिए', day_today: 'आज',
   st_low_title: 'आपकी शुगर जल्द गिर सकती है', st_low_body: 'थोड़े कार्बोहाइड्रेट वाला हल्का नाश्ता लें और 15 मिनट बाद फिर जाँचें।', st_low_nudge: 'अभी हल्का नाश्ता करें',
   st_high_title: 'आपकी शुगर बढ़ सकती है', st_high_body: 'खाने के बाद थोड़ी सैर शरीर को शुगर इस्तेमाल करने में मदद करती है।', st_high_nudge: '15 मिनट टहलें',
@@ -73,7 +73,7 @@ const hi = {
 }
 
 const te = {
-  tab_today: 'ఈరోజు', tab_insights: 'విశ్లేషణ', tab_body: 'శరీరం', tab_try: 'ప్రయత్నించండి',
+  tab_today: 'ఈరోజు', tab_insights: 'విశ్లేషణ', tab_body: 'శరీరం', tab_try: 'ప్రయత్నించండి', tab_reports: 'నివేదికలు', rep_title1: 'నా వైద్య', rep_title2: 'నివేదికలు', rep_trends: 'నా ఫలితాలు ఎలా మారుతున్నాయి', rep_meds: 'నా మందులు', rep_all_title: 'అన్ని నివేదికలు', rep_all: 'అన్నీ', rep_back: 'నివేదికలకు తిరిగి', rep_note: 'నివేదికలు ఇచ్చినట్లే ఆంగ్లంలో కనిపిస్తాయి. సులభ వివరణలు మీ కోసం రాసినవి, మీ వైద్యుడు రాసినవి కావు.', 
   today_title1: 'మీ రోజు', today_title2: 'ఈరోజు కోసం', day_today: 'ఈరోజు',
   st_low_title: 'మీ షుగర్ త్వరలో తగ్గవచ్చు', st_low_body: 'కొంచెం కార్బోహైడ్రేట్ ఉన్న చిన్న అల్పాహారం తీసుకోండి, 15 నిమిషాల తర్వాత మళ్లీ చూడండి.', st_low_nudge: 'ఇప్పుడు చిన్న అల్పాహారం తీసుకోండి',
   st_high_title: 'మీ షుగర్ పెరగవచ్చు', st_high_body: 'భోజనం తర్వాత కొంచెం నడిస్తే శరీరం షుగర్‌ను వాడుకోవడానికి సహాయపడుతుంది.', st_high_nudge: '15 నిమిషాలు నడవండి',
@@ -105,7 +105,7 @@ const te = {
 }
 
 const kn = {
-  tab_today: 'ಇಂದು', tab_insights: 'ವಿಶ್ಲೇಷಣೆ', tab_body: 'ದೇಹ', tab_try: 'ಪ್ರಯತ್ನಿಸಿ',
+  tab_today: 'ಇಂದು', tab_insights: 'ವಿಶ್ಲೇಷಣೆ', tab_body: 'ದೇಹ', tab_try: 'ಪ್ರಯತ್ನಿಸಿ', tab_reports: 'ವರದಿಗಳು', rep_title1: 'ನನ್ನ ವೈದ್ಯಕೀಯ', rep_title2: 'ವರದಿಗಳು', rep_trends: 'ನನ್ನ ಫಲಿತಾಂಶಗಳು ಹೇಗೆ ಬದಲಾಗುತ್ತಿವೆ', rep_meds: 'ನನ್ನ ಔಷಧಿಗಳು', rep_all_title: 'ಎಲ್ಲಾ ವರದಿಗಳು', rep_all: 'ಎಲ್ಲಾ', rep_back: 'ವರದಿಗಳಿಗೆ ಹಿಂದೆ', rep_note: 'ವರದಿಗಳು ನೀಡಿದಂತೆ ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿ ತೋರಿಸಲಾಗುತ್ತದೆ. ಸರಳ ವಿವರಣೆಗಳು ನಿಮಗಾಗಿ ಬರೆದವು, ನಿಮ್ಮ ವೈದ್ಯರದ್ದಲ್ಲ.', 
   today_title1: 'ನಿಮ್ಮ ದಿನ', today_title2: 'ಇಂದಿಗಾಗಿ', day_today: 'ಇಂದು',
   st_low_title: 'ನಿಮ್ಮ ಶುಗರ್ ಶೀಘ್ರದಲ್ಲೇ ಇಳಿಯಬಹುದು', st_low_body: 'ಸ್ವಲ್ಪ ಕಾರ್ಬೋಹೈಡ್ರೇಟ್ ಇರುವ ಲಘು ತಿಂಡಿ ತೆಗೆದುಕೊಳ್ಳಿ, 15 ನಿಮಿಷಗಳ ನಂತರ ಮತ್ತೆ ಪರಿಶೀಲಿಸಿ.', st_low_nudge: 'ಈಗ ಲಘು ತಿಂಡಿ ತೆಗೆದುಕೊಳ್ಳಿ',
   st_high_title: 'ನಿಮ್ಮ ಶುಗರ್ ಹೆಚ್ಚಾಗಬಹುದು', st_high_body: 'ಊಟದ ನಂತರ ಸ್ವಲ್ಪ ನಡೆದರೆ ದೇಹವು ಶುಗರ್ ಬಳಸಲು ಸಹಾಯವಾಗುತ್ತದೆ.', st_high_nudge: '15 ನಿಮಿಷ ನಡೆಯಿರಿ',

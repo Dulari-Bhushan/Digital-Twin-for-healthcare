@@ -12,3 +12,5 @@ export const postWhatIf = (id, body) =>
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   }).then(j)
+export const getReports = (id) => fetch(`/api/patients/${id}/reports`).then(j)
+export const getChanges = (id) => fetch(`/api/patients/${id}/changes`).then(j)

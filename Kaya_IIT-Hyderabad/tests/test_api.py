@@ -73,3 +73,14 @@ def test_pdf_report_and_fhir(client):
     assert client.get(f"/fhir/Patient/{pid}").json()["resourceType"] == "Patient"
     assert client.get(f"/fhir/Observation?patient={pid}").json()["total"] >= 5
     assert client.get("/api/patients/999999").status_code == 404
+
+
+def test_reports_changes_and_pdf_endpoints(client):
+    rep = client.get("/api/patients/1688/reports").json()
+    assert len(rep["reports"]) >= 15 and rep["medications"] and "_vals" not in rep
+    ch = client.get("/api/patients/1688/changes").json()
+    assert ch["headline"].startswith("Since the last visit") and ch["items"]
+    pdf = client.get(f"/api/patients/1688/reports/{rep['reports'][0]['id']}.pdf")
+    assert pdf.status_code == 200 and pdf.content[:4] == b"%PDF"
+    assert client.get("/api/patients/1688/reports/nope.pdf").status_code == 404
+    assert client.get("/api/patients/99999/reports").status_code == 404

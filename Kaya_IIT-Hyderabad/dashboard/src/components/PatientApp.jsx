@@ -4,6 +4,7 @@ import { LANGS, makeT } from '../i18n'
 import { getVoiceStatus } from '../voice'
 import { dayStats, fmtHM } from '../utils'
 import Assistant from './Assistant'
+import { PatientReports } from './Reports'
 import { EyeArt, KidneyArt, LiverArt, Ring, SegRing, TONE, pct } from '../ui'
 
 const TRY = [
@@ -236,7 +237,7 @@ function initialLang() {
   return 'en'
 }
 
-export default function PatientApp({ d, at, pid }) {
+export default function PatientApp({ d, at, pid, changes }) {
   const [tab, setTab] = useState(Number(new URLSearchParams(window.location.search).get('tab') || 0))
   const [day, setDay] = useState(0)
   const [nudgeDone, setNudgeDone] = useState(false)
@@ -261,9 +262,10 @@ export default function PatientApp({ d, at, pid }) {
       const kh = lab.uacr_mg_g >= 30 || lab.egfr < 60 || d.kidney.projection.albuminuria.at(-1) >= 0.5
       return `${t('liver')}: ${lv > 0.6 ? t('liver_high') : lv > 0.3 ? t('liver_mid') : t('liver_ok')}. ${t('eyes')}: ${t(`dr${d.eye.grade}`)}. ${t('kidneys')}: ${kh ? t('kidney_watch') : t('kidney_ok')}.`
     }
+    if (tab === 4) return `${t('rep_title1')} ${t('rep_title2')}.`
     return `${t('try_title1')}. ${t('try_title2')}.`
   }
-  const tabs = [['🏠', 'tab_today'], ['📊', 'tab_insights'], ['🫀', 'tab_body'], ['✨', 'tab_try']]
+  const tabs = [['🏠', 'tab_today'], ['📊', 'tab_insights'], ['🫀', 'tab_body'], ['✨', 'tab_try'], ['🧾', 'tab_reports']]
   return (
     <div className="stage">
       <div className="blob" style={{ width: 340, height: 340, left: '8%', top: 60, background: 'var(--peach)' }} />
@@ -280,7 +282,7 @@ export default function PatientApp({ d, at, pid }) {
           {!series14 ? <div className="muted" style={{ padding: 30 }}>{t('loading')}</div> : (
             tab === 0 ? <Today t={t} name={d.profile.name || `Patient ${d.profile.id}`} series={series14} at={at} day={day} setDay={setDay} st={st} days={days} nudgeDone={nudgeDone} setNudgeDone={setNudgeDone} /> :
             tab === 1 ? <Insights t={t} series={series14} st={st} d={d} locale={locale} /> :
-            tab === 2 ? <Body t={t} d={d} /> : <Try t={t} pid={pid} />
+            tab === 2 ? <Body t={t} d={d} /> : tab === 3 ? <Try t={t} pid={pid} /> : <PatientReports t={t} pid={pid} changes={changes} />
           )}
           {lang !== 'en' && <p className="note" style={{ marginTop: 10 }}>{t('lang_note')}</p>}
         </div>

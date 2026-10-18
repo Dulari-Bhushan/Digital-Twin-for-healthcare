@@ -4,9 +4,10 @@ import { DR, TONE, pct, tierTone } from '../ui'
 import { explain, fmtDT } from '../utils'
 import { FEATURE_NAMES, agp, dailyStats, dayLabel, egfrStage, eyeFactors, kidneySlope, labFlag, mealResponses, mean } from '../record'
 import LineChart from './LineChart'
+import { ChangesCard, ReportsTab } from './Reports'
 import { AgpChart, Bars, CgmChart, Contrib, DataTable, StackedTir } from './RecordCharts'
 
-export const TABS = [['overview', 'Overview'], ['glucose', 'Glucose'], ['liver', 'Liver'], ['eyes', 'Eyes'], ['kidneys', 'Kidneys'], ['alerts', 'Alerts'], ['profile', 'Profile and labs']]
+export const TABS = [['overview', 'Overview'], ['reports', 'Reports'], ['glucose', 'Glucose'], ['liver', 'Liver'], ['eyes', 'Eyes'], ['kidneys', 'Kidneys'], ['alerts', 'Alerts'], ['profile', 'Profile and labs']]
 
 const Section = ({ title, hint, children, tone }) => (
   <section className={`card ${tone || 'soft'} rec-sec`} style={{ boxShadow: 'none' }}>
@@ -51,7 +52,7 @@ function Drivers({ items, title }) {
 }
 
 /* ------------------------------------------------------------------ tabs */
-function Overview({ d, days, series, go }) {
+function Overview({ d, days, series, go, changes }) {
   const m = d.metrics
   const tl = d.liver.timeline
   const lab = d.profile.labs
@@ -76,6 +77,7 @@ function Overview({ d, days, series, go }) {
         <Kpi label="Steps a day" value={Math.round(steps).toLocaleString()} sub="goal 6,000" tone={steps < 4500 ? 'butter' : 'mint'} />
         <Kpi label="Sleep" value={`${sleep.toFixed(1)} h`} sub="per night" tone={sleep < 6 ? 'butter' : 'mint'} />
       </div>
+      <ChangesCard ch={changes} audience="doctor" onOpen={go} />
       <Section title="Problem list" hint="click a row to open it">
         <div style={{ display: 'grid', gap: 10 }}>
           {items.map((it) => (
@@ -315,7 +317,7 @@ function ProfileTab({ d }) {
 }
 
 /* ------------------------------------------------------------------ drawer */
-export default function Record({ d, pid, tab, setTab, onClose }) {
+export default function Record({ d, pid, tab, setTab, onClose, changes }) {
   const [series, setSeries] = useState(null)
   useEffect(() => { setSeries(null); getSeries(pid, 14).then(setSeries) }, [pid])
   useEffect(() => {
@@ -348,7 +350,8 @@ export default function Record({ d, pid, tab, setTab, onClose }) {
         </nav>
         <div className="rec-body">
           {!series ? <div className="muted" style={{ padding: 30 }}>Loading the full history…</div> : (
-            tab === 'overview' ? <Overview d={d} days={days} series={series} go={setTab} /> :
+            tab === 'overview' ? <Overview d={d} days={days} series={series} go={setTab} changes={changes} /> :
+            tab === 'reports' ? <ReportsTab pid={pid} d={d} /> :
             tab === 'glucose' ? <GlucoseTab d={d} series={series} days={days} /> :
             tab === 'liver' ? <LiverTab d={d} /> :
             tab === 'eyes' ? <EyesTab d={d} /> :

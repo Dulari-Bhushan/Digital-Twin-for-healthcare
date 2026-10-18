@@ -53,6 +53,16 @@ In the doctor view, **click any card** (the patient header, the glucose twin, ne
 
 Press Esc or click outside to close. Link straight to a tab with `?p=1688&record=glucose` (or `liver`, `eyes`, `kidneys`, `alerts`, `profile`, `overview`).
 
+## Reports and what changed since the last visit
+
+**Doctor view.** Right under the patient header there is a **What changed since the last visit** card. For Rajesh it flags the 65-minute night low on Mon 12, urine albumin up 28%, retinopathy progressing from mild to moderate, and HbA1c up from 8.8% to 9.1%; it also notes the new kidney medicine. For Priya it shows 0 worse and her HbA1c improving. Click **All reports** to open the **Reports** tab.
+
+**Reports tab.** Trend chart across lab panels (HbA1c, eGFR, urine albumin, ALT, LDL, blood pressure, weight), a filterable list of 17 reports, and the selected report laid out like the paper copy with a PDF button. Open the retinal photograph to show the image and the Grad-CAM view. Current medicines are listed underneath. Deep links: `?p=1688&record=reports&report=EYE` (codes: `LAB`, `EYE`, `LIV`, `VIS`, `FOOT`, `ECG`, `CXR`, `CGM`).
+
+**Patient app.** The fifth tab, **Reports**, starts with the plain-language "Since your last visit" card, trend charts, the medicine list and the report list. Tapping a report shows an "In simple words" box first. Link: `?view=patient&p=1688&tab=4`.
+
+The history is generated, not recorded: today's values come from each patient's profile and the 14-day glucose series, and earlier values are produced backwards from them with a seeded trend (scripted for the two demo patients), so every report agrees with the dashboard. Code: `src/api/reports.py`.
+
 ## Suggested flow (about 6 minutes)
 
 1. **Doctor view, Rajesh.** Show the triage list with the two demo cases pinned. Point at why he is flagged (time in range, liver, kidney, retinopathy). Press **Replay last 3 days**: the forecast fan appears before the evening spike.
@@ -61,7 +71,8 @@ Press Esc or click outside to close. Link straight to a tab with `?p=1688&record
 4. **Patient app, Rajesh.** Tap Sun, Mon, Tue and Today to show how each day differs. On Mon, point at the low in the chart.
 5. **Same app, Priya.** Show the wedding day and the recovery.
 6. **Assistant.** Tap the small microphone icon, ask a question in Hindi or Kannada, and try "how much insulin should I take" to show the safety rule.
-7. **Go live** in the doctor view and the **clinical summary** button, if time allows.
+7. **Reports.** In the doctor view show the changes card, then open Reports and a retinal report; in the patient app tap the Reports tab.
+8. **Go live** in the doctor view and the **clinical summary** button, if time allows.
 
 ## How the stories were made
 

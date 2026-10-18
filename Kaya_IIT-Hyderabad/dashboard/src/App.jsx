@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { getPatient, getPatients, getSeries } from './api'
+import { getChanges, getPatient, getPatients, getSeries } from './api'
 import { AlertsCard, GlucoseCard, Hero, Organs, ProbCard, RangeCard, Sidebar, WhatIfStudio } from './components/Doctor'
 import PatientApp from './components/PatientApp'
 import Record from './components/Record'
+import { ChangesCard } from './components/Reports'
 import { useLive } from './live'
 import { Logo } from './ui'
 
@@ -33,6 +34,7 @@ export default function App() {
   const [mode, setMode] = useState(params.get('view') === 'patient' ? 'patient' : 'doctor')
   const [d, setD] = useState(null)
   const [series, setSeries] = useState(null)
+  const [changes, setChanges] = useState(null)
   const [cursor, setCursor] = useState(0)
   const [playing, setPlaying] = useState(false)
   const [err, setErr] = useState(null)
@@ -52,6 +54,8 @@ export default function App() {
   useEffect(() => {
     if (sel == null) return
     setPlaying(false)
+    setChanges(null)
+    getChanges(sel).then(setChanges).catch(() => {})
     Promise.all([getPatient(sel), getSeries(sel, 3)]).then(([det, s]) => {
       setD(det); setSeries(s)
       setCursor(s.forecast.t[s.forecast.t.length - 1] - s.t0)
@@ -99,9 +103,9 @@ export default function App() {
         </div>
       </header>
 
-      {record && d && <Record d={d} pid={sel} tab={record.tab} setTab={(tab) => setRecord({ tab })} onClose={() => setRecord(null)} />}
+      {record && d && <Record d={d} pid={sel} tab={record.tab} setTab={(tab) => setRecord({ tab })} onClose={() => setRecord(null)} changes={changes} />}
       {mode === 'patient' ? (
-        ready ? <PatientApp d={d} at={at} pid={sel} /> : <div className="stage muted">Loading…</div>
+        ready ? <PatientApp d={d} at={at} pid={sel} changes={changes} /> : <div className="stage muted">Loading…</div>
       ) : (
         <div className="layout">
           <Sidebar patients={patients} selected={sel} onSelect={setSel} />
@@ -109,6 +113,7 @@ export default function App() {
             {!ready ? <div className="c12 muted">Loading the twin…</div> : (
               <>
                 <div className="c12"><Hero d={d} onOpen={openRecord} /></div>
+                {changes && <div className="c12"><ChangesCard ch={changes} audience="doctor" onOpen={openRecord} /></div>}
                 <div className="c8"><GlucoseCard series={shownSeries} cursor={shownCursor} at={at} metrics={d.metrics} playing={playing} setPlaying={setPlaying} setCursor={setCursor} range={range} onOpen={openRecord} live={{ on: liveOn, active: live.active, latency: live.latency, count: live.count, ended: live.ended, start: live.start, stop: live.stop }} /></div>
                 <div className="c4" style={{ display: 'grid', gap: 20, gridTemplateRows: 'auto 1fr' }}>
                   <ProbCard at={at} onOpen={openRecord} />
