@@ -156,13 +156,17 @@ input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 
 .langs button { border: 0; background: #f1eefc; color: var(--muted); font-weight: 800; font-size: 12px; padding: 4px 9px; border-radius: 999px; }
 .langs button.on { background: var(--lav-d); color: #fff; }
 
-/* voice and assistant */
-.atoggle { border: 0; background: #f1eefc; color: var(--lav-dd); font-weight: 800; font-size: 12px; padding: 4px 9px; border-radius: 999px; margin-left: auto; margin-right: 8px; }
+/* voice and assistant: one small icon that opens the sheet; nothing else changes on the screens */
+.vbtn { position: absolute; right: 14px; bottom: 84px; z-index: 4; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--lav); background: #fff; font-size: 18px; line-height: 1; box-shadow: 0 4px 10px rgba(113, 96, 230, .18); opacity: .92; transition: transform .12s; }
+.vbtn:hover { transform: scale(1.08); opacity: 1; }
+.atoggle { border: 0; background: #f1eefc; color: var(--lav-dd); font-weight: 800; font-size: 12px; padding: 8px 11px; border-radius: 999px; }
 .atoggle.on { background: var(--lav-d); color: #fff; }
 .phone.large .screen { zoom: 1.22; }
 .speak { border: 0; background: rgba(255, 255, 255, .9); width: 34px; height: 34px; border-radius: 50%; font-size: 15px; box-shadow: 0 3px 8px rgba(42, 39, 66, .12); }
 .speak.on { background: var(--lav-d); color: #fff; }
-.fab { position: absolute; right: 16px; bottom: 92px; z-index: 4; border: 0; border-radius: 999px; padding: 12px 18px; font-weight: 800; font-size: 15px; background: var(--lav-d); color: #fff; box-shadow: 0 10px 22px rgba(113, 96, 230, .45); }
+.readrow { padding: 10px 14px 0; }
+.readscreen { border: 0; border-radius: 999px; padding: 10px 14px; font-weight: 700; font-size: 13px; background: var(--mint); color: var(--mint-dd); }
+.readscreen.on { background: var(--mint-d); color: #fff; }
 .sheet { position: absolute; inset: 0; z-index: 6; background: #fff; display: flex; flex-direction: column; }
 .sheet-h { display: flex; justify-content: space-between; align-items: center; padding: 46px 18px 10px; border-bottom: 1px solid var(--line); }
 .x { border: 0; background: #f1eefc; width: 36px; height: 36px; border-radius: 50%; font-weight: 800; }

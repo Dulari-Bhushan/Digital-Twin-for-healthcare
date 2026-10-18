@@ -3,7 +3,7 @@ import { getSeries, postWhatIf } from '../api'
 import { LANGS, makeT } from '../i18n'
 import { getVoiceStatus } from '../voice'
 import { dayStats } from '../utils'
-import Assistant, { SpeakButton } from './Assistant'
+import Assistant from './Assistant'
 import { EyeArt, KidneyArt, LiverArt, Ring, SegRing, TONE, pct } from '../ui'
 
 const TRY = [
@@ -34,7 +34,7 @@ function Habit({ e, name, sub, value, goal, done, tone }) {
   )
 }
 
-function Today({ t, lang, voice, at, day, setDay, st, days, nudgeDone, setNudgeDone }) {
+function Today({ t, at, day, setDay, st, days, nudgeDone, setNudgeDone }) {
   const s = status(at)
   const tn = TONE[s.tone]
   const cur = st[day]
@@ -61,7 +61,6 @@ function Today({ t, lang, voice, at, day, setDay, st, days, nudgeDone, setNudgeD
           <div style={{ fontSize: 26 }}>{s.e}</div>
           <div style={{ fontWeight: 800, fontSize: 18, color: tn.dd, lineHeight: 1.25 }}>{t(`${s.k}_title`)}</div>
           <div style={{ fontSize: 13, color: tn.dd, opacity: 0.85, marginTop: 4 }}>{t(`${s.k}_body`)}</div>
-          <div style={{ marginTop: 8 }}><SpeakButton text={`${t(`${s.k}_title`)}. ${t(`${s.k}_body`)} ${t(`${s.k}_nudge`)}`} lang={lang} voice={voice} label={t('read_aloud')} /></div>
         </div>
       </div>
       <div className="p-card" style={{ background: 'var(--butter)' }}>
@@ -110,7 +109,7 @@ function Insights({ t, series, st, d, locale }) {
   )
 }
 
-function Body({ t, lang, voice, d }) {
+function Body({ t, d }) {
   const tl = d.liver.timeline
   const lv = tl.steatosis.at(-1)
   const ep = d.eye.progression_2y
@@ -132,8 +131,6 @@ function Body({ t, lang, voice, d }) {
   return (
     <>
       <div className="p-h">{t('body_title1')}<br /><span style={{ color: 'var(--muted)', fontWeight: 600 }}>{t('body_title2')}</span></div>
-      <div style={{ margin: '8px 0 2px' }}><SpeakButton lang={lang} voice={voice} label={t('read_aloud')}
-        text={`${t('liver')}: ${lv > 0.6 ? t('liver_high') : lv > 0.3 ? t('liver_mid') : t('liver_ok')}. ${t('eyes')}: ${t(`dr${d.eye.grade}`)}. ${t('kidneys')}: ${kidneyHigh ? t('kidney_watch') : t('kidney_ok')}.`} /></div>
       {card(lv > 0.6 ? 'rose' : lv > 0.3 ? 'butter' : 'mint', <LiverArt size={30} />, t('liver'), lv > 0.6 ? t('liver_high') : lv > 0.3 ? t('liver_mid') : t('liver_ok'),
         lv > 0.3 ? t('liver_text_mid') : t('liver_text_ok'),
         <Ring value={lv} size={84} stroke={11} color={lv > 0.6 ? '#e85f8b' : lv > 0.3 ? '#e0a912' : '#2fa176'}><div className="num" style={{ fontSize: 18 }}>{pct(lv)}</div></Ring>)}
@@ -147,16 +144,12 @@ function Body({ t, lang, voice, d }) {
   )
 }
 
-function Try({ t, lang, voice, pid }) {
+function Try({ t, pid }) {
   const [pick, setPick] = useState(2)
   const [res, setRes] = useState(null)
   useEffect(() => { setPick(2); setRes(null) }, [pid])
   useEffect(() => { if (pick !== null) postWhatIf(pid, TRY[pick].body).then(setRes) }, [pick, pid])
   const tirUp = res && res.metrics.after.tir - res.metrics.before.tir >= 0.02
-  const sentence = res ? (tirUp
-    ? t('try_msg_tir', { a: pct(res.metrics.before.tir), b: pct(res.metrics.after.tir) })
-    : t('try_msg_gv', { n: Math.max(0, Math.round((1 - res.metrics.after.gv_cv / res.metrics.before.gv_cv) * 100)) }))
-    + t('try_msg_liver', { a: pct(res.liver.before.steatosis.at(-1)), b: pct(res.liver.after.steatosis.at(-1)) }) : ''
   return (
     <>
       <div className="p-h">{t('try_title1')}<br /><span style={{ color: 'var(--muted)', fontWeight: 600 }}>{t('try_title2')}</span></div>
@@ -174,8 +167,12 @@ function Try({ t, lang, voice, pid }) {
             <b style={{ fontSize: 24, color: 'var(--mint-d)' }}>→</b>
             <div style={{ textAlign: 'center' }}><Ring value={res.metrics.after.tir} size={92} stroke={12} color="#2fa176"><div className="num" style={{ fontSize: 20, color: 'var(--mint-dd)' }}>{pct(res.metrics.after.tir)}</div></Ring><div style={{ fontSize: 11, fontWeight: 700, color: 'var(--mint-dd)' }}>{t('with_change')}</div></div>
           </div>
-          <p style={{ marginTop: 14, fontWeight: 700, color: 'var(--mint-dd)', lineHeight: 1.6 }}>{sentence}</p>
-          <SpeakButton text={sentence} lang={lang} voice={voice} label={t('read_aloud')} />
+          <p style={{ marginTop: 14, fontWeight: 700, color: 'var(--mint-dd)', lineHeight: 1.6 }}>
+            {tirUp
+              ? t('try_msg_tir', { a: pct(res.metrics.before.tir), b: pct(res.metrics.after.tir) })
+              : t('try_msg_gv', { n: Math.max(0, Math.round((1 - res.metrics.after.gv_cv / res.metrics.before.gv_cv) * 100)) })}
+            {t('try_msg_liver', { a: pct(res.liver.before.steatosis.at(-1)), b: pct(res.liver.after.steatosis.at(-1)) })}
+          </p>
         </div>
       )}
       <p className="note" style={{ marginTop: 14 }}>{t('try_note')}</p>
@@ -206,6 +203,17 @@ export default function PatientApp({ d, at, pid }) {
   useEffect(() => { setSeries14(null); setDay(0); setNudgeDone(false); getSeries(pid, 14).then(setSeries14) }, [pid])
   const st = useMemo(() => (series14 ? [...Array(13)].map((_, k) => dayStats(series14, k)) : []), [series14])
   const days = useMemo(() => (series14 ? [3, 2, 1, 0].map((k) => ({ k, label: st[k] ? dayName(series14, st[k].startIdx, locale, true) : '' })) : []), [series14, st, locale])
+  const readout = () => {
+    if (tab === 0) { const s = status(at); return `${t(`${s.k}_title`)}. ${t(`${s.k}_body`)} ${t(`${s.k}_nudge`)}` }
+    if (tab === 1) return `${t('ins_title1')} ${t('ins_title2')}. ${t('legend_in', { p: pct(d.metrics.tir) })}. ${t('legend_above', { p: pct(d.metrics.tar) })}. ${t('ins_note')}`
+    if (tab === 2) {
+      const lv = d.liver.timeline.steatosis.at(-1)
+      const lab = d.profile.labs
+      const kh = lab.uacr_mg_g >= 30 || lab.egfr < 60 || d.kidney.projection.albuminuria.at(-1) >= 0.5
+      return `${t('liver')}: ${lv > 0.6 ? t('liver_high') : lv > 0.3 ? t('liver_mid') : t('liver_ok')}. ${t('eyes')}: ${t(`dr${d.eye.grade}`)}. ${t('kidneys')}: ${kh ? t('kidney_watch') : t('kidney_ok')}.`
+    }
+    return `${t('try_title1')}. ${t('try_title2')}.`
+  }
   const tabs = [['🏠', 'tab_today'], ['📊', 'tab_insights'], ['🫀', 'tab_body'], ['✨', 'tab_try']]
   return (
     <div className="stage">
@@ -215,21 +223,20 @@ export default function PatientApp({ d, at, pid }) {
       <div className={`phone ${large ? 'large' : ''}`}>
         <div className="status">
           <span>9:41</span>
-          <button className={`atoggle ${large ? 'on' : ''}`} onClick={() => setLarge(!large)} aria-label={t('large_text')} title={t('large_text')}>A+</button>
           <span className="langs" role="group" aria-label="Language">
             {LANGS.map((l) => <button key={l.code} className={lang === l.code ? 'on' : ''} onClick={() => pick(l.code)} title={l.code}>{l.label}</button>)}
           </span>
         </div>
         <div className="screen">
           {!series14 ? <div className="muted" style={{ padding: 30 }}>{t('loading')}</div> : (
-            tab === 0 ? <Today t={t} lang={lang} voice={voice} at={at} day={day} setDay={setDay} st={st} days={days} nudgeDone={nudgeDone} setNudgeDone={setNudgeDone} /> :
+            tab === 0 ? <Today t={t} at={at} day={day} setDay={setDay} st={st} days={days} nudgeDone={nudgeDone} setNudgeDone={setNudgeDone} /> :
             tab === 1 ? <Insights t={t} series={series14} st={st} d={d} locale={locale} /> :
-            tab === 2 ? <Body t={t} lang={lang} voice={voice} d={d} /> : <Try t={t} lang={lang} voice={voice} pid={pid} />
+            tab === 2 ? <Body t={t} d={d} /> : <Try t={t} pid={pid} />
           )}
           {lang !== 'en' && <p className="note" style={{ marginTop: 10 }}>{t('lang_note')}</p>}
         </div>
-        {!askOpen && <button className="fab" onClick={() => setAskOpen(true)} aria-label={t('ask_title')}><span>💬</span> {t('ask_fab')}</button>}
-        {askOpen && <Assistant t={t} lang={lang} pid={pid} tab={tab} voice={voice} onNavigate={setTab} onClose={() => setAskOpen(false)} />}
+        {!askOpen && <button className="vbtn" onClick={() => setAskOpen(true)} aria-label={t('ask_title')} title={t('ask_title')}>🎙️</button>}
+        {askOpen && <Assistant t={t} lang={lang} pid={pid} tab={tab} voice={voice} screenText={readout()} large={large} onToggleLarge={() => setLarge(!large)} onNavigate={setTab} onClose={() => setAskOpen(false)} />}
         <div className="tabs">
           {tabs.map(([e, k], i) => <button key={k} className={`tab ${tab === i ? 'on' : ''}`} onClick={() => setTab(i)}><span>{e}</span>{t(k)}</button>)}
         </div>

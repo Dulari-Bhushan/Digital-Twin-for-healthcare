@@ -13,7 +13,18 @@ export function SpeakButton({ text, lang, voice, label }) {
 }
 
 /** Chat sheet inside the phone: type or speak, hear the answer, and navigate by voice. */
-export default function Assistant({ t, lang, pid, tab, voice, onNavigate, onClose }) {
+function ReadScreen({ text, lang, voice, label }) {
+  const [on, setOn] = useState(false)
+  const go = async () => {
+    if (on) { stopSpeaking(); setOn(false); return }
+    setOn(true)
+    await speak(text, lang, voice.enabled)
+    setTimeout(() => setOn(false), Math.min(15000, 800 + text.length * 70))
+  }
+  return <button className={`readscreen ${on ? 'on' : ''}`} onClick={go}>{on ? '■' : '🔊'} {label}</button>
+}
+
+export default function Assistant({ t, lang, pid, tab, voice, screenText, large, onToggleLarge, onNavigate, onClose }) {
   const [msgs, setMsgs] = useState([{ role: 'assistant', content: t('ask_hello') }])
   const [text, setText] = useState('')
   const [phase, setPhase] = useState('idle') // idle | recording | transcribing | thinking
@@ -76,8 +87,12 @@ export default function Assistant({ t, lang, pid, tab, voice, onNavigate, onClos
     <div className="sheet" role="dialog" aria-label={t('ask_title')}>
       <div className="sheet-h">
         <div style={{ fontWeight: 800, fontSize: 18 }}>💬 {t('ask_title')}</div>
-        <button className="x" onClick={() => { stopSpeaking(); onClose() }} aria-label={t('close')}>✕</button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button className={`atoggle ${large ? 'on' : ''}`} onClick={onToggleLarge} aria-label={t('large_text')} title={t('large_text')}>A+</button>
+          <button className="x" onClick={() => { stopSpeaking(); onClose() }} aria-label={t('close')}>✕</button>
+        </div>
       </div>
+      <div className="readrow"><ReadScreen text={screenText} lang={lang} voice={voice} label={t('read_screen')} /></div>
       <div className="chat">
         {msgs.map((m, i) => (
           <div key={i} className={`bubble-row ${m.role}`}>
