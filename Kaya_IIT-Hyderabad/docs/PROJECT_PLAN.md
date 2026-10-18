@@ -31,7 +31,7 @@ Use case: Indian T2D patients on routine follow-up. They are often lean-but-fatt
 | CGM, meals, wearables | CGMacros (PhysioNet), Shanghai T1DM/T2DM | CGMacros downloaded and checksum verified; Shanghai pending |
 | Synthetic CGM | simglucose | installed |
 | EHR | Synthea (diabetes module) | pending |
-| Liver labels | NHANES 2017-2018 (FibroScan, ALT/AST, lipids, diet) | 14 files downloaded |
+| Liver labels | NHANES 2017-2018 (FibroScan, ALT/AST, lipids, diet) | 16 files downloaded; liver dataset built (4,745 adults, 901 with diabetes) |
 | Retina images | APTOS 2019, IDRiD, EyePACS | pending (needs account) |
 | Kidney | NHANES eGFR/UACR | downloaded with the above |
 | Notes | LLM-generated Indian-context clinical notes | pending |
@@ -43,9 +43,14 @@ Use case: Indian T2D patients on routine follow-up. They are often lean-but-fatt
 
 - **Glucose forecaster:** LSTM/TCN or small transformer with static EHR embeddings and quantile outputs, with a LightGBM baseline.
 - **Liver:** gradient boosting for steatosis/fibrosis risk from rolling 30-90 day CGM features, diet, labs, plus clinical-text features from synthetic notes.
-- **Eye:** EfficientNet DR grader with Grad-CAM, plus a progression model using glycemic variability, time in range, BP and duration, with a concept-bottleneck explanation chain.
+- **Eye:** EfficientNet DR grader with Grad-CAM, plus a progression model using glycemic variability, time in range, BP and duration, with a concept-bottleneck explanation chain. **Illustrative retina preview (committed feature):** the progression model predicts the patient's likely DR grade at 2 years; a grade-conditioned generative model (ordinal diffusion or conditional image-to-image, trained on APTOS/IDRiD) renders a fundus image at that grade for a baseline scan. It is always labelled "illustrative preview, not a clinical prediction". We make no physical shear-stress claims, because no open data supports them.
 - **Kidney:** eGFR slope and albuminuria risk.
 - **What-if engine:** edit inputs, re-run simulator and forecaster, report change in glucose and 1-year organ risk.
+
+## 5a. Results so far
+
+- **Glycemic core** (`results/glucose_metrics.json`, `results/glucose_polish.json`): on held-out real CGMacros subjects the ensemble reaches 12.6/21.1/28.2 mg/dL RMSE at 30/60/120 min (persistence 16.3/25.8/36.7), with conformal 80% intervals and calibrated event heads. Alert replay at about 1 false alert per patient-day catches 72% of hypoglycemia episodes with a 45 minute median lead.
+- **Static liver model** (`results/liver_static_metrics.json`): on real NHANES 2017-2018, advanced fibrosis (LSM >= 8 kPa) AUROC 0.83 versus 0.63 for FIB-4; steatosis (CAP >= 288 dB) AUROC 0.83 versus 0.82 for FLI and 0.79 for HSI. Similar performance in adults with diabetes (0.76 steatosis, 0.80 fibrosis) and in Asian participants.
 
 ## 6. Validation
 

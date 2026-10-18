@@ -26,6 +26,8 @@ NHANES_FILES = {
     "BPX_J": "blood pressure",
     "DIQ_J": "diabetes questionnaire",
     "DR1TOT_J": "dietary recall, day 1 totals",
+    "CBC_J": "complete blood count (platelets, for FIB-4)",
+    "INS_J": "fasting insulin (for HOMA-IR)",
     "SLQ_J": "sleep questionnaire",
     "PAQ_J": "physical activity questionnaire",
 }
