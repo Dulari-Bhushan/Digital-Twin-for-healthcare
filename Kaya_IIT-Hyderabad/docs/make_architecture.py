@@ -58,9 +58,7 @@ box(36, 12, 28, 12, "Image pipeline", "Crop, resize, local contrast\nfundus -> t
 arrow(30, 18, 36, 18)
 
 # 3 models
-box(70, 61, 28, 14, "Glucose core", "GRU + LightGBM ensemble
-conformal intervals,
-calibrated alerts", "model")
+box(70, 61, 28, 14, "Glucose core", "GRU + LightGBM ensemble\nconformal intervals,\ncalibrated alerts", "model")
 box(70, 46, 28, 12, "Liver", "NHANES-trained risk (AUROC 0.83)\n+ glycemic-load state, 90-day lag", "model")
 box(70, 30, 28, 12, "Eye", "EfficientNet DR grader\n+ progression risk, Grad-CAM", "model")
 box(70, 14, 28, 12, "Kidney (roadmap)", "eGFR and albuminuria risk", "road", dashed=True)
