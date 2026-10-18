@@ -157,7 +157,9 @@ No public dataset links one person's glucose stream to their liver, eye and kidn
 | API, FHIR, dashboard | Planned |
 | Kidney module | Stretch goal |
 
-See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the detailed plan.
+**Version 1 ships the glucose, liver and eye modules, the what-if engine, the API and the doctor and patient views (English).** The following are on the roadmap for later versions and are not claimed as built: kidney module, illustrative retina preview, PDF clinical summary, Hindi/Telugu/Kannada patient view, model-health page, authentication and audit log, fuller FHIR and ABDM coverage.
+
+See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the detailed plan and backlog.
 
 ## 10. Repository layout
 

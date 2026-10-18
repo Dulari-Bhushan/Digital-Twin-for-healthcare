@@ -126,3 +126,40 @@ Data in (static EHR, wearables, retina scan) -> patient state encoder -> glucose
 | Docs and media | 8% | 15% | plan and README skeleton |
 | Hardening (CI, Docker, tests) | 4% | 10% | two tests |
 | **Overall** | 100% | **about 30%** | model work is further along than product work |
+
+## 13. V1 scope (6-hour build) and V2 backlog
+
+Anything in V2 is deliberately deferred so V1 ships complete. If time remains after V1, take V2 items in the order listed.
+
+### V1: must ship
+
+| Item | Status |
+|---|---|
+| Glucose forecaster, calibrated alerts, lead-time analysis | Done |
+| Static liver model (NHANES) and dynamic liver state | Done |
+| What-if engine (carbs, walking, baseline shift) | Done |
+| FastAPI backend: patient list, twin state, forecast, what-if, replay | Next |
+| React dashboard: doctor view (triage list, twin view, what-if panel, alert timeline) | Next |
+| Patient view in English: outlook, one nudge, simple organ visuals | Next |
+| Eye module: EfficientNet DR grader trained on APTOS, tested on IDRiD, Grad-CAM, tabular progression risk | After data download |
+| Docker Compose one-command demo | V1 end |
+| README, architecture diagram (PDF), presentation (PDF), video script | V1 end |
+
+### V2 backlog: add if time allows, in priority order
+
+1. Illustrative generative retina preview (grade-conditioned image generation, clearly labelled illustrative)
+2. Kidney module (eGFR and albuminuria risk from NHANES, folded into the what-if engine)
+3. PDF clinical summary export from the doctor view
+4. Patient view in Hindi, Telugu and Kannada
+5. Model-health page (drift, performance) and access audit log
+6. Authentication and role-based access (doctor, patient, admin)
+7. Fuller FHIR R4 coverage (DiagnosticReport, Condition) and a mocked ABDM consent flow
+8. Synthea EHR and synthetic clinical notes with a clinical-text encoder for the liver module
+9. SHAP explanations surfaced in the dashboard
+10. Use the Shanghai T2DM dataset for an extra external check of the glucose model
+11. Finer alert-threshold tuning for rare hypoglycemia on the synthetic cohort
+12. GitHub Actions CI
+13. Subgroup performance analysis (age, sex, ethnicity) in model cards
+14. Real-data validation of the CGM-to-liver link, if a suitable dataset becomes available
+
+The README marks V1 versus later items so nothing is claimed that is not built.
