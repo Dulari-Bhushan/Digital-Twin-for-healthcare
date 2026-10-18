@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -161,7 +161,10 @@ class WhatIf(BaseModel):
 
 @app.post("/api/patients/{pid}/whatif")
 def whatif(pid: int, body: WhatIf):
-    a = _get(pid)
+    return _whatif_compute(_get(pid), body)
+
+
+def _whatif_compute(a: dict, body: WhatIf):
     sr, pr = a["series"], a["profile"]
     g = np.array(sr["glucose"], dtype=float)
     meals = np.array(sr["meal_carbs"], dtype=float)
@@ -194,6 +197,21 @@ def whatif(pid: int, body: WhatIf):
         "kidney": {"before": k_before, "after": k_after},
         "assumptions": "Effect sizes are literature-informed assumptions, shown for transparency; this is a simulation, not a prediction.",
     }
+
+
+@app.get("/api/patients/{pid}/report.pdf")
+def report_pdf(pid: int):
+    """One-page-per-topic clinical summary for the patient's file."""
+    from report import build_report
+
+    a = _get(pid)
+    presets = [("Walk 20 min after meals", WhatIf(walk_after_meals=20, steps_delta=2000)),
+               ("Smaller carb portions (-25%)", WhatIf(carb_scale=0.75)),
+               ("Medication optimised (-15 mg/dL)", WhatIf(baseline_shift=-15)),
+               ("All three together", WhatIf(carb_scale=0.75, walk_after_meals=20, baseline_shift=-12, steps_delta=2000))]
+    results = [(n, _whatif_compute(a, b)) for n, b in presets]
+    pdf = build_report(a, _summary(a), patient(pid)["now"], results)
+    return Response(pdf, media_type="application/pdf", headers={"Content-Disposition": f'inline; filename="kaya_patient_{pid}.pdf"'})
 
 
 # ------------------------------------------------------------------ live mode: the model runs on every new reading

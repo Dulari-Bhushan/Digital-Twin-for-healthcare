@@ -47,6 +47,8 @@ export function Hero({ d }) {
         </div>
       </div>
       <div style={{ textAlign: 'right' }}>
+        <a className="btn sm go" style={{ textDecoration: 'none', marginBottom: 10 }} href={`/api/patients/${p.id}/report.pdf`} target="_blank" rel="noreferrer">📄 Download clinical summary</a>
+        <br />
         <span className="chip" style={{ background: t.bg, color: t.dd, fontSize: 14, padding: '9px 16px' }}>
           {d.summary.tier === 'high' ? '🔥' : d.summary.tier === 'medium' ? '👀' : '🌿'} {d.summary.tier} priority
         </span>

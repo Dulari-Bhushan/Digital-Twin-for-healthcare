@@ -14,6 +14,7 @@ from pathlib import Path
 
 import joblib
 import numpy as np
+import shap
 import pandas as pd
 import torch
 
@@ -76,6 +77,16 @@ def main():
 
     liver_bundle = joblib.load(ROOT / "models/liver_twin.joblib")
     kidney_bundle = joblib.load(ROOT / "models/kidney_twin.joblib")
+    explainers = {("liver", t): shap.TreeExplainer(m) for t, m in liver_bundle["models"].items()}
+    explainers.update({("kidney", t): shap.TreeExplainer(m) for t, m in kidney_bundle["models"].items()})
+
+    def drivers(kind, target, X, k=4):
+        sv = explainers[(kind, target)].shap_values(X)
+        sv = sv[1] if isinstance(sv, list) else sv
+        row = np.asarray(sv)[0]
+        feats = list(X.columns)
+        return [{"feature": feats[i], "value": round(float(X.iloc[0][feats[i]]), 2), "shap": round(float(row[i]), 3)}
+                for i in np.argsort(-np.abs(row))[:k]]
     index = []
     for pid in demo:
         row = pat[pat.patient_id == pid].iloc[0]
@@ -102,6 +113,9 @@ def main():
         klabs = pd.DataFrame([{"age": row.age, "male": float(row.sex == "M"), "bmi": row.bmi, "waist_cm": row.waist_cm,
                                "hba1c": row.hba1c, "sbp": row.sbp, "dbp": row.dbp, "hdl": row.hdl, "diabetes": 1}])[KIDNEY_FEATURES]
         k_static = {k: float(v[0]) for k, v in static_risk(kidney_bundle, klabs).items()}
+        explain = {"steatosis": drivers("liver", "steatosis", labs[liver_bundle["features"]]),
+                   "adv_fibrosis": drivers("liver", "adv_fibrosis", labs[liver_bundle["features"]]),
+                   "albuminuria": drivers("kidney", "albuminuria", klabs), "low_egfr": drivers("kidney", "low_egfr", klabs)}
         k_proj = projection(float(row.egfr), float(row.hba1c), float(row.sbp), float(row.uacr_mg_g), m, k_static["albuminuria"])
         eye_now = progression_risk(int(row.dr_grade), row.hba1c, row.diabetes_duration_yrs, row.sbp, m["gv_cv"], m["tir"])
 
@@ -119,6 +133,7 @@ def main():
             "liver": {"static": p_static, "timeline": tl},
             "eye": {"grade": int(row.dr_grade), "progression_2y": round(eye_now, 4)},
             "kidney": {"static": k_static, "projection": k_proj},
+            "explain": explain,
             "series": {"n": int(len(g)), "glucose": r(g), "heart_rate": r(s.heart_rate, 0), "steps": r(s.steps, 0),
                        "meal_carbs": r(s.meal_carbs_g, 0), "sleep_stage": s.sleep_stage.astype(int).tolist()},
             "forecast": {"t": t_idx.astype(int).tolist(), "q": r(qs, 1), "p": r(ps, 3)},

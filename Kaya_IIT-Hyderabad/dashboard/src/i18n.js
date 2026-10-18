@@ -1,0 +1,139 @@
+// Patient-app strings in English, Hindi, Telugu and Kannada.
+// Hindi, Telugu and Kannada are first drafts and should be reviewed by a native speaker before clinical use.
+
+export const LANGS = [
+  { code: 'en', label: 'EN', locale: 'en-IN' },
+  { code: 'hi', label: 'हिं', locale: 'hi-IN' },
+  { code: 'te', label: 'తె', locale: 'te-IN' },
+  { code: 'kn', label: 'ಕ', locale: 'kn-IN' },
+]
+
+const en = {
+  tab_today: 'Today', tab_insights: 'Insights', tab_body: 'Body', tab_try: 'Try',
+  today_title1: 'Your day', today_title2: 'for today', day_today: 'TODAY',
+  st_low_title: 'Your sugar may dip soon', st_low_body: 'Have a small snack with some carbohydrate and check again in 15 minutes.', st_low_nudge: 'Have a small snack now',
+  st_high_title: 'Your sugar may run high', st_high_body: 'A short walk after your meal helps your body use the sugar.', st_high_nudge: 'Take a 15-minute walk',
+  st_ok_title: 'Your sugar is steady', st_ok_body: 'You are doing well. Keep your usual routine.', st_ok_nudge: 'Keep going: walk after dinner',
+  mgdl_now: 'mg/dL now', one_thing: "TODAY'S ONE THING", mark_done: 'Mark as done', well_done: 'Well done!',
+  my_habits: 'My habits', n_of_m: '{n} of {m} completed', completed: 'Completed', needs_attention: 'Needs attention',
+  habit_range: 'Healthy range', habit_range_sub: '{pct} of the day, goal 70%',
+  habit_steps: 'Steps', habit_steps_sub: '{n} of 6,000',
+  habit_nolow: 'No low sugar', habit_nolow_sub_bad: '{pct} of the day below 70', habit_nolow_sub_ok: 'No dips below 70',
+  habit_carbs: 'Carbs under 220 g', habit_carbs_sub: '{g} g in {m} meals',
+  ins_title1: 'Time in range', ins_title2: 'weekly', today_lbl: 'Today', two_weeks: 'Two weeks',
+  legend_in: 'In range {p}', legend_above: 'Above range {p}', legend_below: 'Below range {p}',
+  ins_note: 'A good goal is more than 70% of the day in the healthy range.',
+  body_title1: 'Your body', body_title2: 'what sugar does', liver: 'Liver', eyes: 'Eyes', kidneys: 'Kidneys',
+  liver_high: 'Fat is likely building up', liver_mid: 'Some risk of fat build-up', liver_ok: 'Looking healthy',
+  liver_text_mid: 'Habits matter here. Your doctor may suggest a scan.', liver_text_ok: 'Keep your habits steady.',
+  eyes_text: 'Keep your yearly eye check.', kidney_watch: 'Your doctor is watching', kidney_ok: 'Tests look healthy',
+  kidney_text: 'Kidney filter score {now} now, about {later} in five years at current habits.',
+  body_note: 'The rings show your estimated chance over the next year (liver, eyes) and your latest kidney score. These are estimates to guide a conversation with your doctor.',
+  dr0: 'No retinopathy', dr1: 'Mild', dr2: 'Moderate', dr3: 'Severe', dr4: 'Proliferative',
+  try_title1: 'Try a change', try_title2: 'see what could happen',
+  try_walk: 'Walk 20 min after meals', try_less: 'A quarter less rice and roti', try_both: 'Do both', with_change: 'With change',
+  try_msg_tir: 'Your time in the healthy range could go from {a} to {b}', try_msg_gv: 'Your sugar swings could calm down by about {n}%',
+  try_msg_liver: ', and your chance of liver fat build-up over a year from {a} to {b}.',
+  try_note: 'This is a simulation to help you decide, not a promise. Talk to your doctor before changing your treatment.',
+  loading: 'Loading…', lang_note: 'Hindi, Telugu and Kannada are drafts pending native-speaker review.',
+}
+
+const hi = {
+  tab_today: 'आज', tab_insights: 'जानकारी', tab_body: 'शरीर', tab_try: 'आज़माएँ',
+  today_title1: 'आपका दिन', today_title2: 'आज के लिए', day_today: 'आज',
+  st_low_title: 'आपकी शुगर जल्द गिर सकती है', st_low_body: 'थोड़े कार्बोहाइड्रेट वाला हल्का नाश्ता लें और 15 मिनट बाद फिर जाँचें।', st_low_nudge: 'अभी हल्का नाश्ता करें',
+  st_high_title: 'आपकी शुगर बढ़ सकती है', st_high_body: 'खाने के बाद थोड़ी सैर शरीर को शुगर इस्तेमाल करने में मदद करती है।', st_high_nudge: '15 मिनट टहलें',
+  st_ok_title: 'आपकी शुगर स्थिर है', st_ok_body: 'आप अच्छा कर रहे हैं। अपनी सामान्य दिनचर्या जारी रखें।', st_ok_nudge: 'ऐसे ही चलते रहें: रात के खाने के बाद टहलें',
+  mgdl_now: 'mg/dL अभी', one_thing: 'आज की एक बात', mark_done: 'पूरा हुआ', well_done: 'शाबाश!',
+  my_habits: 'मेरी आदतें', n_of_m: '{m} में से {n} पूरी', completed: 'पूरी हुईं', needs_attention: 'ध्यान दें',
+  habit_range: 'सामान्य सीमा', habit_range_sub: 'दिन का {pct}, लक्ष्य 70%',
+  habit_steps: 'कदम', habit_steps_sub: '6,000 में से {n}',
+  habit_nolow: 'शुगर कम नहीं हुई', habit_nolow_sub_bad: 'दिन का {pct} समय 70 से नीचे', habit_nolow_sub_ok: '70 से नीचे नहीं गई',
+  habit_carbs: 'कार्ब्स 220 ग्राम से कम', habit_carbs_sub: '{m} भोजन में {g} ग्राम',
+  ins_title1: 'सामान्य सीमा में समय', ins_title2: 'साप्ताहिक', today_lbl: 'आज', two_weeks: 'दो सप्ताह',
+  legend_in: 'सीमा में {p}', legend_above: 'सीमा से ऊपर {p}', legend_below: 'सीमा से नीचे {p}',
+  ins_note: 'अच्छा लक्ष्य है कि दिन का 70% से अधिक समय सामान्य सीमा में रहे।',
+  body_title1: 'आपका शरीर', body_title2: 'शुगर का असर', liver: 'लिवर', eyes: 'आँखें', kidneys: 'किडनी',
+  liver_high: 'चर्बी जमा होने की संभावना है', liver_mid: 'चर्बी जमा होने का कुछ जोखिम', liver_ok: 'ठीक दिख रहा है',
+  liver_text_mid: 'यहाँ आदतें मायने रखती हैं। डॉक्टर स्कैन सुझा सकते हैं।', liver_text_ok: 'अपनी आदतें स्थिर रखें।',
+  eyes_text: 'साल में एक बार आँखों की जाँच कराते रहें।', kidney_watch: 'आपके डॉक्टर नज़र रख रहे हैं', kidney_ok: 'जाँचें ठीक दिख रही हैं',
+  kidney_text: 'किडनी फ़िल्टर स्कोर अभी {now}, मौजूदा आदतों पर पाँच साल में लगभग {later}।',
+  body_note: 'रिंग अगले एक साल में आपकी अनुमानित संभावना (लिवर, आँखें) और आपका ताज़ा किडनी स्कोर दिखाती हैं। ये अनुमान डॉक्टर से बातचीत में मदद के लिए हैं।',
+  dr0: 'रेटिनोपैथी नहीं', dr1: 'हल्की', dr2: 'मध्यम', dr3: 'गंभीर', dr4: 'प्रोलिफ़ेरेटिव',
+  try_title1: 'बदलाव आज़माएँ', try_title2: 'देखें क्या हो सकता है',
+  try_walk: 'खाने के बाद 20 मिनट टहलें', try_less: 'चावल और रोटी एक चौथाई कम करें', try_both: 'दोनों करें', with_change: 'बदलाव के साथ',
+  try_msg_tir: 'सामान्य सीमा में आपका समय {a} से {b} तक हो सकता है', try_msg_gv: 'आपकी शुगर के उतार-चढ़ाव लगभग {n}% कम हो सकते हैं',
+  try_msg_liver: ', और एक साल में लिवर में चर्बी जमा होने की संभावना {a} से {b} हो सकती है।',
+  try_note: 'यह निर्णय में मदद के लिए एक सिमुलेशन है, वादा नहीं। इलाज बदलने से पहले अपने डॉक्टर से बात करें।',
+  loading: 'लोड हो रहा है…', lang_note: 'हिंदी, तेलुगु और कन्नड़ मूल वक्ता की समीक्षा तक प्रारूप हैं।',
+}
+
+const te = {
+  tab_today: 'ఈరోజు', tab_insights: 'విశ్లేషణ', tab_body: 'శరీరం', tab_try: 'ప్రయత్నించండి',
+  today_title1: 'మీ రోజు', today_title2: 'ఈరోజు కోసం', day_today: 'ఈరోజు',
+  st_low_title: 'మీ షుగర్ త్వరలో తగ్గవచ్చు', st_low_body: 'కొంచెం కార్బోహైడ్రేట్ ఉన్న చిన్న అల్పాహారం తీసుకోండి, 15 నిమిషాల తర్వాత మళ్లీ చూడండి.', st_low_nudge: 'ఇప్పుడు చిన్న అల్పాహారం తీసుకోండి',
+  st_high_title: 'మీ షుగర్ పెరగవచ్చు', st_high_body: 'భోజనం తర్వాత కొంచెం నడిస్తే శరీరం షుగర్‌ను వాడుకోవడానికి సహాయపడుతుంది.', st_high_nudge: '15 నిమిషాలు నడవండి',
+  st_ok_title: 'మీ షుగర్ స్థిరంగా ఉంది', st_ok_body: 'మీరు బాగా చేస్తున్నారు. మీ రోజువారీ అలవాట్లను కొనసాగించండి.', st_ok_nudge: 'ఇలాగే కొనసాగండి: రాత్రి భోజనం తర్వాత నడవండి',
+  mgdl_now: 'mg/dL ఇప్పుడు', one_thing: 'ఈరోజు ఒక్క పని', mark_done: 'పూర్తయింది', well_done: 'చాలా బాగుంది!',
+  my_habits: 'నా అలవాట్లు', n_of_m: '{m}లో {n} పూర్తి', completed: 'పూర్తయినవి', needs_attention: 'శ్రద్ధ అవసరం',
+  habit_range: 'సాధారణ పరిధి', habit_range_sub: 'రోజులో {pct}, లక్ష్యం 70%',
+  habit_steps: 'అడుగులు', habit_steps_sub: '6,000లో {n}',
+  habit_nolow: 'షుగర్ తగ్గలేదు', habit_nolow_sub_bad: 'రోజులో {pct} సమయం 70 కంటే తక్కువ', habit_nolow_sub_ok: '70 కంటే తగ్గలేదు',
+  habit_carbs: 'కార్బ్స్ 220 గ్రాముల లోపు', habit_carbs_sub: '{m} భోజనాల్లో {g} గ్రాములు',
+  ins_title1: 'పరిధిలో సమయం', ins_title2: 'వారం వారీ', today_lbl: 'ఈరోజు', two_weeks: 'రెండు వారాలు',
+  legend_in: 'పరిధిలో {p}', legend_above: 'పరిధి పైన {p}', legend_below: 'పరిధి కింద {p}',
+  ins_note: 'రోజులో 70% కంటే ఎక్కువ సమయం సాధారణ పరిధిలో ఉండటం మంచి లక్ష్యం.',
+  body_title1: 'మీ శరీరం', body_title2: 'షుగర్ ప్రభావం', liver: 'కాలేయం', eyes: 'కళ్ళు', kidneys: 'మూత్రపిండాలు',
+  liver_high: 'కొవ్వు పేరుకుపోయే అవకాశం ఎక్కువ', liver_mid: 'కొంత కొవ్వు పేరుకునే ప్రమాదం', liver_ok: 'ఆరోగ్యంగా ఉంది',
+  liver_text_mid: 'ఇక్కడ అలవాట్లు ముఖ్యం. డాక్టర్ స్కాన్ సూచించవచ్చు.', liver_text_ok: 'మీ అలవాట్లను స్థిరంగా ఉంచండి.',
+  eyes_text: 'ప్రతి సంవత్సరం కంటి పరీక్ష చేయించుకోండి.', kidney_watch: 'మీ డాక్టర్ గమనిస్తున్నారు', kidney_ok: 'పరీక్షలు బాగున్నాయి',
+  kidney_text: 'కిడ్నీ ఫిల్టర్ స్కోర్ ఇప్పుడు {now}, ప్రస్తుత అలవాట్లతో ఐదు సంవత్సరాల్లో సుమారు {later}.',
+  body_note: 'రింగులు రాబోయే ఏడాదిలో మీ అంచనా అవకాశాన్ని (కాలేయం, కళ్ళు), తాజా కిడ్నీ స్కోర్‌ను చూపిస్తాయి. ఇవి డాక్టర్‌తో చర్చకు సహాయపడే అంచనాలు.',
+  dr0: 'రెటినోపతి లేదు', dr1: 'స్వల్పం', dr2: 'మధ్యస్థం', dr3: 'తీవ్రం', dr4: 'ప్రొలిఫరేటివ్',
+  try_title1: 'మార్పు ప్రయత్నించండి', try_title2: 'ఏమవుతుందో చూడండి',
+  try_walk: 'భోజనం తర్వాత 20 నిమిషాలు నడవండి', try_less: 'అన్నం, రొట్టె పావు వంతు తగ్గించండి', try_both: 'రెండూ చేయండి', with_change: 'మార్పుతో',
+  try_msg_tir: 'సాధారణ పరిధిలో మీ సమయం {a} నుండి {b}కి పెరగవచ్చు', try_msg_gv: 'మీ షుగర్ హెచ్చుతగ్గులు సుమారు {n}% తగ్గవచ్చు',
+  try_msg_liver: ', ఒక సంవత్సరంలో కాలేయంలో కొవ్వు పేరుకునే అవకాశం {a} నుండి {b}కి తగ్గవచ్చు.',
+  try_note: 'ఇది నిర్ణయానికి సహాయపడే సిమ్యులేషన్ మాత్రమే, హామీ కాదు. చికిత్సలో మార్పు చేసే ముందు మీ డాక్టర్‌తో మాట్లాడండి.',
+  loading: 'లోడ్ అవుతోంది…', lang_note: 'హిందీ, తెలుగు, కన్నడ అనువాదాలు స్థానిక భాషా నిపుణుల సమీక్ష వరకు ముసాయిదాలు.',
+}
+
+const kn = {
+  tab_today: 'ಇಂದು', tab_insights: 'ವಿಶ್ಲೇಷಣೆ', tab_body: 'ದೇಹ', tab_try: 'ಪ್ರಯತ್ನಿಸಿ',
+  today_title1: 'ನಿಮ್ಮ ದಿನ', today_title2: 'ಇಂದಿಗಾಗಿ', day_today: 'ಇಂದು',
+  st_low_title: 'ನಿಮ್ಮ ಶುಗರ್ ಶೀಘ್ರದಲ್ಲೇ ಇಳಿಯಬಹುದು', st_low_body: 'ಸ್ವಲ್ಪ ಕಾರ್ಬೋಹೈಡ್ರೇಟ್ ಇರುವ ಲಘು ತಿಂಡಿ ತೆಗೆದುಕೊಳ್ಳಿ, 15 ನಿಮಿಷಗಳ ನಂತರ ಮತ್ತೆ ಪರಿಶೀಲಿಸಿ.', st_low_nudge: 'ಈಗ ಲಘು ತಿಂಡಿ ತೆಗೆದುಕೊಳ್ಳಿ',
+  st_high_title: 'ನಿಮ್ಮ ಶುಗರ್ ಹೆಚ್ಚಾಗಬಹುದು', st_high_body: 'ಊಟದ ನಂತರ ಸ್ವಲ್ಪ ನಡೆದರೆ ದೇಹವು ಶುಗರ್ ಬಳಸಲು ಸಹಾಯವಾಗುತ್ತದೆ.', st_high_nudge: '15 ನಿಮಿಷ ನಡೆಯಿರಿ',
+  st_ok_title: 'ನಿಮ್ಮ ಶುಗರ್ ಸ್ಥಿರವಾಗಿದೆ', st_ok_body: 'ನೀವು ಚೆನ್ನಾಗಿ ಮಾಡುತ್ತಿದ್ದೀರಿ. ನಿಮ್ಮ ಸಾಮಾನ್ಯ ದಿನಚರಿಯನ್ನು ಮುಂದುವರಿಸಿ.', st_ok_nudge: 'ಹೀಗೆಯೇ ಮುಂದುವರಿಸಿ: ರಾತ್ರಿ ಊಟದ ನಂತರ ನಡೆಯಿರಿ',
+  mgdl_now: 'mg/dL ಈಗ', one_thing: 'ಇಂದಿನ ಒಂದು ಕೆಲಸ', mark_done: 'ಮುಗಿಯಿತು', well_done: 'ಅದ್ಭುತ!',
+  my_habits: 'ನನ್ನ ಅಭ್ಯಾಸಗಳು', n_of_m: '{m}ರಲ್ಲಿ {n} ಪೂರ್ಣ', completed: 'ಪೂರ್ಣಗೊಂಡವು', needs_attention: 'ಗಮನ ಬೇಕು',
+  habit_range: 'ಸಾಮಾನ್ಯ ವ್ಯಾಪ್ತಿ', habit_range_sub: 'ದಿನದ {pct}, ಗುರಿ 70%',
+  habit_steps: 'ಹೆಜ್ಜೆಗಳು', habit_steps_sub: '6,000ರಲ್ಲಿ {n}',
+  habit_nolow: 'ಶುಗರ್ ಇಳಿಯಲಿಲ್ಲ', habit_nolow_sub_bad: 'ದಿನದ {pct} ಸಮಯ 70ಕ್ಕಿಂತ ಕಡಿಮೆ', habit_nolow_sub_ok: '70ಕ್ಕಿಂತ ಕಡಿಮೆಯಾಗಿಲ್ಲ',
+  habit_carbs: 'ಕಾರ್ಬ್ಸ್ 220 ಗ್ರಾಂ ಒಳಗೆ', habit_carbs_sub: '{m} ಊಟಗಳಲ್ಲಿ {g} ಗ್ರಾಂ',
+  ins_title1: 'ವ್ಯಾಪ್ತಿಯಲ್ಲಿ ಸಮಯ', ins_title2: 'ವಾರದ', today_lbl: 'ಇಂದು', two_weeks: 'ಎರಡು ವಾರ',
+  legend_in: 'ವ್ಯಾಪ್ತಿಯಲ್ಲಿ {p}', legend_above: 'ವ್ಯಾಪ್ತಿಗಿಂತ ಮೇಲೆ {p}', legend_below: 'ವ್ಯಾಪ್ತಿಗಿಂತ ಕೆಳಗೆ {p}',
+  ins_note: 'ದಿನದ 70%ಕ್ಕಿಂತ ಹೆಚ್ಚು ಸಮಯ ಸಾಮಾನ್ಯ ವ್ಯಾಪ್ತಿಯಲ್ಲಿರುವುದು ಒಳ್ಳೆಯ ಗುರಿ.',
+  body_title1: 'ನಿಮ್ಮ ದೇಹ', body_title2: 'ಶುಗರ್‌ನ ಪರಿಣಾಮ', liver: 'ಯಕೃತ್ತು', eyes: 'ಕಣ್ಣುಗಳು', kidneys: 'ಮೂತ್ರಪಿಂಡಗಳು',
+  liver_high: 'ಕೊಬ್ಬು ಶೇಖರಣೆಯಾಗುತ್ತಿರುವ ಸಾಧ್ಯತೆ ಹೆಚ್ಚು', liver_mid: 'ಸ್ವಲ್ಪ ಕೊಬ್ಬು ಶೇಖರಣೆಯ ಅಪಾಯ', liver_ok: 'ಆರೋಗ್ಯವಾಗಿದೆ',
+  liver_text_mid: 'ಇಲ್ಲಿ ಅಭ್ಯಾಸಗಳು ಮುಖ್ಯ. ವೈದ್ಯರು ಸ್ಕ್ಯಾನ್ ಸೂಚಿಸಬಹುದು.', liver_text_ok: 'ನಿಮ್ಮ ಅಭ್ಯಾಸಗಳನ್ನು ಸ್ಥಿರವಾಗಿಡಿ.',
+  eyes_text: 'ವರ್ಷಕ್ಕೊಮ್ಮೆ ಕಣ್ಣಿನ ತಪಾಸಣೆ ಮಾಡಿಸಿಕೊಳ್ಳಿ.', kidney_watch: 'ನಿಮ್ಮ ವೈದ್ಯರು ಗಮನಿಸುತ್ತಿದ್ದಾರೆ', kidney_ok: 'ಪರೀಕ್ಷೆಗಳು ಚೆನ್ನಾಗಿವೆ',
+  kidney_text: 'ಕಿಡ್ನಿ ಫಿಲ್ಟರ್ ಸ್ಕೋರ್ ಈಗ {now}, ಈಗಿನ ಅಭ್ಯಾಸಗಳೊಂದಿಗೆ ಐದು ವರ್ಷಗಳಲ್ಲಿ ಸುಮಾರು {later}.',
+  body_note: 'ರಿಂಗ್‌ಗಳು ಮುಂದಿನ ಒಂದು ವರ್ಷದ ನಿಮ್ಮ ಅಂದಾಜು ಸಾಧ್ಯತೆಯನ್ನು (ಯಕೃತ್ತು, ಕಣ್ಣುಗಳು) ಮತ್ತು ಇತ್ತೀಚಿನ ಕಿಡ್ನಿ ಸ್ಕೋರ್ ಅನ್ನು ತೋರಿಸುತ್ತವೆ. ಇವು ವೈದ್ಯರೊಂದಿಗೆ ಚರ್ಚೆಗೆ ಸಹಾಯ ಮಾಡುವ ಅಂದಾಜುಗಳು.',
+  dr0: 'ರೆಟಿನೋಪತಿ ಇಲ್ಲ', dr1: 'ಸೌಮ್ಯ', dr2: 'ಮಧ್ಯಮ', dr3: 'ತೀವ್ರ', dr4: 'ಪ್ರೊಲಿಫರೇಟಿವ್',
+  try_title1: 'ಬದಲಾವಣೆ ಪ್ರಯತ್ನಿಸಿ', try_title2: 'ಏನಾಗಬಹುದು ನೋಡಿ',
+  try_walk: 'ಊಟದ ನಂತರ 20 ನಿಮಿಷ ನಡೆಯಿರಿ', try_less: 'ಅನ್ನ, ರೊಟ್ಟಿ ಕಾಲು ಭಾಗ ಕಡಿಮೆ ಮಾಡಿ', try_both: 'ಎರಡನ್ನೂ ಮಾಡಿ', with_change: 'ಬದಲಾವಣೆಯೊಂದಿಗೆ',
+  try_msg_tir: 'ಸಾಮಾನ್ಯ ವ್ಯಾಪ್ತಿಯಲ್ಲಿ ನಿಮ್ಮ ಸಮಯ {a}ರಿಂದ {b}ಕ್ಕೆ ಏರಬಹುದು', try_msg_gv: 'ನಿಮ್ಮ ಶುಗರ್ ಏರಿಳಿತಗಳು ಸುಮಾರು {n}% ಕಡಿಮೆಯಾಗಬಹುದು',
+  try_msg_liver: ', ಮತ್ತು ಒಂದು ವರ್ಷದಲ್ಲಿ ಯಕೃತ್ತಿನಲ್ಲಿ ಕೊಬ್ಬು ಶೇಖರಣೆಯ ಸಾಧ್ಯತೆ {a}ರಿಂದ {b}ಕ್ಕೆ ಇಳಿಯಬಹುದು.',
+  try_note: 'ಇದು ನಿರ್ಧಾರಕ್ಕೆ ಸಹಾಯ ಮಾಡುವ ಸಿಮ್ಯುಲೇಶನ್ ಮಾತ್ರ, ಭರವಸೆಯಲ್ಲ. ಚಿಕಿತ್ಸೆ ಬದಲಿಸುವ ಮುನ್ನ ನಿಮ್ಮ ವೈದ್ಯರೊಂದಿಗೆ ಮಾತನಾಡಿ.',
+  loading: 'ಲೋಡ್ ಆಗುತ್ತಿದೆ…', lang_note: 'ಹಿಂದಿ, ತೆಲುಗು ಮತ್ತು ಕನ್ನಡ ಅನುವಾದಗಳು ಸ್ಥಳೀಯ ಭಾಷಾ ತಜ್ಞರ ಪರಿಶೀಲನೆಯವರೆಗೆ ಕರಡುಗಳು.',
+}
+
+const DICT = { en, hi, te, kn }
+
+export function makeT(lang) {
+  return (key, vars = {}) => {
+    let s = (DICT[lang] && DICT[lang][key]) ?? en[key] ?? key
+    for (const [k, v] of Object.entries(vars)) s = s.split(`{${k}}`).join(v)
+    return s
+  }
+}
