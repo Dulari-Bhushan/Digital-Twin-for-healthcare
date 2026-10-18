@@ -299,3 +299,13 @@ a.btn.go { color: #fff; }
 .up-l { display: grid; gap: 3px; font-size: 12px; font-weight: 800; color: var(--sky-dd); }
 .up-in { border: 2px solid #fff; border-radius: 12px; padding: 9px 12px; font: inherit; font-size: 14px; background: #fff; color: var(--ink); min-width: 0; width: 100%; }
 .big-btn:disabled { opacity: .6; }
+
+/* automatic reading of uploads */
+.up-chk { display: flex; gap: 9px; align-items: flex-start; background: rgba(255, 255, 255, .6); border-radius: 14px; padding: 9px 11px; font-size: 13px; color: var(--sky-dd); }
+.up-chk input { margin-top: 3px; width: 18px; height: 18px; flex: none; accent-color: var(--lav-d); }
+.up-chk b { display: block; }
+.up-chk small { display: block; font-weight: 600; opacity: .85; }
+.rep-warn { background: var(--butter); color: var(--butter-dd); border-radius: 14px; padding: 9px 13px; font-size: 13px; font-weight: 600; margin: 8px 0; }
+.rep-src { margin-top: 14px; font-size: 13px; }
+.rep-src summary { cursor: pointer; font-weight: 800; color: var(--muted); }
+.rep-src pre { white-space: pre-wrap; background: #f0f5f4; border-radius: 12px; padding: 10px 12px; max-height: 280px; overflow: auto; font-family: inherit; font-size: 12.5px; }

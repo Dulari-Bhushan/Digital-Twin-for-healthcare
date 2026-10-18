@@ -37,12 +37,12 @@ class SarvamClient:
         self.timeout = timeout
         self._tts_cache: OrderedDict[tuple[str, str], bytes] = OrderedDict()
 
-    def _post(self, path: str, **kw) -> httpx.Response:
+    def _post(self, path: str, ok: tuple = (200,), **kw) -> httpx.Response:
         try:
             r = httpx.post(f"{BASE}{path}", headers=self.h, timeout=self.timeout, **kw)
         except httpx.HTTPError as e:  # network problems must not leak the key or crash the API
             raise VoiceError(f"voice service unreachable ({type(e).__name__})") from None
-        if r.status_code != 200:
+        if r.status_code not in ok:
             raise VoiceError(f"voice service returned {r.status_code}")
         return r
 
@@ -76,3 +76,42 @@ class SarvamClient:
         if not content:
             raise VoiceError("empty reply")
         return content.strip()
+
+
+    def digitise(self, data: bytes, filename: str, media: str, lang: str = "en-IN", wait_s: float = 90.0) -> str:
+        """Text of a PDF or image via Sarvam Document AI (job, poll, download, unzip). Raises VoiceError on any problem."""
+        import io
+        import time
+        import zipfile
+
+        r = self._post("/doc-ai/v1/job/digitise", ok=(200, 201, 202), files={"file": (filename, data, media)}, data={"language": lang, "output_format": "md"})
+        job = r.json().get("job_id")
+        if not job:
+            raise VoiceError("document service returned no job")
+        end = time.time() + wait_s
+        state = "pending"
+        while time.time() < end:
+            try:
+                st = httpx.get(f"{BASE}/doc-ai/v1/job/{job}/status", headers=self.h, timeout=20).json()
+            except (httpx.HTTPError, ValueError):
+                raise VoiceError("document service unreachable") from None
+            state = st.get("status", "pending")
+            if state in ("completed", "partially_completed"):
+                break
+            if state in ("failed", "rejected"):
+                raise VoiceError(f"document could not be read ({state})")
+            time.sleep(1.5)
+        else:
+            raise VoiceError("document reading timed out")
+        try:
+            link = httpx.get(f"{BASE}/doc-ai/v1/job/{job}/download-url", headers=self.h, timeout=20).json().get("url")
+            if not link:
+                raise VoiceError("no download link")
+            blob = httpx.get(link, timeout=60, follow_redirects=True).content          # pre-signed link: the API key is not sent
+            z = zipfile.ZipFile(io.BytesIO(blob))
+        except (httpx.HTTPError, ValueError, zipfile.BadZipFile):
+            raise VoiceError("could not download the result") from None
+        names = sorted(n for n in z.namelist() if n.lower().endswith((".md", ".markdown", ".txt")) and not n.startswith("metadata/"))
+        if not names:
+            raise VoiceError("no text in the result")
+        return "\n\n".join(z.read(n).decode("utf-8", "replace") for n in names)

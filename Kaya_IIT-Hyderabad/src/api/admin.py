@@ -116,6 +116,7 @@ def overview(state: dict) -> dict:
         {"item": "Data is synthetic", "ok": True, "note": "24 invented patients; no real health records are stored."},
         {"item": "Voice requests rate limited", "ok": True, "note": "40 per minute per address, 120 per minute for the diary."},
         {"item": "Medicine and emergency questions handled in code", "ok": True, "note": "The language model never sees them; see the assistant counters below."},
+        {"item": "Uploaded documents sent to a third party only with consent", "ok": True, "note": "Reading is opt-in per upload and sends the file to Sarvam AI. A hospital deployment needs a data-processing agreement or an on-premises reader."},
         {"item": "Uploaded files are scanned for malware", "ok": False, "note": "Files are type-checked by content and size-limited, but not virus scanned or read; add scanning and encryption at rest in production."},
         {"item": "Audit trail kept in memory only", "ok": False, "note": "Resets on restart; send events to the hospital logging system in production."},
     ]
@@ -128,6 +129,7 @@ def overview(state: dict) -> dict:
                  "synthetic": True, "diary_files": n_logs, "uploaded_files": (len([f for f in state["uploads_dir"].rglob("*") if f.is_file() and f.name != "index.json"]) if state["uploads_dir"].exists() else 0), "eye_images": len(list((root / "artifacts" / "eye").glob("*.jpg"))), "dashboard_build": (root / "dashboard" / "dist" / "index.html").exists()},
         "integrations": [
             {"name": "Sarvam voice and chat", "status": "configured" if state["voice"] else "not configured", "detail": state["voice_models"]},
+            {"name": "Document reading (Sarvam Document AI)", "status": "configured" if state["voice"] else "not configured", "detail": "OCR of uploaded reports; the file leaves this server only when the patient agrees"},
             {"name": "FHIR R4 read API", "status": "enabled", "detail": "Patient, Observation (read only)"},
             {"name": "Live feed (WebSocket)", "status": "enabled" if state["live_loaded"] else "unavailable", "detail": f"{state['live_sessions']} active session(s)"},
             {"name": "PDF reports", "status": "enabled", "detail": "Clinical summary and per-report PDFs (reportlab)"},

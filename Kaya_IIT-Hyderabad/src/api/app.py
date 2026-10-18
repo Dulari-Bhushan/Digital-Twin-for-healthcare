@@ -9,6 +9,7 @@ import asyncio
 import json
 import os
 import sys
+import threading
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -31,6 +32,7 @@ from kidney_dynamic import KidneyParams, projection  # noqa: E402
 import assistant as asst  # noqa: E402
 import admin as adm  # noqa: E402
 import diary  # noqa: E402
+import labparse  # noqa: E402
 import uploads as upl  # noqa: E402
 import reports as rpt  # noqa: E402
 from live import Calibration, LiveTwin, NumpyGRU  # noqa: E402
@@ -259,7 +261,12 @@ def _record(pid: int) -> dict:
 def reports_list(pid: int):
     """Every report in the patient's history (labs, imaging, clinic notes, device summaries), newest first."""
     rec = _record(pid)["record"]
-    return {k: v for k, v in rec.items() if not k.startswith("_")}
+    out = {k: v for k, v in rec.items() if not k.startswith("_")}
+    today = _today(pid)
+    extra = [r for r in (rpt.uploaded_report(pid, m, today, rec["reports"]) for m in upl.list_uploads(pid, full=True)) if r]
+    if extra:
+        out["reports"] = sorted(rec["reports"] + extra, key=lambda r: (r["days_ago"], r["code"]))
+    return out
 
 
 @app.get("/api/patients/{pid}/changes")
@@ -481,7 +488,7 @@ def _assistant_inner(body: AssistantReq, request: Request):
 @app.get("/api/patients/{pid}/uploads")
 def uploads_list(pid: int):
     _get(pid)
-    return {"items": upl.list_uploads(pid), "max_mb": upl.MAX_BYTES // (1024 * 1024), "categories": list(upl.CATEGORIES),
+    return {"items": upl.list_uploads(pid), "reading_available": VOICE.get("client") is not None, "max_mb": upl.MAX_BYTES // (1024 * 1024), "categories": list(upl.CATEGORIES),
             "note": "Uploaded by the patient. Not read automatically and not verified by a clinician."}
 
 
@@ -495,11 +502,43 @@ async def uploads_add(pid: int, request: Request):
     data = await request.body()
     h = request.headers
     try:
-        meta = upl.save(pid, data, unquote(h.get("x-filename", "")), unquote(h.get("x-title", "")), unquote(h.get("x-category", "other")), unquote(h.get("x-date", "")), _today(pid))
+        meta = upl.save(pid, data, unquote(h.get("x-filename", "")), unquote(h.get("x-title", "")), unquote(h.get("x-category", "other")), unquote(h.get("x-date", "")), _today(pid),
+                          read=h.get("x-ocr") == "1" and VOICE.get("client") is not None)
     except ValueError as e:
         raise HTTPException(422, str(e)) from None
-    adm.TEL.audit("patient app", "report uploaded", f"patient {pid}: {meta['category']}, {meta['ext']}, {meta['size_kb']} KB")
-    return meta
+    adm.TEL.audit("patient app", "report uploaded", f"patient {pid}: {meta['category']}, {meta['ext']}, {meta['size_kb']} KB, reading {'on' if meta['ocr']['state'] == 'pending' else 'off'}")
+    if meta["ocr"]["state"] == "pending":
+        _start_reading(pid, meta["id"])
+    return upl.public(meta)
+
+
+def _start_reading(pid: int, uid: str) -> None:
+    """Read an uploaded document in the background with Sarvam Document AI, then parse any lab values out of the text."""
+    client = VOICE.get("client")
+    sex = _get(pid)["profile"]["sex"]
+    today = _today(pid)
+
+    def job() -> None:
+        try:
+            upl.set_ocr(pid, uid, state="reading")
+            found = upl.get_file(pid, uid)
+            if found is None:
+                return
+            f, meta = found
+            text = client.digitise(f.read_bytes(), f"report.{meta['ext']}", meta["media"])
+            text = labparse.clean_text(text)
+            rows = labparse.parse(text, sex)
+            doc_date = labparse.parse_date(text, today)
+            if len(text.strip()) < 20 and not rows:
+                upl.set_ocr(pid, uid, state="no_text")
+            else:
+                upl.set_ocr(pid, uid, state="done" if rows else "no_values", results=rows, doc_date=doc_date, text=text[:8000])
+            adm.TEL.audit("system", "report read", f"patient {pid}: {len(rows)} values found")
+        except Exception as e:  # noqa: BLE001  (a failed reading must never break the upload)
+            upl.set_ocr(pid, uid, state="failed", error=str(e)[:100])
+            adm.TEL.audit("system", "report reading failed", f"patient {pid}: {str(e)[:80]}")
+
+    threading.Thread(target=job, daemon=True).start()
 
 
 @app.get("/api/patients/{pid}/uploads/{uid}/file")

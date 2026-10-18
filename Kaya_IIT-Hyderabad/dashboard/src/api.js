@@ -15,10 +15,10 @@ export const postWhatIf = (id, body) =>
 export const getReports = (id) => fetch(`/api/patients/${id}/reports`).then(j)
 export const getChanges = (id) => fetch(`/api/patients/${id}/changes`).then(j)
 export const getUploads = (id) => fetch(`/api/patients/${id}/uploads`).then(j)
-export const uploadReport = async (id, file, { title, category, date }) => {
+export const uploadReport = async (id, file, { title, category, date, read }) => {
   const r = await fetch(`/api/patients/${id}/uploads`, {
     method: 'POST',
-    headers: { 'x-filename': encodeURIComponent(file.name), 'x-title': encodeURIComponent(title || ''), 'x-category': encodeURIComponent(category || 'other'), 'x-date': encodeURIComponent(date || '') },
+    headers: { 'x-filename': encodeURIComponent(file.name), 'x-title': encodeURIComponent(title || ''), 'x-category': encodeURIComponent(category || 'other'), 'x-date': encodeURIComponent(date || ''), 'x-ocr': read ? '1' : '0' },
     body: file,
   })
   if (!r.ok) { let m = `${r.status}`; try { m = (await r.json()).detail || m } catch (e) { /* not json */ } throw new Error(m) }

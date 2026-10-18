@@ -24,7 +24,7 @@
 <path d="M598,236 L598,284" fill="none" stroke="#1d6fb8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a1d6fb8)"/>
 <rect x="794" y="166" width="332" height="70" rx="14" fill="#fff" stroke="#1d6fb8" stroke-width="1.8" filter="url(#sh)"/>
 <circle cx="838" cy="201" r="24" fill="#e6eefb"/>
-<text x="838" y="210" font-size="24" fill="#14212b" font-weight="400" text-anchor="middle" >👁</text>
+<text x="838" y="210" font-size="24" fill="#14212b" font-weight="400" text-anchor="middle" >👁️</text>
 <text x="876" y="209" font-size="20" fill="#14212b" font-weight="700" text-anchor="start" >Retina scan</text>
 <path d="M960,236 L960,284" fill="none" stroke="#1d6fb8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a1d6fb8)"/>
 <rect x="1156" y="166" width="332" height="70" rx="14" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
@@ -34,7 +34,7 @@
 <path d="M1322,236 L1322,284" fill="none" stroke="#0f766e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a0f766e)"/>
 <rect x="1518" y="166" width="332" height="70" rx="14" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
 <circle cx="1562" cy="201" r="24" fill="#e4f5f2"/>
-<text x="1562" y="210" font-size="24" fill="#14212b" font-weight="400" text-anchor="middle" >🎙</text>
+<text x="1562" y="210" font-size="24" fill="#14212b" font-weight="400" text-anchor="middle" >🎙️</text>
 <text x="1600" y="209" font-size="20" fill="#14212b" font-weight="700" text-anchor="start" >Voice or chat</text>
 <path d="M1684,236 L1684,284" fill="none" stroke="#0f766e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a0f766e)"/>
 <rect x="70" y="288" width="1780" height="216" rx="20" fill="url(#core)" stroke="#0f766e" stroke-width="2.2" filter="url(#sh)"/>

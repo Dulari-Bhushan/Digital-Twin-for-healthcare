@@ -52,11 +52,12 @@ def _read(pid: int) -> list[dict]:
         return []
 
 
-def list_uploads(pid: int) -> list[dict]:
-    return sorted(_read(pid), key=lambda x: x["uploaded"], reverse=True)
+def list_uploads(pid: int, full: bool = False) -> list[dict]:
+    items = sorted(_read(pid), key=lambda x: x["uploaded"], reverse=True)
+    return items if full else [public(x) for x in items]
 
 
-def save(pid: int, data: bytes, filename: str, title: str, category: str, date: str, today: datetime) -> dict:
+def save(pid: int, data: bytes, filename: str, title: str, category: str, date: str, today: datetime, read: bool = False) -> dict:
     kind = sniff(data)
     if kind is None:
         raise ValueError("Only PDF, PNG, JPEG or WebP files are accepted.")
@@ -79,7 +80,8 @@ def save(pid: int, data: bytes, filename: str, title: str, category: str, date: 
         d.mkdir(parents=True, exist_ok=True)
         (d / f"{uid}.{kind[0]}").write_bytes(data)
         meta = {"id": uid, "title": clean_title(title, clean_title(Path(filename or "").stem, "Uploaded report")), "category": category, "date": date,
-                "uploaded": today.strftime("%Y-%m-%d %H:%M"), "ext": kind[0], "media": kind[1], "size_kb": max(1, round(len(data) / 1024)), "verified": False}
+                "uploaded": today.strftime("%Y-%m-%d %H:%M"), "ext": kind[0], "media": kind[1], "size_kb": max(1, round(len(data) / 1024)), "verified": False,
+                "ocr": {"state": "pending" if read else "off"}}
         items.append(meta)
         _meta_path(pid).write_text(json.dumps(items), encoding="utf8")
     return meta
@@ -102,3 +104,21 @@ def delete(pid: int, uid: str) -> bool:
         (UP_DIR / str(int(pid)) / f"{meta['id']}.{meta['ext']}").unlink(missing_ok=True)
         _meta_path(pid).write_text(json.dumps([x for x in items if x["id"] != uid]), encoding="utf8")
     return True
+
+
+def set_ocr(pid: int, uid: str, **fields) -> None:
+    """Update the reading state of one upload (state, results, doc_date, text, error)."""
+    with LOCK:
+        items = _read(pid)
+        for x in items:
+            if x["id"] == uid:
+                x["ocr"] = {**x.get("ocr", {}), **fields}
+        _meta_path(pid).write_text(json.dumps(items), encoding="utf8")
+
+
+def public(meta: dict) -> dict:
+    """Metadata for the list view: the reading state without the full text."""
+    o = dict(meta.get("ocr", {"state": "off"}))
+    o.pop("text", None)
+    o["results"] = len(o.get("results") or [])
+    return {**meta, "ocr": o}

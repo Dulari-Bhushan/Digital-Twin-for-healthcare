@@ -71,7 +71,9 @@ The history is generated, not recorded: today's values come from each patient's 
 
 ## Patient report uploads
 
-In the patient app, Reports tab, **Add a report** lets the patient choose a PDF or take or pick a photo, name it, set its type and date, and upload it. It appears under **Reports I uploaded** (open or remove). In the doctor record, Reports tab, the same file appears under **Uploaded by the patient**, marked not verified. Only PDF, PNG, JPEG and WebP up to 8 MB are accepted, checked by content. Files live in `data/patient_uploads/` (git-ignored); delete the folder to reset. The app does not read or extract anything from them; reading values out of uploaded reports is a roadmap item and would need clinician review.
+In the patient app, Reports tab, **Add a report** lets the patient choose a PDF or take or pick a photo, name it, set its type and date, and upload it. It appears under **Reports I uploaded** (open or remove). In the doctor record, Reports tab, the same file appears under **Uploaded by the patient**, marked not verified. Only PDF, PNG, JPEG and WebP up to 8 MB are accepted, checked by content. Files live in `data/patient_uploads/` (git-ignored); delete the folder to reset. 
+
+**Automatic reading.** Leave **Read my report automatically** ticked (shown when the Sarvam key is configured). The file is sent to Sarvam Document AI, which returns the text in a few seconds; a rule-based parser (`src/api/labparse.py`, not a language model) then picks out the lab values it can trace to a line of the document. The result appears in the report list as an *Unverified* report with the values, flags, the previous value from the last panel, the source text and a link to the original; the patient sees it in simple words. Try `docs/sample/sample_lab_report.png` (a synthetic lab report). If a file has no recognisable values, its text is still added. If reading fails the file is kept. Untick the box to keep a document private. Values read this way are not used by the twin; the history charts and the changes card still use the verified panels only.
 
 ## The IT admin page
 

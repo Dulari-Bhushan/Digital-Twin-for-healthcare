@@ -119,9 +119,10 @@ export function ReportDoc({ rep, pid, audience, profile }) {
         </div>
         <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
           <span className={`chip ${rep.new ? 'butter' : 'mint'}`}>{rep.new && rep.status !== 'Latest' ? 'New · ' : ''}{rep.status}</span>
-          <a className="btn sm" style={{ textDecoration: 'none' }} href={`/api/patients/${pid}/reports/${rep.id}.pdf`} target="_blank" rel="noreferrer">📄 PDF</a>
+          <a className="btn sm" style={{ textDecoration: 'none' }} href={rep.uploaded ? rep.file_url : `/api/patients/${pid}/reports/${rep.id}.pdf`} target="_blank" rel="noreferrer">{rep.uploaded ? '📎 Open original' : '📄 PDF'}</a>
         </div>
       </header>
+      {rep.uploaded && <div className="rep-warn"><b>Read automatically</b> from an uploaded document. It can contain mistakes and a clinician has not reviewed it. Compare with the original.</div>}
       {!doc && <div className="rep-simple"><b>In simple words</b><p>{rep.plain}</p></div>}
       {profile && doc && <div className="muted" style={{ fontSize: 12, fontWeight: 600, margin: '2px 0 10px' }}>{profile.name} · ID {profile.id} · {profile.age} y · {profile.sex === 'F' ? 'female' : 'male'}</div>}
       {rep.meds && rep.meds.length > 0 && (
@@ -167,7 +168,8 @@ export function ReportDoc({ rep, pid, audience, profile }) {
       {doc && rep.findings.length > 0 && <div className="rep-sec"><h3>Findings</h3><ul>{rep.findings.map((f, i) => <li key={i}>{f}</li>)}</ul></div>}
       <div className="rep-sec"><h3>Impression</h3><p style={{ margin: 0, fontWeight: 700 }}>{rep.impression}</p></div>
       {rep.recommendations.length > 0 && <div className="rep-sec"><h3>{doc ? 'Recommendations' : 'What happens next'}</h3><ul>{rep.recommendations.map((f, i) => <li key={i}>{f}</li>)}</ul></div>}
-      <div className="note">Synthetic report for a demonstration. It describes an invented person and has no clinical meaning.</div>
+      {rep.source_text && <details className="rep-src"><summary>Text read from the document</summary><pre>{rep.source_text}</pre></details>}
+      <div className="note">{rep.uploaded ? 'Uploaded by the patient and read by software; not verified.' : 'Synthetic report for a demonstration. It describes an invented person and has no clinical meaning.'}</div>
     </article>
   )
 }
@@ -176,7 +178,7 @@ export function ReportDoc({ rep, pid, audience, profile }) {
 function Row({ r, on, onPick }) {
   return (
     <button className={`rep-row ${on ? 'on' : ''}`} onClick={() => onPick(r.id)}>
-      <span className="ic">{ICON[r.type]}</span>
+      <span className="ic">{r.uploaded ? '📎' : ICON[r.type]}</span>
       <span style={{ minWidth: 0, flex: 1 }}>
         <b>{r.name}</b>
         <small>{fmtDate(r.date)} · {r.facility.split(',')[0].replace(' (synthetic)', '')}</small>
@@ -194,13 +196,14 @@ function pickByUrl(data) {
 
 function useReports(pid) {
   const [data, setData] = useState(null)
-  useEffect(() => { setData(null); getReports(pid).then(setData) }, [pid])
-  return data
+  const load = () => getReports(pid).then(setData)
+  useEffect(() => { setData(null); load() }, [pid]) // eslint-disable-line
+  return [data, load]
 }
 
 /** Doctor view: list and report side by side, with trends above. */
 export function ReportsTab({ pid, d }) {
-  const data = useReports(pid)
+  const [data, reload] = useReports(pid)
   const [type, setType] = useState('all')
   const [sel, setSel] = useState(null)
   const list = useMemo(() => (data ? data.reports.filter((r) => type === 'all' || r.type === type) : []), [data, type])
@@ -224,7 +227,7 @@ export function ReportsTab({ pid, d }) {
         </section>
         <section className="card soft rep-view" style={{ boxShadow: 'none' }}>{cur && <ReportDoc rep={cur} pid={pid} audience="doctor" profile={d.profile} />}</section>
       </div>
-      <DoctorUploads pid={pid} />
+      <DoctorUploads pid={pid} onChange={reload} />
       <section className="card soft rec-sec" style={{ boxShadow: 'none' }}>
         <div className="card-h"><h2>Current medicines</h2><span className="chip">{data.medications.length}</span></div>
         <table className="rt"><thead><tr><th>Medicine</th><th>Dose</th><th>Since</th><th>Why</th></tr></thead>
@@ -236,7 +239,7 @@ export function ReportsTab({ pid, d }) {
 
 /** Patient app: plain-language list, tap a report to read it. */
 export function PatientReports({ t, pid, changes }) {
-  const data = useReports(pid)
+  const [data, reload] = useReports(pid)
   const [type, setType] = useState('all')
   const [open, setOpen] = useState(null)
   useEffect(() => setOpen(null), [pid])
@@ -256,7 +259,7 @@ export function PatientReports({ t, pid, changes }) {
   return (
     <>
       <div className="p-h">{t('rep_title1')}<br /><span style={{ color: 'var(--muted)', fontWeight: 600 }}>{t('rep_title2')}</span></div>
-      <div style={{ marginTop: 6 }}><PatientUploads t={t} pid={pid} today={data.today} /></div>
+      <div style={{ marginTop: 6 }}><PatientUploads t={t} pid={pid} today={data.today} onChange={reload} /></div>
       <div style={{ marginTop: 12 }}><ChangesCard ch={changes} audience="patient" /></div>
       <div className="sect"><span>{t('rep_trends')}</span></div>
       <div className="p-card" style={{ background: '#f0f5f4', marginTop: 4 }}>

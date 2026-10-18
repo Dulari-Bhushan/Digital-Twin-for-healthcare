@@ -146,3 +146,57 @@ def test_upload_api_round_trip(client, tmp_path, monkeypatch):
     assert client.get(f"/api/patients/1688/uploads/{uid}/file").status_code == 404
     assert client.delete(f"/api/patients/1636/uploads/{uid}").json()["items"] == []
     assert client.get("/api/patients/99999/uploads").status_code == 404
+
+
+def test_uploaded_document_is_read_and_added_to_the_reports(client, tmp_path, monkeypatch):
+    import time
+
+    import uploads
+
+    class FakeSarvam:
+        def digitise(self, data, filename, media, lang="en-IN", wait_s=90):
+            return "Collected 05/01/2026<table><tr><td>HbA1c</td><td>9.2</td><td>%</td></tr><tr><td>SGPT (ALT)</td><td>61</td><td>U/L</td></tr></table>"
+
+    monkeypatch.setattr(uploads, "UP_DIR", tmp_path)
+    monkeypatch.setitem(kaya.VOICE, "client", FakeSarvam())
+    png = b"\x89PNG\r\n\x1a\n" + b"0" * 64
+    h = {"x-filename": "lab.png", "x-title": "My%20lab", "x-category": "blood%20test", "x-date": "2026-01-06"}
+    off = client.post("/api/patients/1636/uploads", content=png, headers=h).json()          # no x-ocr header: never sent for reading
+    assert off["ocr"]["state"] == "off"
+    on = client.post("/api/patients/1636/uploads", content=png, headers={**h, "x-ocr": "1"}).json()
+    assert on["ocr"]["state"] == "pending"
+    for _ in range(40):
+        item = next(i for i in client.get("/api/patients/1636/uploads").json()["items"] if i["id"] == on["id"])
+        if item["ocr"]["state"] not in ("pending", "reading"):
+            break
+        time.sleep(0.1)
+    assert item["ocr"]["state"] == "done" and item["ocr"]["results"] == 2 and "text" not in item["ocr"]
+    reps = [r for r in client.get("/api/patients/1636/reports").json()["reports"] if r["code"] == "UPL"]
+    assert len(reps) == 1 and reps[0]["status"] == "Unverified" and reps[0]["date"] == "2026-01-05"
+    rows = {r["key"]: r for r in reps[0]["sections"][0]["rows"]}
+    assert rows["hba1c"]["value"] == 9.2 and rows["hba1c"]["tone"] == "rose" and "prev" in rows["hba1c"]
+    assert reps[0]["file_url"].endswith(f"/uploads/{on['id']}/file") and reps[0]["source_text"]
+    assert client.get(f"/api/patients/1636/reports/{reps[0]['id']}.pdf").status_code == 404     # the original file is the source of truth
+
+
+def test_failed_reading_keeps_the_file(client, tmp_path, monkeypatch):
+    import time
+
+    import uploads
+    from voice import VoiceError
+
+    class Broken:
+        def digitise(self, *a, **k):
+            raise VoiceError("document service unreachable")
+
+    monkeypatch.setattr(uploads, "UP_DIR", tmp_path)
+    monkeypatch.setitem(kaya.VOICE, "client", Broken())
+    png = b"\x89PNG\r\n\x1a\n" + b"0" * 64
+    u = client.post("/api/patients/1636/uploads", content=png, headers={"x-ocr": "1", "x-filename": "a.png"}).json()
+    for _ in range(40):
+        item = client.get("/api/patients/1636/uploads").json()["items"][0]
+        if item["ocr"]["state"] not in ("pending", "reading"):
+            break
+        time.sleep(0.1)
+    assert item["ocr"]["state"] == "failed"
+    assert client.get(f"/api/patients/1636/uploads/{u['id']}/file").status_code == 200

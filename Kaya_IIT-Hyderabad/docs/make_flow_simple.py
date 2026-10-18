@@ -78,8 +78,8 @@ def overview():
     header(p, "Kaya: one twin per patient", "It shows what glucose does to the liver, eyes and kidneys, and lets you test a change before trying it on the real patient.")
 
     p.label(70, 150, "1   WHAT GOES IN")
-    inputs = [("⌚", "Wearable stream", BLUE), ("🧪", "EHR and labs", BLUE), ("👁", "Retina scan", BLUE),
-              ("✍", "Patient quick log", TEAL), ("🎙", "Voice or chat", TEAL)]
+    inputs = [("⌚", "Wearable stream", BLUE), ("🧪", "EHR and labs", BLUE), ("👁️", "Retina scan", BLUE),
+              ("✍", "Patient quick log", TEAL), ("🎙️", "Voice or chat", TEAL)]
     for i, (ic, t, col) in enumerate(inputs):
         x = 70 + i * 362
         p.rect(x, 166, 332, 70, "#fff", col, 14, 1.8)
@@ -155,48 +155,126 @@ def overview():
 
 
 # ===================================================================== page 2
+LIVER = "M2,10 C2,4 12,2 22,5 C30,7 36,10 38,14 C30,22 18,24 10,20 C5,18 2,14 2,10 Z"
+
+
+def tile(p, x, y, w, h, icon, title, sub, col, liver=False):
+    p.rect(x, y, w, h, "#fff", col, 16, 1.8)
+    cx, cy = x + 52, y + h / 2
+    p.add(f'<circle cx="{cx}" cy="{cy}" r="32" fill="{TINT[col]}"/>')
+    if liver:
+        p.add(f'<g transform="translate({cx - 21},{cy - 12}) scale(1.05)"><path d="{LIVER}" fill="#b4513a"/>'
+              f'<path d="M14,8 C20,10 26,12 33,14" stroke="#8a3a29" stroke-width="1.6" fill="none"/></g>')
+    else:
+        p.text(cx, cy + 12, icon, 34, INK, 400, "middle")
+    p.text(x + 100, y + h / 2 - 4, title, 20, INK, 800)
+    p.text(x + 100, y + h / 2 + 22, sub, 15, MUTED)
+
+
 def detail():
-    p = Page(1920, 860)
-    header(p, "Under the hood", "The models, what they were trained and tested on, and the software around them.")
-    p.label(70, 150, "MODELS AND EVIDENCE")
-    cards = [
-        ("Glucose", "GRU (PyTorch) + LightGBM ensemble", ["Quantile + adverse-event heads", "Conformal 80% bands, isotonic-calibrated alerts", "Trained on real CGMacros + synthetic cohort", "RMSE 12.6 / 21.1 / 28.2 mg/dL at 30 / 60 / 120 min", "Catches 72% of lows, median 45 min ahead"]),
-        ("Liver", "LightGBM + logistic regression, SHAP", ["NHANES 2017-18, 4,745 adults, FibroScan labels", "Advanced fibrosis AUROC 0.83 (FIB-4: 0.63)", "Steatosis AUROC 0.83 (FLI: 0.82)", "Liver-fat state: mechanistic, driven by glucose"]),
-        ("Eye", "EfficientNet-B2 (timm) + Grad-CAM", ["Ordinal regression on APTOS 2019", "Kappa 0.89 on APTOS; 0.71 on Indian IDRiD", "after fine-tuning (0.57 without)", "2-year progression risk: simulation"]),
-        ("Kidney", "LightGBM + logistic regression, SHAP", ["NHANES 2017-18, 4,827 adults", "Low eGFR AUROC 0.85, albuminuria 0.76", "Modest gain over a simple baseline, stated openly", "5-year eGFR path: simulation"]),
-    ]
-    for i, (t, m, lines) in enumerate(cards):
-        x, y = 70 + (i % 2) * 455, 168 + (i // 2) * 268
-        p.rect(x, y, 435, 248, "#fff", BLUE, 16, 2)
-        p.add(f'<rect x="{x}" y="{y}" width="8" height="248" rx="4" fill="{BLUE}"/>')
-        p.text(x + 28, y + 40, t, 24, INK, 800)
-        p.text(x + 28, y + 68, m, 15.5, BLUE, 600)
-        for k, l in enumerate(lines):
-            p.text(x + 28, y + 100 + k * 25, l, 14.5, MUTED)
+    p = Page(1920, 1130)
+    header(p, "How Kaya works, at a glance", "Learn from open data, build four AI models, make them trustworthy, then put them in people's hands.")
 
+    cols = [
+        (BLUE, "1   LEARNED FROM", [
+            ("📈", "Glucose recordings", "real people wearing sensors  ¹", False),
+            ("🩺", "Health survey data", "real labs and liver scans  ²", False),
+            ("👁️", "Retina photos", "including Indian patients  ³", False),
+            ("🧬", "Synthetic patients", "2,000 made-up, privacy-safe  ⁴", False),
+        ]),
+        (TEAL, "2   FOUR AI MODELS", [
+            ("🩸", "Glucose", "predicts the next 2 hours  ⁵", False),
+            ("", "Liver", "fat and scarring risk  ⁶", True),
+            ("👁️", "Eye", "grades diabetic eye damage  ⁷", False),
+            ("🫘", "Kidney", "risk and 5-year decline  ⁶", False),
+        ]),
+        (AMBER, "3   MADE TRUSTWORTHY", [
+            ("🎯", "Says how sure it is", "honest uncertainty bands", False),
+            ("🔍", "Shows why", "reasons and heat-maps", False),
+            ("🛡️", "Safety rules", "emergency and dose checks  ⁸", False),
+            ("🔒", "Private by design", "no real patient data", False),
+        ]),
+        (SLATE, "4   WHAT PEOPLE GET", [
+            ("🧑‍⚕️", "Doctor dashboard", "who needs help, and why", False),
+            ("📱", "Patient app", "plain words, 4 languages", False),
+            ("🎙️", "Voice helper", "ask in your own language  ⁸", False),
+            ("🔄", "What-if testing", "try a change on the twin first", False),
+        ]),
+    ]
+    CWID, CGAP, TY, TH, TG = 424, 28, 196, 112, 14
+    for ci, (col, head, tiles) in enumerate(cols):
+        x = 70 + ci * (CWID + CGAP)
+        p.rect(x, 140, CWID, 40, col, col, 12, 0, shadow=False)
+        p.text(x + 20, 167, head, 16, "#fff", 800, extra='letter-spacing="1.4"')
+        for ti, (ic, t, sub, liver) in enumerate(tiles):
+            tile(p, x, TY + ti * (TH + TG), CWID, TH, ic, t, sub, col, liver)
+        if ci < 3:
+            ax = x + CWID + CGAP / 2
+            p.add(f'<circle cx="{ax}" cy="{TY + 2 * TH + TG}" r="12" fill="#fff" stroke="{LINE}" stroke-width="1.4"/>')
+            p.arrow(f"M{ax - 4},{TY + 2 * TH + TG} L{ax + 4},{TY + 2 * TH + TG}", SLATE, 2.4)
+
+    # built with
+    by = TY + 4 * TH + 3 * TG + 30
+    p.label(70, by, "BUILT WITH")
+    chips = [("🔥", "PyTorch"), ("🌳", "LightGBM"), ("🖼️", "EfficientNet"), ("🔦", "SHAP, Grad-CAM"),
+             ("🗣️", "Sarvam AI"), ("⚡", "FastAPI"), ("⚛️", "React"), ("🐳", "Docker")]
+    for i, (ic, t) in enumerate(chips):
+        x = 70 + i * 225
+        p.rect(x, by + 14, 205, 54, "#fff", SLATE, 27, 1.5)
+        p.text(x + 30, by + 50, ic, 24, INK, 400, "middle")
+        p.text(x + 54, by + 47, t, 16, INK, 700)
+
+    # footnotes: two aligned columns, number badge + bold name + wrapped text
+    fy = by + 96
+    left = [
+        (1, BLUE, "CGMacros (PhysioNet)", ["Real glucose, meals and Fitbit data from 34 people."]),
+        (2, BLUE, "NHANES 2017-18", ["4,745 adults with FibroScan liver labels; 4,827 for kidney."]),
+        (3, BLUE, "APTOS 2019 + IDRiD", ["Retina photographs: APTOS for training, Indian IDRiD for testing."]),
+        (4, BLUE, "Synthetic cohort", ["Our generator + simglucose: 2,000 patients, 14 days each."]),
+        (5, TEAL, "Glucose model", ["GRU (PyTorch) + LightGBM ensemble, conformal 80% bands, isotonic-calibrated alerts.",
+                                    "RMSE 12.6 / 21.1 / 28.2 mg/dL at 30 / 60 / 120 min; catches 72% of lows, 45 min ahead."]),
+    ]
     right = [
-        (TEAL, "LANGUAGE AND VOICE AI", False, ["Sarvam AI, called from the server only (the key never reaches the browser)",
-                                               "saaras:v4 speech-to-text  ·  sarvam-105b-conversations chat  ·  bulbul:v4-flash text-to-speech",
-                                               "English, Hindi, Telugu, Kannada. Emergency and dose rules run in code, before and after the model"]),
-        (AMBER, "FRAMEWORKS AND DELIVERY", False, ["FastAPI, Pydantic, WebSocket, FHIR R4, ReportLab PDFs   ·   React 18 + Vite",
-                                                  "Live mode runs the GRU in pure NumPy, about 1 ms per reading, no GPU",
-                                                  "pandas, scikit-learn, SHAP, simglucose   ·   Docker Compose, GitHub Actions CI   ·   trained on 3x RTX A5000"]),
-        (AMBER, "HOSPITAL IT: TODAY AND ROADMAP", True, ["Today: REST API, live readings, FHIR Patient and Observation, Docker deploy",
-                                                        "Roadmap, not built: consent records, access audit log, model-health page,",
-                                                        "ABDM alignment, FHIR DiagnosticReport and Condition"]),
+        (6, TEAL, "Liver and kidney models", ["LightGBM + logistic regression, explained with SHAP.",
+                                              "AUROC: liver 0.83 (standard FIB-4: 0.63), kidney 0.85. 1.0 is perfect, 0.5 a coin flip."]),
+        (7, TEAL, "Eye model", ["EfficientNet-B2 (timm), grades 0-4, Grad-CAM heat-maps. Kappa 0.89 on APTOS, 0.71 on IDRiD.",
+                                "Eye progression and the 5-year kidney path are simulations."]),
+        (8, AMBER, "Voice assistant (Sarvam AI, server-side only)", ["saaras:v4 speech-to-text, sarvam-105b-conversations chat, bulbul:v4-flash text-to-speech.",
+                                                                    "Emergency and dose rules run in code, before the model."]),
     ]
-    for i, (col, hd, dash, lines) in enumerate(right):
-        y = 168 + i * 180
-        p.rect(1000, y, 850, 164, "#fff", col, 16, 1.8, dash=dash)
-        p.add(f'<rect x="1000" y="{y}" width="8" height="164" rx="4" fill="{col}"/>')
-        p.text(1030, y + 36, hd, 14, col, 800, extra='letter-spacing="1.4"')
-        for k, l in enumerate(lines):
-            p.text(1030, y + 70 + k * 30, l, 15, INK if k == 0 else MUTED, 600 if k == 0 else 400)
+    PH = 368
+    p.rect(70, fy, 1780, PH, "#fff", LINE, 18, 1.4)
+    p.text(98, fy + 36, "FOOTNOTES", 14.5, SLATE, 800, extra='letter-spacing="1.6"')
+    p.text(1822, fy + 36, "the detail behind each icon above", 14, MUTED, 400, "end", 'font-style="italic"')
 
-    p.rect(70, 718, 1780, 60, TINT[SLATE], "none", 12, 0, shadow=False)
-    p.text(960, 754, "All metrics are out-of-sample. The links from glucose patterns to organ outcomes are simulated on a synthetic cohort and are not clinically validated.", 16, SLATE, 600, "middle")
-    footer(p, "Kaya is decision support for clinicians, not a diagnostic device.", 836)
+    def column(x0, items):
+        y = fy + 74
+        for n, col, name, lines in items:
+            p.add(f'<circle cx="{x0 + 11}" cy="{y - 5}" r="11" fill="{col}"/>')
+            p.text(x0 + 11, y - 0.5, str(n), 12.5, "#fff", 800, "middle")
+            p.text(x0 + 32, y, name, 15, INK, 700)
+            for k, l in enumerate(lines):
+                p.text(x0 + 32, y + 22 + k * 19, l, 13.5, MUTED)
+            y += 22 + len(lines) * 19 + 16
+
+    column(98, left)
+    p.add(f'<line x1="960" x2="960" y1="{fy + 56}" y2="{fy + PH - 22}" stroke="{LINE}" stroke-width="1"/>')
+    column(990, right)
+    ny = fy + 74 + 3 * (22 + 2 * 19 + 16) + 4
+    p.add(f'<circle cx="1001" cy="{ny - 5}" r="11" fill="{SLATE}"/>')
+    p.text(1001, ny + 0.5, "i", 14, "#fff", 800, "middle")
+    p.text(1022, ny, "Good to know", 15, INK, 700)
+    for k, l in enumerate(["Live mode runs the GRU in pure NumPy: about 1 ms per reading, no GPU.",
+                           "Not built yet: consent records, audit log, model-health page, ABDM. Not clinically validated."]):
+        p.text(1022, ny + 22 + k * 19, l, 13.5, MUTED)
+
+    end = fy + PH + 56
+    footer(p, "Kaya is decision support for clinicians, not a diagnostic device.", end)
+    p.h = end + 24
+    p.o[0] = p.o[0].replace('viewBox="0 0 1920 1130"', f'viewBox="0 0 1920 {p.h}"').replace('height="1130"', f'height="{p.h}"')
+    p.o = [o.replace('height="1130"', f'height="{p.h}"') for o in p.o]
     p.save("architecture_detail.svg")
+    print("height", p.h)
 
 
 overview()

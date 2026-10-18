@@ -7,6 +7,31 @@ const CAT_EN = { 'blood test': 'Blood test', 'scan or x-ray': 'Scan or X-ray', p
 const MAX = 8 * 1024 * 1024
 const OK = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp']
 const fmt = (iso) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+const EN_STATE = { pending: 'Reading…', reading: 'Reading…', no_values: 'Text read; no lab values recognised', failed: 'Could not be read', no_text: 'No text found', off: '' }
+/** One line about whether the document was read, in the patient's language when `t` is given. */
+function statusLine(u, t) {
+  const o = u.ocr || { state: 'off' }
+  if (o.state === 'off') return null
+  const tone = o.state === 'done' ? 'var(--mint-dd)' : o.state === 'failed' || o.state === 'no_text' ? 'var(--rose-dd)' : 'var(--muted)'
+  const txt = t
+    ? { pending: t('ocr_reading'), reading: t('ocr_reading'), done: t('ocr_done', { n: o.results }), no_values: t('ocr_text'), failed: t('ocr_failed'), no_text: t('ocr_notext') }[o.state]
+    : o.state === 'done' ? `Read automatically: ${o.results} lab values added to the reports` : EN_STATE[o.state]
+  return <small style={{ color: tone, fontWeight: 800 }}>{o.state === 'pending' || o.state === 'reading' ? '⏳ ' : o.state === 'done' ? '✓ ' : ''}{txt}</small>
+}
+
+/** While any upload is still being read, check again every few seconds and refresh the report list when one finishes. */
+function useReadingPoll(pid, items, setItems, onChange) {
+  const busy = !!items && items.some((u) => u.ocr && (u.ocr.state === 'pending' || u.ocr.state === 'reading'))
+  useEffect(() => {
+    if (!busy) return undefined
+    const id = setInterval(() => getUploads(pid).then((d) => {
+      setItems(d.items)
+      if (!d.items.some((u) => u.ocr && (u.ocr.state === 'pending' || u.ocr.state === 'reading')) && onChange) onChange()
+    }).catch(() => {}), 2500)
+    return () => clearInterval(id)
+  }, [busy, pid]) // eslint-disable-line
+}
+
 const fileUrl = (pid, u) => `/api/patients/${pid}/uploads/${u.id}/file`
 
 function Thumb({ pid, u, size = 52 }) {
@@ -15,8 +40,10 @@ function Thumb({ pid, u, size = 52 }) {
 }
 
 /** Patient app: choose a PDF or photo, name it, upload it, and manage what was uploaded. */
-export function PatientUploads({ t, pid, today }) {
+export function PatientUploads({ t, pid, today, onChange }) {
   const [items, setItems] = useState(null)
+  const [avail, setAvail] = useState(false)
+  const [read, setRead] = useState(true)
   const [file, setFile] = useState(null)
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('blood test')
@@ -24,8 +51,9 @@ export function PatientUploads({ t, pid, today }) {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState(null)
   const input = useRef(null)
-  useEffect(() => { setItems(null); getUploads(pid).then((d) => setItems(d.items)).catch(() => setItems([])) }, [pid])
+  useEffect(() => { setItems(null); getUploads(pid).then((d) => { setItems(d.items); setAvail(d.reading_available) }).catch(() => setItems([])) }, [pid])
   useEffect(() => setDate(today), [today])
+  useReadingPoll(pid, items, setItems, onChange)
 
   const pick = (e) => {
     const f = e.target.files && e.target.files[0]
@@ -39,7 +67,7 @@ export function PatientUploads({ t, pid, today }) {
   const reset = () => { setFile(null); setTitle(''); if (input.current) input.current.value = '' }
   const send = () => {
     setBusy(true); setErr(null)
-    uploadReport(pid, file, { title, category, date })
+    uploadReport(pid, file, { title, category, date, read: read && avail })
       .then((m) => { setItems((x) => [m, ...(x || [])]); reset() })
       .catch((e) => setErr(e.message))
       .finally(() => setBusy(false))
@@ -62,6 +90,9 @@ export function PatientUploads({ t, pid, today }) {
               <select className="up-in" value={category} onChange={(e) => setCategory(e.target.value)}>{Object.entries(CAT).map(([k, key]) => <option key={k} value={k}>{t(key)}</option>)}</select>
             </label>
             <label className="up-l">{t('up_date')}<input className="up-in" type="date" value={date} max={today} onChange={(e) => setDate(e.target.value)} /></label>
+            {avail && (
+              <label className="up-chk"><input type="checkbox" checked={read} onChange={(e) => setRead(e.target.checked)} /><span><b>{t('up_ocr')}</b><small>{t('up_ocr_note')}</small></span></label>
+            )}
             <button className="big-btn" style={{ marginTop: 4 }} disabled={busy} onClick={send}>{busy ? t('up_busy') : t('up_btn')}</button>
           </div>
         )}
@@ -73,7 +104,7 @@ export function PatientUploads({ t, pid, today }) {
       {items && items.map((u) => (
         <div key={u.id} className="rep-row" style={{ cursor: 'default' }}>
           <Thumb pid={pid} u={u} />
-          <span style={{ minWidth: 0, flex: 1 }}><b>{u.title}</b><small>{t(CAT[u.category] || 'cat_other')} · {fmt(u.date)}</small></span>
+          <span style={{ minWidth: 0, flex: 1 }}><b>{u.title}</b><small>{t(CAT[u.category] || 'cat_other')} · {fmt(u.date)}</small>{statusLine(u, t)}</span>
           <a className="filt on" style={{ textDecoration: 'none' }} href={fileUrl(pid, u)} target="_blank" rel="noreferrer">{t('up_open')}</a>
           <button className="filt" onClick={() => remove(u)}>{t('up_remove')}</button>
         </div>
@@ -83,9 +114,10 @@ export function PatientUploads({ t, pid, today }) {
 }
 
 /** Doctor view: what the patient has uploaded, clearly marked as not verified. */
-export function DoctorUploads({ pid }) {
+export function DoctorUploads({ pid, onChange }) {
   const [items, setItems] = useState(null)
   useEffect(() => { setItems(null); getUploads(pid).then((d) => setItems(d.items)).catch(() => setItems([])) }, [pid])
+  useReadingPoll(pid, items, setItems, onChange)
   if (!items) return null
   return (
     <section className="card soft rec-sec" style={{ boxShadow: 'none' }}>
@@ -95,13 +127,13 @@ export function DoctorUploads({ pid }) {
           {items.map((u) => (
             <div key={u.id} className="rep-row" style={{ cursor: 'default' }}>
               <Thumb pid={pid} u={u} size={56} />
-              <span style={{ minWidth: 0, flex: 1 }}><b>{u.title}</b><small>{CAT_EN[u.category] || 'Other'} · report dated {fmt(u.date)} · uploaded {u.uploaded} · {u.size_kb} KB · {u.ext.toUpperCase()}</small></span>
+              <span style={{ minWidth: 0, flex: 1 }}><b>{u.title}</b><small>{CAT_EN[u.category] || 'Other'} · report dated {fmt(u.date)} · uploaded {u.uploaded} · {u.size_kb} KB · {u.ext.toUpperCase()}</small>{statusLine(u, null)}</span>
               <a className="btn sm go" style={{ textDecoration: 'none' }} href={fileUrl(pid, u)} target="_blank" rel="noreferrer">Open</a>
             </div>
           ))}
         </div>
       )}
-      <div className="note">Files are checked by content and size only. They are not read, interpreted or virus scanned, and nothing in the twin uses them. Review them like any outside document.</div>
+      <div className="note">Files are checked by content and size only and are not virus scanned. Where the patient chose automatic reading, the text and any lab values found appear in the report list marked unverified; nothing in the twin uses them. Check against the original, like any outside document.</div>
     </section>
   )
 }
