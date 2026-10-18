@@ -151,10 +151,12 @@ No public dataset links one person's glucose stream to their liver, eye and kidn
 | Data pipelines and synthetic cohort | Built |
 | Glucose forecaster, alerts, calibration | Built |
 | Static liver model | Built |
-| Dynamic liver state | In progress |
-| What-if engine | In progress |
-| Eye module and retina preview | Planned |
-| API, FHIR, dashboard | Planned |
+| Dynamic liver state | Built |
+| What-if engine | Built |
+| REST API with FHIR read endpoints | Built |
+| Web dashboard: doctor workspace, patient view, replay | Built |
+| Eye module (retinopathy grader and risk) | In progress |
+| Illustrative retina preview | Planned |
 | Kidney module | Stretch goal |
 
 **Version 1 ships the glucose, liver and eye modules, the what-if engine, the API and the doctor and patient views (English).** The following are on the roadmap for later versions and are not claimed as built: kidney module, illustrative retina preview, PDF clinical summary, Hindi/Telugu/Kannada patient view, model-health page, authentication and audit log, fuller FHIR and ABDM coverage.
@@ -187,7 +189,24 @@ PYTHONPATH=src/models python src/models/polish_glucose.py
 python src/models/liver_static.py
 ```
 
-## 12. Demo and documents
+## 12. Run the demo
+
+The demo runs from a plain clone, with no GPU. Forecasts and risk scores for 24 held-out synthetic patients are precomputed by the validated models and stored in `artifacts/demo/`.
+
+```bash
+pip install -r requirements-api.txt
+uvicorn app:app --app-dir src/api --port 8000
+# open http://localhost:8000          (dashboard)
+# open http://localhost:8000/docs     (API documentation)
+```
+
+Or with Docker: `docker compose up --build`.
+
+In the dashboard, switch between **Doctor** and **Patient** at the top right. In the doctor view, press **Replay last 3 days** to watch the twin forecast glucose ahead of what actually happens, then try the **What-if** presets to see the change in glucose and organ risk.
+
+To regenerate the artifacts from the models (needs the trained weights): `PYTHONPATH=src/models:src/whatif python src/api/build_artifacts.py`.
+
+## 13. Demo and documents
 
 | Item | Link |
 |---|---|
@@ -195,6 +214,6 @@ python src/models/liver_static.py
 | Architecture diagram (PDF) | _to be added_ |
 | Presentation (PDF) | _to be added_ |
 
-## 13. License
+## 14. License
 
 Released under the [Apache License 2.0](LICENSE).
