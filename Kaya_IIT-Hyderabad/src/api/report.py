@@ -129,7 +129,7 @@ def build_report(a: dict, summary: dict, now: dict, scenarios: list[tuple[str, d
     story = []
 
     head = Table([[Paragraph("Kaya clinical summary", S["h1"]),
-                   Paragraph(f"Patient {pr['id']}<br/><font size=8 color='#77748f'>Generated {datetime.now().strftime('%d %b %Y %H:%M')}</font>", S["p"])]],
+                   Paragraph(f"{pr.get('name') or 'Patient ' + str(pr['id'])}<br/><font size=8 color='#77748f'>ID {pr['id']}</font><br/><font size=8 color='#77748f'>Generated {datetime.now().strftime('%d %b %Y %H:%M')}</font>", S["p"])]],
                  colWidths=[W * 0.62, W * 0.38])
     head.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("ALIGN", (1, 0), (1, 0), "RIGHT"), ("LINEBELOW", (0, 0), (-1, 0), 1.2, VIOLET)]))
     story += [head, Spacer(1, 3), P("Synthetic patient. Decision support for clinicians; not a diagnostic device and not clinically validated.", "s"), Spacer(1, 6)]

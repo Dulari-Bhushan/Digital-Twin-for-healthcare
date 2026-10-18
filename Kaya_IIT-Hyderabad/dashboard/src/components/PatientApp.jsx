@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { getSeries, postWhatIf } from '../api'
 import { LANGS, makeT } from '../i18n'
 import { getVoiceStatus } from '../voice'
-import { dayStats } from '../utils'
+import { dayStats, fmtHM } from '../utils'
 import Assistant from './Assistant'
 import { EyeArt, KidneyArt, LiverArt, Ring, SegRing, TONE, pct } from '../ui'
 
@@ -34,40 +34,89 @@ function Habit({ e, name, sub, value, goal, done, tone }) {
   )
 }
 
-function Today({ t, at, day, setDay, st, days, nudgeDone, setNudgeDone }) {
+function DayChart({ st, series, color }) {
+  const g = st.glucose
+  const W = 320, H = 132, pl = 28, pr = 8, pt = 8, pb = 20
+  const ymax = Math.max(260, Math.ceil(Math.max(...g) / 50) * 50), ymin = 40
+  const x = (i) => pl + (i / (g.length - 1)) * (W - pl - pr)
+  const y = (v) => pt + (H - pt - pb) * (1 - (Math.min(Math.max(v, ymin), ymax) - ymin) / (ymax - ymin))
+  const pts = g.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ')
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Glucose through the day">
+      <rect x={pl} y={y(180)} width={W - pl - pr} height={y(70) - y(180)} rx="8" fill="#d6f3e5" opacity=".8" />
+      {[70, 180, 250].filter((v) => v <= ymax).map((v) => (
+        <g key={v}><line x1={pl} x2={W - pr} y1={y(v)} y2={y(v)} stroke="rgba(42,39,66,.08)" strokeDasharray="3 4" /><text x={pl - 4} y={y(v) + 3} fontSize="9" fontWeight="700" fill="#77748f" textAnchor="end">{v}</text></g>
+      ))}
+      {[0, 72, 144, 216].map((i) => <text key={i} x={x(i)} y={H - 5} fontSize="9" fontWeight="700" fill="#77748f" textAnchor="middle">{fmtHM(series.start, st.startIdx + i)}</text>)}
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
+      {g.map((v, i) => (v < 70 ? <circle key={`l${i}`} cx={x(i)} cy={y(v)} r="2.6" fill="#e85f8b" /> : null))}
+      {st.mealSeries.map((c, i) => (c > 0 ? <circle key={`m${i}`} cx={x(i)} cy={H - pb - 3} r={2.5 + Math.min(c, 120) / 40} fill="#ffe08a" stroke="#e0a912" strokeWidth="1" /> : null))}
+    </svg>
+  )
+}
+
+function Today({ t, name, series, at, day, setDay, st, days, nudgeDone, setNudgeDone }) {
   const s = status(at)
-  const tn = TONE[s.tone]
   const cur = st[day]
-  const habits = cur ? [
+  const live = day === 0
+  const tone = live ? s.tone : cur.tir >= 0.6 ? 'mint' : cur.tir >= 0.3 ? 'butter' : 'rose'
+  const tn = TONE[tone]
+  const kind = cur.tir >= 0.6 ? 'day_good' : cur.tir >= 0.3 ? 'day_ok' : 'day_tough'
+  const spikeTime = fmtHM(series.start, cur.peakIdx)
+  const habits = [
     { e: '🎯', name: t('habit_range'), sub: t('habit_range_sub', { pct: pct(cur.tir) }), value: cur.tir / 0.7, done: cur.tir >= 0.7, tone: 'mint' },
     { e: '👟', name: t('habit_steps'), sub: t('habit_steps_sub', { n: Math.round(cur.steps).toLocaleString() }), value: cur.steps / 6000, done: cur.steps >= 6000, tone: 'sky' },
-    { e: '🛡️', name: t('habit_nolow'), sub: cur.low > 0 ? t('habit_nolow_sub_bad', { pct: pct(cur.low, 1) }) : t('habit_nolow_sub_ok'), value: cur.low > 0 ? 0.2 : 1, done: cur.low === 0, tone: 'lav' },
+    { e: '🛡️', name: t('habit_nolow'), sub: cur.low > 0 ? t('day_low', { m: cur.lowMin }) : t('habit_nolow_sub_ok'), value: cur.low > 0 ? 0.2 : 1, done: cur.low === 0, tone: 'lav' },
     { e: '🍚', name: t('habit_carbs'), sub: t('habit_carbs_sub', { g: Math.round(cur.carbs), m: cur.meals }), value: Math.min(1, 220 / Math.max(cur.carbs, 1)), done: cur.carbs <= 220, tone: 'butter' },
-  ] : []
+  ]
   const ok = habits.filter((h) => h.done)
   const bad = habits.filter((h) => !h.done)
   return (
     <>
+      <div className="muted" style={{ fontWeight: 700, fontSize: 13 }}>{t('hello', { name: name.split(' ')[0] })}</div>
       <div className="p-h">{t('today_title1')}<br /><span style={{ color: 'var(--muted)', fontWeight: 600 }}>{t('today_title2')}</span></div>
       <div className="days">
         {days.map((dd) => <button key={dd.k} className={`day ${day === dd.k ? 'on' : ''}`} onClick={() => setDay(dd.k)}>{dd.k === 0 ? t('day_today') : dd.label}</button>)}
       </div>
-      <div className="p-card" style={{ background: tn.bg, display: 'flex', gap: 14, alignItems: 'center' }}>
-        <Ring value={Math.min(1, Math.max(0, (at.glucose - 40) / 260))} size={108} stroke={13} color={tn.d}>
-          <div className="num" style={{ fontSize: 30, color: tn.dd }}>{Math.round(at.glucose)}</div>
-          <div style={{ fontSize: 10, fontWeight: 700, color: tn.dd }}>{t('mgdl_now')}</div>
-        </Ring>
-        <div>
-          <div style={{ fontSize: 26 }}>{s.e}</div>
-          <div style={{ fontWeight: 800, fontSize: 18, color: tn.dd, lineHeight: 1.25 }}>{t(`${s.k}_title`)}</div>
-          <div style={{ fontSize: 13, color: tn.dd, opacity: 0.85, marginTop: 4 }}>{t(`${s.k}_body`)}</div>
+      {live ? (
+        <div className="p-card" style={{ background: tn.bg, display: 'flex', gap: 14, alignItems: 'center' }}>
+          <Ring value={Math.min(1, Math.max(0, (at.glucose - 40) / 260))} size={108} stroke={13} color={tn.d}>
+            <div className="num" style={{ fontSize: 30, color: tn.dd }}>{Math.round(at.glucose)}</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: tn.dd }}>{t('mgdl_now')}</div>
+          </Ring>
+          <div>
+            <div style={{ fontSize: 26 }}>{s.e}</div>
+            <div style={{ fontWeight: 800, fontSize: 18, color: tn.dd, lineHeight: 1.25 }}>{t(`${s.k}_title`)}</div>
+            <div style={{ fontSize: 13, color: tn.dd, opacity: 0.85, marginTop: 4 }}>{t(`${s.k}_body`)}</div>
+          </div>
+        </div>
+      ) : (
+        <div className="p-card" style={{ background: tn.bg, display: 'flex', gap: 14, alignItems: 'center' }}>
+          <Ring value={cur.tir} size={108} stroke={13} color={tn.d}>
+            <div className="num" style={{ fontSize: 28, color: tn.dd }}>{pct(cur.tir)}</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: tn.dd }}>{t('habit_range')}</div>
+          </Ring>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 19, color: tn.dd, lineHeight: 1.25 }}>{t(kind)}</div>
+            <div style={{ fontSize: 13, color: tn.dd, opacity: 0.9, marginTop: 4 }}>{t('day_sub', { pct: pct(cur.tir) })}</div>
+          </div>
+        </div>
+      )}
+      <div className="p-card" style={{ background: '#f6f5fb' }}>
+        <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--muted)', marginBottom: 4 }}>{t('day_chart')}</div>
+        <DayChart st={cur} series={series} color={tn.d} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.5, marginTop: 4 }}>
+          {cur.mealG ? t('day_spike', { v: Math.round(cur.peakVal), time: spikeTime, m: cur.mealMin, g: Math.round(cur.mealG) }) : t('day_spike_nomeal', { v: Math.round(cur.peakVal), time: spikeTime })}
+          {cur.low > 0 ? ` ${t('day_low', { m: cur.lowMin })}.` : ''}
         </div>
       </div>
-      <div className="p-card" style={{ background: 'var(--butter)' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--butter-dd)' }}>{t('one_thing')}</div>
-        <div style={{ fontWeight: 800, fontSize: 20, margin: '4px 0', color: 'var(--butter-dd)', lineHeight: 1.3 }}>{s.nudgeE} {t(`${s.k}_nudge`)}</div>
-        <button className={`big-btn ${nudgeDone ? 'done' : ''}`} onClick={() => setNudgeDone(!nudgeDone)}>{nudgeDone ? `${t('well_done')} ✓` : t('mark_done')}</button>
-      </div>
+      {live && (
+        <div className="p-card" style={{ background: 'var(--butter)' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--butter-dd)' }}>{t('one_thing')}</div>
+          <div style={{ fontWeight: 800, fontSize: 20, margin: '4px 0', color: 'var(--butter-dd)', lineHeight: 1.3 }}>{s.nudgeE} {t(`${s.k}_nudge`)}</div>
+          <button className={`big-btn ${nudgeDone ? 'done' : ''}`} onClick={() => setNudgeDone(!nudgeDone)}>{nudgeDone ? `${t('well_done')} ✓` : t('mark_done')}</button>
+        </div>
+      )}
       <div className="sect"><span>{t('my_habits')}</span><small>{t('n_of_m', { n: ok.length, m: habits.length })}</small></div>
       {ok.length > 0 && <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--muted)', margin: '4px 0 8px' }}>{t('completed')}</div>}
       {ok.map((h) => <Habit key={h.name} {...h} />)}
@@ -90,7 +139,7 @@ function Insights({ t, series, st, d, locale }) {
             <div key={b.k} className={`bar ${i === bars.length - 1 ? 'on' : ''}`} style={{ height: `${Math.max(4, b.s.tir * 100)}%` }}><b style={{ color: 'var(--lav-dd)' }}>{Math.round(b.s.tir * 100)}%</b></div>
           ))}
         </div>
-        <div className="xl">{bars.map((b) => <span key={b.k}>{dayName(series, b.s.startIdx, locale)}</span>)}</div>
+        <div className="xl">{bars.map((b) => <span key={b.k}>{dayName(series, b.s.startIdx + 144, locale)}</span>)}</div>
         <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 18 }}>
           <div style={{ textAlign: 'center' }}><div className="num" style={{ fontSize: 26, color: 'var(--lav-dd)' }}>{pct(last.tir)}</div><div className="muted" style={{ fontSize: 12, fontWeight: 700 }}>{t('today_lbl')}</div></div>
           <div style={{ textAlign: 'center' }}><div className="num" style={{ fontSize: 26, color: 'var(--lav-dd)' }}>{pct(m.tir)}</div><div className="muted" style={{ fontSize: 12, fontWeight: 700 }}>{t('two_weeks')}</div></div>
@@ -200,9 +249,9 @@ export default function PatientApp({ d, at, pid }) {
   const locale = LANGS.find((l) => l.code === lang).locale
   const t = useMemo(() => makeT(lang), [lang])
   const pick = (code) => { setLang(code); try { window.localStorage.setItem('kaya-lang', code) } catch (e) { /* ignore */ } }
-  useEffect(() => { setSeries14(null); setDay(0); setNudgeDone(false); getSeries(pid, 14).then(setSeries14) }, [pid])
+  useEffect(() => { setSeries14(null); setDay(Number(new URLSearchParams(window.location.search).get('day') || 0)); setNudgeDone(false); getSeries(pid, 14).then(setSeries14) }, [pid])
   const st = useMemo(() => (series14 ? [...Array(13)].map((_, k) => dayStats(series14, k)) : []), [series14])
-  const days = useMemo(() => (series14 ? [3, 2, 1, 0].map((k) => ({ k, label: st[k] ? dayName(series14, st[k].startIdx, locale, true) : '' })) : []), [series14, st, locale])
+  const days = useMemo(() => (series14 ? [3, 2, 1, 0].map((k) => ({ k, label: st[k] ? dayName(series14, st[k].startIdx + 144, locale, true) : '' })) : []), [series14, st, locale])
   const readout = () => {
     if (tab === 0) { const s = status(at); return `${t(`${s.k}_title`)}. ${t(`${s.k}_body`)} ${t(`${s.k}_nudge`)}` }
     if (tab === 1) return `${t('ins_title1')} ${t('ins_title2')}. ${t('legend_in', { p: pct(d.metrics.tir) })}. ${t('legend_above', { p: pct(d.metrics.tar) })}. ${t('ins_note')}`
@@ -229,7 +278,7 @@ export default function PatientApp({ d, at, pid }) {
         </div>
         <div className="screen">
           {!series14 ? <div className="muted" style={{ padding: 30 }}>{t('loading')}</div> : (
-            tab === 0 ? <Today t={t} at={at} day={day} setDay={setDay} st={st} days={days} nudgeDone={nudgeDone} setNudgeDone={setNudgeDone} /> :
+            tab === 0 ? <Today t={t} name={d.profile.name || `Patient ${d.profile.id}`} series={series14} at={at} day={day} setDay={setDay} st={st} days={days} nudgeDone={nudgeDone} setNudgeDone={setNudgeDone} /> :
             tab === 1 ? <Insights t={t} series={series14} st={st} d={d} locale={locale} /> :
             tab === 2 ? <Body t={t} d={d} /> : <Try t={t} pid={pid} />
           )}

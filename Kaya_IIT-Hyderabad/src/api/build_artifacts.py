@@ -23,6 +23,7 @@ sys.path.insert(0, str(ROOT / "src" / "models"))
 sys.path.insert(0, str(ROOT / "src" / "whatif"))
 
 import alerts as A  # noqa: E402
+from names import DEMO_TAGS, name_of  # noqa: E402
 import glucose as G  # noqa: E402
 from engine import glucose_metrics  # noqa: E402
 from eye_risk import implied_hba1c, progression_risk  # noqa: E402
@@ -120,7 +121,7 @@ def main():
         eye_now = progression_risk(int(row.dr_grade), row.hba1c, row.diabetes_duration_yrs, row.sbp, m["gv_cv"], m["tir"])
 
         art = {
-            "profile": {"id": int(pid), "age": round(float(row.age), 0), "sex": row.sex, "bmi": round(float(row.bmi), 1),
+            "profile": {"id": int(pid), "name": name_of(pid), "demo_tag": DEMO_TAGS.get(int(pid)), "age": round(float(row.age), 0), "sex": row.sex, "bmi": round(float(row.bmi), 1),
                         "waist_cm": round(float(row.waist_cm), 0), "duration_yrs": round(float(row.diabetes_duration_yrs), 1),
                         "hba1c": round(float(row.hba1c), 1), "sbp": round(float(row.sbp), 0), "dbp": round(float(row.dbp), 0),
                         "on_insulin_or_su": bool(row.on_insulin_or_su), "metformin": bool(row.metformin),

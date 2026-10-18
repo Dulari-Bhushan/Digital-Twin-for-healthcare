@@ -41,7 +41,7 @@ export default function App() {
   useEffect(() => {
     getPatients().then((p) => {
       setPatients(p)
-      const demo = [...p].sort((a, b) => b.alerts_24h - a.alerts_24h || b.score - a.score)[0]
+      const demo = p.find((x) => x.demo_tag) || [...p].sort((a, b) => b.alerts_24h - a.alerts_24h || b.score - a.score)[0]
       setSel(params.get('p') ? Number(params.get('p')) : demo.id)
     }).catch((e) => setErr(String(e)))
   }, [])
@@ -87,7 +87,7 @@ export default function App() {
         <span className="tag" title="All patients are synthetic. Decision support for clinicians, not a diagnostic device.">🧪 Synthetic data · Decision support</span>
         {mode === 'patient' && patients.length > 0 && (
           <select className="pick" value={sel ?? ''} onChange={(e) => setSel(Number(e.target.value))} aria-label="Choose patient">
-            {patients.map((p) => <option key={p.id} value={p.id}>Patient {p.id}</option>)}
+            {patients.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         )}
         <div className="switch" role="tablist">

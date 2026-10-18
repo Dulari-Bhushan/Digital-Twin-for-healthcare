@@ -93,6 +93,8 @@ flowchart TD
     W --> R[FHIR API and PDF report]
 ```
 
+See [`docs/DEMO_GUIDE.md`](docs/DEMO_GUIDE.md) for two ready-made demo patients (a complex multi-organ case and a well-controlled case), their day-by-day stories and a suggested demo flow.
+
 ## Product features
 
 | Feature | What it does |

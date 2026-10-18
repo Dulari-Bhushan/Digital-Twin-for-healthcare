@@ -80,7 +80,7 @@ def _summary(a: dict) -> dict:
         reasons.append(f"Kidney flag: eGFR {egfr:.0f}, UACR {a['profile']['labs']['uacr_mg_g']:.0f}")
     if recent:
         reasons.append(f"{len(recent)} alert(s) in the last 24 h")
-    return {"id": pr["id"], "age": pr["age"], "sex": pr["sex"], "hba1c": pr["hba1c"], "tir": m["tir"], "tbr": m["tbr"],
+    return {"id": pr["id"], "name": pr.get("name") or f"Patient {pr['id']}", "demo_tag": pr.get("demo_tag"), "age": pr["age"], "sex": pr["sex"], "hba1c": pr["hba1c"], "tir": m["tir"], "tbr": m["tbr"],
             "mean_glucose": m["mean"], "score": round(score, 3), "tier": _tier(score), "reasons": reasons[:3],
             "alerts_24h": len(recent), "steatosis_12m": liver12, "fibrosis_12m": fib12, "eye_progression_2y": eye, "kidney_ckd_risk": kid,
             "dr_grade": a["eye"]["grade"], "last_glucose": a["series"]["glucose"][-1]}

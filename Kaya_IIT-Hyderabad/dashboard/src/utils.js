@@ -30,12 +30,21 @@ export function dayStats(series, dayFromEnd) {
   const s = e - 288
   if (s < 0) return null
   const g = series.glucose.slice(s, e)
-  const inR = g.filter((v) => v >= 70 && v <= 180).length / g.length
-  const low = g.filter((v) => v < 70).length / g.length
-  const steps = series.steps.slice(s, e).reduce((a, b) => a + b, 0)
   const meals = series.meal_carbs.slice(s, e)
+  const inR = g.filter((v) => v >= 70 && v <= 180).length / g.length
+  const lowSteps = g.filter((v) => v < 70).length
+  let pk = 0
+  pk = 12  // skip the first hour of the window: it carries over the previous evening's meal
+  g.forEach((v, i) => { if (i >= 12 && v > g[pk]) pk = i })
+  let mealG = null
+  let mealMin = null
+  for (let k = pk; k >= Math.max(0, pk - 30); k--) {
+    if (meals[k] > 0) { mealG = meals[k]; mealMin = (pk - k) * 5; break }
+  }
   return {
-    tir: inR, low, steps, carbs: meals.reduce((a, b) => a + b, 0), meals: meals.filter((v) => v > 0).length,
-    mean: g.reduce((a, b) => a + b, 0) / g.length, startIdx: s,
+    tir: inR, low: lowSteps / g.length, lowMin: lowSteps * 5, steps: series.steps.slice(s, e).reduce((a, b) => a + b, 0),
+    carbs: meals.reduce((a, b) => a + b, 0), meals: meals.filter((v) => v > 0).length,
+    mean: g.reduce((a, b) => a + b, 0) / g.length, startIdx: s, glucose: g, mealSeries: meals,
+    peakVal: g[pk], peakIdx: s + pk, mealG, mealMin,
   }
 }

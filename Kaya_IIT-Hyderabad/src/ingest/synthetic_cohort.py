@@ -75,25 +75,43 @@ def make_patients(cfg: CohortConfig, rng: np.random.Generator) -> pd.DataFrame:
     })
 
 
-def _fast_wearable_day(day_idx: int, p: pd.Series, rng: np.random.Generator):
-    """Return (meals, walks, sleep window) for one day. Times are minutes from midnight."""
+def _fast_wearable_day(day_idx: int, p: pd.Series, rng: np.random.Generator, dc: dict | None = None):
+    """Return (meals, walks, sleep window) for one day. Times are minutes from midnight.
+
+    `dc` optionally scripts the day (used for demo patients): carb_mult, late_dinner (minutes), snacks [(minute, grams)],
+    walk (True forces a 25-minute walk after dinner, False removes walks), bed_shift (minutes).
+    """
+    dc = dc or {}
     meals = []
-    for base, sd, carbs in ((8 * 60, 35, 70), (13.5 * 60, 40, 95), (20.5 * 60, 45, 90)):
+    for k, (base, sd, carbs) in enumerate(((8 * 60, 35, 70), (13.5 * 60, 40, 95), (20.5 * 60, 45, 90))):
         t = int(np.clip(rng.normal(base, sd), 5 * 60, 23 * 60))
         c = float(np.clip(rng.normal(carbs * (p.carb_fraction / 0.62), carbs * 0.25), 15, 220))
-        meals.append((t, c, float(rng.choice([35.0, 50.0, 65.0], p=[0.3, 0.4, 0.3]))))  # peak minutes
+        if k == 2:
+            t += int(dc.get("late_dinner", 0))
+        c *= dc.get("carb_mult", 1.0) * (dc.get("dinner_mult", 1.0) if k == 2 else 1.0) * (dc.get("lunch_mult", 1.0) if k == 1 else 1.0)
+        meals.append((t, min(c, 260.0), float(rng.choice([35.0, 50.0, 65.0], p=[0.3, 0.4, 0.3]))))  # peak minutes
     if rng.random() < 0.5:
         meals.append((int(rng.normal(16.5 * 60, 40)), float(np.clip(rng.normal(30, 12), 8, 70)), 45.0))
+    for (tm, grams) in dc.get("snacks", []):
+        meals.append((int(tm), float(grams), 45.0))
     walks = []
-    if rng.random() < 0.55:
-        walks.append((int(np.clip(rng.normal(18 * 60 + 30, 90), 6 * 60, 22 * 60)), 20))
-    bed = int(np.clip(rng.normal(23 * 60, 50), 21 * 60, 26 * 60))   # may roll past midnight
+    wk = rng.random() < 0.55
+    wt = int(np.clip(rng.normal(18 * 60 + 30, 90), 6 * 60, 22 * 60))
+    if dc.get("walk") is True:
+        wk, wt = True, meals[2][0] + 25
+    elif dc.get("walk") is False:
+        wk = False
+    if wk:
+        walks.append((wt, 25 if dc.get("walk") is True else 20))
+    bed = int(np.clip(rng.normal(23 * 60, 50), 21 * 60, 26 * 60)) + int(dc.get("bed_shift", 0))   # may roll past midnight
     wake = int(np.clip(rng.normal(6.5 * 60, 40), 4.5 * 60, 9 * 60))
     return meals, walks, bed, wake
 
 
-def simulate_patient_series(p: pd.Series, cfg: CohortConfig, rng: np.random.Generator) -> pd.DataFrame:
+def simulate_patient_series(p: pd.Series, cfg: CohortConfig, rng: np.random.Generator,
+                            day_cfg: list[dict] | None = None) -> pd.DataFrame:
     n_steps = cfg.days * STEPS_PER_DAY
+    dcs = day_cfg or [{} for _ in range(cfg.days)]
     t = np.arange(n_steps) * STEP_MIN
     glucose = np.zeros(n_steps)
     steps = np.zeros(n_steps)
@@ -106,7 +124,8 @@ def simulate_patient_series(p: pd.Series, cfg: CohortConfig, rng: np.random.Gene
 
     walk_events = []
     for d in range(cfg.days):
-        meals, walks, bed, wake = _fast_wearable_day(d, p, rng)
+        dc = dcs[d]
+        meals, walks, bed, wake = _fast_wearable_day(d, p, rng, dc)
         day0 = d * 24 * 60
         for (tm, carbs, peak) in meals:
             i0 = (day0 + tm) // STEP_MIN
@@ -129,10 +148,19 @@ def simulate_patient_series(p: pd.Series, cfg: CohortConfig, rng: np.random.Gene
                 steps[i0:j] += rng.normal(110, 15, j - i0).clip(40) * STEP_MIN
                 walk_events.append(i0)
         # Treatment-related hypoglycemia: negative excursion on insulin/sulfonylurea (e.g. missed or delayed meal).
-        if p.on_insulin_or_su and rng.random() < 0.35:
+        hypo = dc.get("hypo", "auto")
+        if hypo == "auto":
+            do_hypo = bool(p.on_insulin_or_su and rng.random() < 0.35)
+        else:
+            do_hypo = hypo not in (None, "none")
+        if do_hypo:
             th = int(rng.choice([rng.normal(3.0 * 60, 60), rng.normal(16.0 * 60, 70), rng.normal(11.0 * 60, 50)]))
-            i0 = (day0 + int(np.clip(th, 60, 23 * 60))) // STEP_MIN
             depth = float(rng.uniform(45, 105))
+            if hypo == "night":
+                th, depth = 3 * 60 + 10, 95.0
+            elif hypo == "afternoon":
+                th, depth = 16 * 60, 85.0
+            i0 = (day0 + int(np.clip(th, 60, 23 * 60))) // STEP_MIN
             k = -_gamma_kernel(kernel_t, 55.0) * depth
             j = min(n_steps, i0 + len(k))
             if i0 < n_steps:
@@ -150,14 +178,16 @@ def simulate_patient_series(p: pd.Series, cfg: CohortConfig, rng: np.random.Gene
     for i in range(1, n_steps):
         ar[i] = 0.93 * ar[i - 1] + eps[i]
     sensor = rng.normal(0, 2.0, n_steps)
-    glucose = glucose + dawn + ar + sensor
+    day_shift = np.repeat([float(d.get("base_shift", 0.0)) for d in dcs], STEPS_PER_DAY)[:n_steps]
+    glucose = glucose + dawn + ar + sensor + day_shift
     target_mean = 28.7 * p.hba1c - 46.7              # ADAG relation, eAG in mg/dL
     glucose = glucose + (target_mean - glucose.mean())
     glucose = np.clip(glucose, 40, 400)
 
     # Background daytime steps
     awake = ~asleep
-    steps += awake * rng.gamma(1.2, 20.0, n_steps) * rng.binomial(1, 0.5, n_steps)
+    step_mult = np.repeat([float(d.get("step_mult", 1.0)) for d in dcs], STEPS_PER_DAY)[:n_steps]
+    steps += awake * rng.gamma(1.2, 20.0, n_steps) * rng.binomial(1, 0.5, n_steps) * step_mult
 
     # Heart rate / HRV (RMSSD): circadian, lower HRV with high IR, activity raises HR.
     base_hr = 66 + 0.08 * (p.age - 50) + 0.5 * (p.bmi - 26) + 2.0 * np.log(p.homa_ir)
