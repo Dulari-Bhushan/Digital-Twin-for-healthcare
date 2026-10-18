@@ -15,10 +15,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-import joblib
-import lightgbm as lgb
 import numpy as np
-import pandas as pd
 
 TWIN_FEATURES = ["age", "male", "bmi", "waist_cm", "alt", "ast", "platelets", "hba1c", "hdl", "diabetes"]
 
@@ -38,6 +35,10 @@ class LiverParams:
 
 
 def train_twin_model(nhanes_parquet: Path, out: Path) -> dict:
+    import joblib
+    import lightgbm as lgb
+    import pandas as pd
+
     df = pd.read_parquet(nhanes_parquet)
     models = {}
     for target in ("steatosis", "adv_fibrosis"):
@@ -58,7 +59,7 @@ def _sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
 
-def static_risk(bundle: dict, labs: pd.DataFrame) -> dict[str, np.ndarray]:
+def static_risk(bundle: dict, labs) -> dict[str, np.ndarray]:
     X = labs[bundle["features"]]
     return {t: m.predict_proba(X)[:, 1] for t, m in bundle["models"].items()}
 
