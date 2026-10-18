@@ -35,6 +35,8 @@ function Drivers({ items, title }) {
   )
 }
 
+const guard = (fn) => (e) => { if (e.target.closest('button, a, input, select, label')) return; fn() }
+
 const avatarOf = (p) => (p.sex === 'F' ? (p.age >= 60 ? '👵' : '👩') : p.age >= 60 ? '👴' : '👨')
 
 export function Sidebar({ patients, selected, onSelect }) {
@@ -57,11 +59,11 @@ export function Sidebar({ patients, selected, onSelect }) {
   )
 }
 
-export function Hero({ d }) {
+export function Hero({ d, onOpen }) {
   const p = d.profile
   const t = TONE[tierTone(d.summary.tier)]
   return (
-    <div className="card lav hero">
+    <div className="card lav hero openable" onClick={guard(() => onOpen('profile'))}>
       <div className="avatar">{avatarOf({ sex: p.sex, age: p.age })}</div>
       <div>
         <h1>{p.name}</h1>
@@ -92,13 +94,13 @@ export function Hero({ d }) {
   )
 }
 
-export function GlucoseCard({ series, cursor, at, metrics, playing, setPlaying, setCursor, range, live }) {
+export function GlucoseCard({ series, cursor, at, metrics, playing, setPlaying, setCursor, range, live, onOpen }) {
   const g = series.glucose
   const slope = cursor >= 6 ? (g[cursor] - g[cursor - 6]) / 30 : 0
   const arrow = Math.abs(slope) < 0.4 ? '→' : slope > 0 ? (slope > 1.5 ? '⇈' : '↗') : slope < -1.5 ? '⇊' : '↘'
   const tones = ['sky', 'lav', 'peach']
   return (
-    <div className="card soft">
+    <div className="card soft openable" onClick={guard(() => onOpen('glucose'))}>
       <div className="card-h">
         <h2>Glucose twin</h2>
         <span className="chip lav">{fmtDT(series.start, cursor)}</span>
@@ -144,13 +146,13 @@ export function GlucoseCard({ series, cursor, at, metrics, playing, setPlaying, 
   )
 }
 
-export function ProbCard({ at }) {
+export function ProbCard({ at, onOpen }) {
   const items = [
     { label: 'High in 2 h', p: at.p_hyper, tone: 'peach', color: '#f0814f', sub: 'chance of > 180' },
     { label: 'Low in 2 h', p: at.p_hypo, tone: 'sky', color: '#4a8fe9', sub: 'chance of < 70' },
   ]
   return (
-    <div className="card peach">
+    <div className="card peach openable" onClick={guard(() => onOpen('glucose'))}>
       <div className="card-h"><h2>Next 2 hours</h2><span className="chip">Calibrated</span></div>
       <div className="row" style={{ justifyContent: 'space-around' }}>
         {items.map((it) => (
@@ -167,10 +169,10 @@ export function ProbCard({ at }) {
   )
 }
 
-export function RangeCard({ metrics }) {
+export function RangeCard({ metrics, onOpen }) {
   const mid = Math.max(0, 1 - metrics.tir - metrics.tbr - metrics.tar)
   return (
-    <div className="card mint" style={{ display: 'flex', flexDirection: 'column' }}>
+    <div className="card mint openable" style={{ display: 'flex', flexDirection: 'column' }} onClick={guard(() => onOpen('glucose'))}>
       <div className="card-h"><h2>Time in range</h2><span className="chip">14 days</span></div>
       <div className="row" style={{ gap: 18, flex: 1, justifyContent: 'center' }}>
         <SegRing size={132} stroke={18}
@@ -189,7 +191,7 @@ export function RangeCard({ metrics }) {
   )
 }
 
-export function Organs({ d }) {
+export function Organs({ d, onOpen }) {
   const tl = d.liver.timeline
   const lab = d.profile.labs
   const cl = d.profile.clinic
@@ -199,7 +201,7 @@ export function Organs({ d }) {
   const ep = d.eye.progression_2y
   return (
     <>
-      <div className="card butter c4">
+      <div className="card butter c4 openable" onClick={guard(() => onOpen('liver'))}>
         <div className="organ-top">
           <div className="organ-ill"><LiverArt size={44} /></div>
           <div><h2>Liver</h2><span className="chip mint" style={{ marginTop: 4 }}>Real-data model</span></div>
@@ -218,7 +220,7 @@ export function Organs({ d }) {
         <div className="note">Baseline from a model validated on real NHANES FibroScan data (AUROC 0.83). The drift from glucose habits is a simulation with editable assumptions. Latest simulated FibroScan {cl.liver_stiffness_kpa} kPa.</div>
       </div>
 
-      <div className="card rose c4">
+      <div className="card rose c4 openable" onClick={guard(() => onOpen('eyes'))}>
         <div className="organ-top">
           <div className="organ-ill"><EyeArt size={44} /></div>
           <div><h2>Eyes</h2><span className="chip mint" style={{ marginTop: 4 }}>Grader: real data</span></div>
@@ -234,7 +236,7 @@ export function Organs({ d }) {
         <div className="note">Photos are representative IDRiD images (CC BY 4.0) of the recorded grade. Grader: APTOS kappa 0.89, Indian IDRiD 0.71 after fine-tuning. Progression risk is a simulation.</div>
       </div>
 
-      <div className="card sky c4">
+      <div className="card sky c4 openable" onClick={guard(() => onOpen('kidneys'))}>
         <div className="organ-top">
           <div className="organ-ill"><KidneyArt size={44} /></div>
           <div><h2>Kidneys</h2><span className="chip mint" style={{ marginTop: 4 }}>Real-data model</span></div>
@@ -383,10 +385,10 @@ export function WhatIfStudio({ pid }) {
   )
 }
 
-export function AlertsCard({ alerts, series }) {
+export function AlertsCard({ alerts, series, onOpen }) {
   const list = [...alerts].reverse().slice(0, 6)
   return (
-    <div className="card soft">
+    <div className="card soft openable" onClick={guard(() => onOpen('alerts'))}>
       <div className="card-h"><h2>Alert timeline 🔔</h2><span className="chip peach">About 1 false alert per patient-day</span></div>
       <div className="tl">
         {list.length === 0 && <div className="muted">No alerts in this window. 🌿</div>}

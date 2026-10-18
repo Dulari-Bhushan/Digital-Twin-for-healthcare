@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { getPatient, getPatients, getSeries } from './api'
 import { AlertsCard, GlucoseCard, Hero, Organs, ProbCard, RangeCard, Sidebar, WhatIfStudio } from './components/Doctor'
 import PatientApp from './components/PatientApp'
+import Record from './components/Record'
 import { useLive } from './live'
 import { Logo } from './ui'
 
@@ -36,6 +37,8 @@ export default function App() {
   const [playing, setPlaying] = useState(false)
   const [err, setErr] = useState(null)
   const timer = useRef(null)
+  const [record, setRecord] = useState(params.get('record') ? { tab: params.get('record') } : null)
+  const openRecord = (tab) => setRecord({ tab })
   const live = useLive(sel)
 
   useEffect(() => {
@@ -96,6 +99,7 @@ export default function App() {
         </div>
       </header>
 
+      {record && d && <Record d={d} pid={sel} tab={record.tab} setTab={(tab) => setRecord({ tab })} onClose={() => setRecord(null)} />}
       {mode === 'patient' ? (
         ready ? <PatientApp d={d} at={at} pid={sel} /> : <div className="stage muted">Loading…</div>
       ) : (
@@ -104,15 +108,15 @@ export default function App() {
           <main className="bento">
             {!ready ? <div className="c12 muted">Loading the twin…</div> : (
               <>
-                <div className="c12"><Hero d={d} /></div>
-                <div className="c8"><GlucoseCard series={shownSeries} cursor={shownCursor} at={at} metrics={d.metrics} playing={playing} setPlaying={setPlaying} setCursor={setCursor} range={range} live={{ on: liveOn, active: live.active, latency: live.latency, count: live.count, ended: live.ended, start: live.start, stop: live.stop }} /></div>
+                <div className="c12"><Hero d={d} onOpen={openRecord} /></div>
+                <div className="c8"><GlucoseCard series={shownSeries} cursor={shownCursor} at={at} metrics={d.metrics} playing={playing} setPlaying={setPlaying} setCursor={setCursor} range={range} onOpen={openRecord} live={{ on: liveOn, active: live.active, latency: live.latency, count: live.count, ended: live.ended, start: live.start, stop: live.stop }} /></div>
                 <div className="c4" style={{ display: 'grid', gap: 20, gridTemplateRows: 'auto 1fr' }}>
-                  <ProbCard at={at} />
-                  <RangeCard metrics={d.metrics} />
+                  <ProbCard at={at} onOpen={openRecord} />
+                  <RangeCard metrics={d.metrics} onOpen={openRecord} />
                 </div>
-                <Organs d={d} />
+                <Organs d={d} onOpen={openRecord} />
                 <div className="c12"><WhatIfStudio pid={sel} /></div>
-                <div className="c12"><AlertsCard alerts={shownSeries.alerts.filter((a) => a.t - shownSeries.t0 <= shownCursor)} series={shownSeries} /></div>
+                <div className="c12"><AlertsCard alerts={shownSeries.alerts.filter((a) => a.t - shownSeries.t0 <= shownCursor)} series={shownSeries} onOpen={openRecord} /></div>
               </>
             )}
           </main>

@@ -28,6 +28,7 @@ from eye_risk import GRADES, progression_risk  # noqa: E402
 from kidney_dynamic import KidneyParams, projection  # noqa: E402
 import assistant as asst  # noqa: E402
 from live import Calibration, LiveTwin, NumpyGRU  # noqa: E402
+from names import DEMO_TAGS, name_of  # noqa: E402
 from voice import CHAT_MODEL, LANG_CODES, STT_MODEL, TTS_MODEL, SarvamClient, VoiceError, load_key  # noqa: E402
 from liver_dynamic import LiverParams, risk_timeline  # noqa: E402
 
@@ -94,6 +95,8 @@ def load() -> None:
     META.update(json.loads(idx.read_text()))
     for item in META["patients"]:
         STORE[item["id"]] = json.loads((ART_DIR / f"{item['id']}.json").read_text())
+        STORE[item["id"]]["profile"]["name"] = name_of(item["id"])
+        STORE[item["id"]]["profile"]["demo_tag"] = DEMO_TAGS.get(item["id"])
     key = load_key(ROOT)
     VOICE["client"] = SarvamClient(key) if key else None
     if (MODEL_DIR / "gru_numpy.npz").exists():

@@ -4,7 +4,7 @@ All patients are synthetic and the names are invented. Start the app with `uvico
 
 ## The two patients
 
-| | **Venkatesh Rao** (ID 1688) | **Kavya Gowda** (ID 1636) |
+| | **Rajesh Sharma** (ID 1688) | **Priya Kashyap** (ID 1636) |
 |---|---|---|
 | Who | 51-year-old man, T2D for 22 years, insulin or sulfonylurea | 34-year-old woman, T2D for 3 years, metformin |
 | Control | HbA1c 9.1%, 30% time in range over 14 days | HbA1c 7.4%, 81% time in range |
@@ -14,11 +14,11 @@ All patients are synthetic and the names are invented. Start the app with `uvico
 | Low-sugar risk | Yes (insulin or sulfonylurea), has a night-time low | None |
 | Priority | **High**, pinned first in the doctor list | **Low**, pinned second |
 
-Why these two: they show the whole range. Venkatesh needs attention on every organ and has treatment-related lows. Kavya shows what a well-controlled patient looks like, with the twin mostly reassuring and one bad day to learn from.
+Why these two: they show the whole range. Rajesh needs attention on every organ and has treatment-related lows. Priya shows what a well-controlled patient looks like, with the twin mostly reassuring and one bad day to learn from.
 
 ## Links
 
-| View | Venkatesh | Kavya |
+| View | Rajesh | Priya |
 |---|---|---|
 | Doctor | `http://localhost:8000/?p=1688` | `http://localhost:8000/?p=1636` |
 | Patient app | `http://localhost:8000/?view=patient&p=1688` | `http://localhost:8000/?view=patient&p=1636` |
@@ -30,20 +30,36 @@ Why these two: they show the whole range. Venkatesh needs attention on every org
 
 Tap the day chips at the top of the patient app. Each day has its own summary, glucose chart and habits.
 
-| Day | Venkatesh Rao | Kavya Gowda |
+| Day | Rajesh Sharma | Priya Kashyap |
 |---|---|---|
 | **Sun 11** | **A tough day, 4% in range.** Festival feast and sweets, no walking. Peaks at 347 after a meal. | **49% in range.** A wedding feast with a late dinner and sweets. Peaks at 266. |
 | **Mon 12** | **62% in range, with a low.** Sugar below 70 for 65 minutes at about 3 am (insulin). | **72% in range.** Recovering the day after the feast. |
 | **Tue 13** | **A good day, 91%.** Smaller portions and a walk; flat curve. | **A good day, 90%.** |
 | **Today** | **46%.** Heavy late dinner with no walk; sugar rising fast, so the twin forecasts a high. | **80%.** An ordinary good day, steady forecast. |
 
+## The full patient record
+
+In the doctor view, **click any card** (the patient header, the glucose twin, next 2 hours, time in range, liver, eyes, kidneys or the alert timeline). A record opens on the right with everything about that patient, opened at the tab that matches the card you clicked:
+
+| Tab | What it shows |
+|---|---|
+| Overview | Key numbers, a problem list (click a row to jump to it), daily time in range, kidney and liver paths |
+| Glucose | Forecast from the latest reading, the full 14-day glucose trace, daily time in range, a typical-day profile, a daily table, steps, carbohydrate, sleep and mean glucose by day, meal responses and the five highest peaks |
+| Liver | Labs with reference flags, FibroScan and FIB-4, the 12-month projection, what drives the risk, and the glucose habits feeding the drift |
+| Eyes | Retina photo with heatmap, grade, and what drives the 2-year progression risk |
+| Kidneys | eGFR path with stage lines, albuminuria drift, why the slope is what it is, and what drives each risk |
+| Alerts | Every stored alert with the reason it fired, and alerts per day |
+| Profile and labs | Demographics, treatment, genetics, the full lab panel, clinic measurements and why the patient is prioritised |
+
+Press Esc or click outside to close. Link straight to a tab with `?p=1688&record=glucose` (or `liver`, `eyes`, `kidneys`, `alerts`, `profile`, `overview`).
+
 ## Suggested flow (about 6 minutes)
 
-1. **Doctor view, Venkatesh.** Show the triage list with the two demo cases pinned. Point at why he is flagged (time in range, liver, kidney, retinopathy). Press **Replay last 3 days**: the forecast fan appears before the evening spike.
+1. **Doctor view, Rajesh.** Show the triage list with the two demo cases pinned. Point at why he is flagged (time in range, liver, kidney, retinopathy). Press **Replay last 3 days**: the forecast fan appears before the evening spike.
 2. **What-if studio.** Press **All three**: time in range improves, liver and kidney projections move. Say it is a simulation with editable assumptions.
-3. **Switch to Kavya** in the list. Same screens, very different picture: green rings, low risks, forecasts that stay in range.
-4. **Patient app, Venkatesh.** Tap Sun, Mon, Tue and Today to show how each day differs. On Mon, point at the low in the chart.
-5. **Same app, Kavya.** Show the wedding day and the recovery.
+3. **Switch to Priya** in the list. Same screens, very different picture: green rings, low risks, forecasts that stay in range.
+4. **Patient app, Rajesh.** Tap Sun, Mon, Tue and Today to show how each day differs. On Mon, point at the low in the chart.
+5. **Same app, Priya.** Show the wedding day and the recovery.
 6. **Assistant.** Tap the small microphone icon, ask a question in Hindi or Kannada, and try "how much insulin should I take" to show the safety rule.
 7. **Go live** in the doctor view and the **clinical summary** button, if time allows.
 

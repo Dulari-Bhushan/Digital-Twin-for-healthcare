@@ -81,7 +81,7 @@ def main():
     explainers = {("liver", t): shap.TreeExplainer(m) for t, m in liver_bundle["models"].items()}
     explainers.update({("kidney", t): shap.TreeExplainer(m) for t, m in kidney_bundle["models"].items()})
 
-    def drivers(kind, target, X, k=4):
+    def drivers(kind, target, X, k=8):
         sv = explainers[(kind, target)].shap_values(X)
         sv = sv[1] if isinstance(sv, list) else sv
         row = np.asarray(sv)[0]

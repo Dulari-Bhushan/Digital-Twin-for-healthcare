@@ -1,14 +1,14 @@
-"""Fictional Indian names for the synthetic demo patients (matched to each patient's sex and age).
+"""Fictional North Indian names for the synthetic demo patients (matched to each patient's sex and age).
 
 The names are invented for the demo and do not refer to real people.
 """
 
 NAMES = {
-    1789: "Padmavathi Reddy", 62: "Harpreet Singh", 1217: "Pooja Deshmukh", 1102: "Mohammed Rafiq", 1688: "Venkatesh Rao",
-    302: "Basavaraj Hiremath", 1008: "Ramakrishnan Iyer", 800: "Arjun Malhotra", 496: "Divya Chatterjee", 1705: "Rukmini Nair",
-    1132: "Shobha Patil", 1091: "Anil Kulkarni", 308: "Prakash Naik", 7: "Sanjay Gupta", 1520: "Karthik Subramanian",
-    1527: "Meenakshi Pillai", 507: "Srinivas Murthy", 1974: "Imran Qureshi", 1357: "Rajesh Bhatt", 814: "Dilip Banerjee",
-    1128: "Manoj Tiwari", 1636: "Kavya Gowda", 750: "Gopal Krishnan", 430: "Anjali Sharma",
+    1789: "Kamla Devi", 62: "Harpreet Singh", 1217: "Pooja Verma", 1102: "Mohammed Rafiq", 1688: "Rajesh Sharma",
+    302: "Brijmohan Yadav", 1008: "Ramprasad Mishra", 800: "Arjun Malhotra", 496: "Neha Chauhan", 1705: "Savitri Devi",
+    1132: "Sunita Agarwal", 1091: "Anil Saxena", 308: "Prakash Joshi", 7: "Sanjay Gupta", 1520: "Vikram Rathore",
+    1527: "Meena Tiwari", 507: "Surendra Pratap Singh", 1974: "Imran Qureshi", 1357: "Rakesh Bhatt", 814: "Dilip Pandey",
+    1128: "Manoj Dubey", 1636: "Priya Kashyap", 750: "Gopal Chaudhary", 430: "Anjali Mehra",
 }
 
 # The two patients used in the live demo, chosen for contrast.
