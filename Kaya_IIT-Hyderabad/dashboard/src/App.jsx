@@ -1,18 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getPatient, getPatients, getSeries } from './api'
-import GlucoseChart from './components/GlucoseChart'
-import { Alerts, Organs, PatientHeader, PatientList, TwinNow } from './components/Panels'
-import PatientView from './components/PatientView'
-import WhatIf from './components/WhatIf'
-import { fmtDT } from './utils'
+import { AlertsCard, GlucoseCard, Hero, Organs, ProbCard, RangeCard, Sidebar, WhatIfStudio } from './components/Doctor'
+import PatientApp from './components/PatientApp'
+import { Logo } from './ui'
 
 const HORIZ = [30, 60, 120]
+const clamp = (v) => Math.min(400, Math.max(40, v))
 
 function atCursor(series, cursor) {
   const k = series.forecast.t.indexOf(series.t0 + cursor)
   if (k < 0) return null
   const g = series.glucose[cursor]
-  const clamp = (v) => Math.min(400, Math.max(40, v))
   return {
     glucose: g,
     forecast: HORIZ.map((m, h) => ({
@@ -27,9 +25,9 @@ function atCursor(series, cursor) {
 }
 
 export default function App() {
+  const params = new URLSearchParams(window.location.search)
   const [patients, setPatients] = useState([])
   const [sel, setSel] = useState(null)
-  const params = new URLSearchParams(window.location.search)
   const [mode, setMode] = useState(params.get('view') === 'patient' ? 'patient' : 'doctor')
   const [d, setD] = useState(null)
   const [series, setSeries] = useState(null)
@@ -55,10 +53,7 @@ export default function App() {
     }).catch((e) => setErr(String(e)))
   }, [sel])
 
-  const range = useMemo(() => {
-    if (!series) return [0, 0]
-    return [series.forecast.t[0] - series.t0, series.forecast.t[series.forecast.t.length - 1] - series.t0]
-  }, [series])
+  const range = useMemo(() => (series ? [series.forecast.t[0] - series.t0, series.forecast.t.at(-1) - series.t0] : [0, 0]), [series])
 
   useEffect(() => {
     clearInterval(timer.current)
@@ -73,51 +68,51 @@ export default function App() {
   }, [playing, range])
 
   const at = useMemo(() => (series ? atCursor(series, cursor) : null), [series, cursor])
-
   if (err) return <div style={{ padding: 40 }}>Could not reach the Kaya API: {err}. Start it with <code>uvicorn app:app --app-dir src/api</code>.</div>
+  const ready = d && series && at
 
   return (
     <div className="app">
-      <header className="topbar">
-        <div className="brand">
-          <span className="mark"><svg width="16" height="16" viewBox="0 0 32 32"><path d="M9 6v20M9 16l12-10M9 16l12 10" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round" /></svg></span>
-          Kaya <small>multi-organ digital twin for Type 2 Diabetes</small>
+      <header className="top">
+        <div className="logo">
+          <span className="mark"><Logo /></span>
+          <div><b>Kaya</b><small>multi-organ digital twin for Type 2 Diabetes</small></div>
         </div>
-        <span className="spacer" />
-        <span className="chip" title="All patients are synthetic. Kaya is decision support for clinicians, not a diagnostic device.">Synthetic data · Decision support</span>
-        <div className="seg" role="tablist">
-          <button className={mode === 'doctor' ? 'on' : ''} onClick={() => setMode('doctor')}>Doctor</button>
-          <button className={mode === 'patient' ? 'on' : ''} onClick={() => setMode('patient')}>Patient</button>
+        <span className="sp" />
+        <span className="tag" title="All patients are synthetic. Decision support for clinicians, not a diagnostic device.">🧪 Synthetic data · Decision support</span>
+        {mode === 'patient' && patients.length > 0 && (
+          <select className="pick" value={sel ?? ''} onChange={(e) => setSel(Number(e.target.value))} aria-label="Choose patient">
+            {patients.map((p) => <option key={p.id} value={p.id}>Patient {p.id}</option>)}
+          </select>
+        )}
+        <div className="switch" role="tablist">
+          <button className={mode === 'doctor' ? 'on' : ''} onClick={() => setMode('doctor')}>🩺 Doctor</button>
+          <button className={mode === 'patient' ? 'on' : ''} onClick={() => setMode('patient')}>🙂 Patient</button>
         </div>
       </header>
-      <div className="body">
-        <PatientList patients={patients} selected={sel} onSelect={setSel} />
-        <main className="main">
-          {!d || !series || !at ? <div className="muted">Loading the twin…</div> : mode === 'patient' ? <PatientView d={d} at={at} /> : (
-            <>
-              <PatientHeader d={d} />
-              <div className="card">
-                <div className="card-head">
-                  <h2>Glucose twin <span className="muted" style={{ fontWeight: 400 }}>· {fmtDT(series.start, cursor)}</span></h2>
-                  <div className="row">
-                    <button className="btn small" onClick={() => { if (cursor >= range[1]) setCursor(range[0]); setPlaying(!playing) }}>{playing ? 'Pause' : 'Replay last 3 days'}</button>
-                    <button className="btn small" onClick={() => { setPlaying(false); setCursor(range[1]) }}>Now</button>
-                  </div>
+
+      {mode === 'patient' ? (
+        ready ? <PatientApp d={d} at={at} pid={sel} /> : <div className="stage muted">Loading…</div>
+      ) : (
+        <div className="layout">
+          <Sidebar patients={patients} selected={sel} onSelect={setSel} />
+          <main className="bento">
+            {!ready ? <div className="c12 muted">Loading the twin…</div> : (
+              <>
+                <div className="c12"><Hero d={d} /></div>
+                <div className="c8"><GlucoseCard series={series} cursor={cursor} at={at} metrics={d.metrics} playing={playing} setPlaying={setPlaying} setCursor={setCursor} range={range} /></div>
+                <div className="c4" style={{ display: 'grid', gap: 20, gridTemplateRows: 'auto 1fr' }}>
+                  <ProbCard at={at} />
+                  <RangeCard metrics={d.metrics} />
                 </div>
-                <TwinNow at={at} metrics={d.metrics} />
-                <div style={{ marginTop: 12 }}>
-                  <GlucoseChart series={series} cursor={cursor} />
-                </div>
-                <input type="range" min={range[0]} max={range[1]} step="1" value={cursor} aria-label="Replay position"
-                  onChange={(e) => { setPlaying(false); setCursor(Number(e.target.value)) }} style={{ width: '100%', accentColor: 'var(--accent)' }} />
-              </div>
-              <Organs d={d} />
-              <WhatIf pid={sel} />
-              <Alerts alerts={series.alerts.filter((a) => a.t - series.t0 <= cursor)} series={series} />
-            </>
-          )}
-        </main>
-      </div>
+                <Organs d={d} />
+                <div className="c12"><WhatIfStudio pid={sel} /></div>
+                <div className="c12"><AlertsCard alerts={series.alerts.filter((a) => a.t - series.t0 <= cursor)} series={series} /></div>
+              </>
+            )}
+          </main>
+        </div>
+      )}
     </div>
   )
 }

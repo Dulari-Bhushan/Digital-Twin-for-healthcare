@@ -57,6 +57,20 @@ On top sits the **what-if engine**: change a meal, add a walk, improve sleep or 
 | **Clinic administrator** | Run the service safely and responsibly | Consent records, an access audit log, and a **model-health page** showing performance and drift |
 | **Hospital IT / integrator** | Plug Kaya into existing systems | A versioned REST API that speaks **FHIR R4** (Patient, Observation, Condition, DiagnosticReport) |
 
+## Screenshots
+
+**Doctor workspace**: triaged patients, the glucose twin with a forecast fan you can replay, organ cards, and the what-if studio.
+
+![Doctor workspace](docs/img/doctor_view.png)
+
+**Patient app**: a plain-language phone view with today's habits, weekly time in range, and a "try a change" simulator.
+
+<p>
+  <img src="docs/img/patient_view.png" width="31%" alt="Patient app: today" />
+  <img src="docs/img/patient_insights.png" width="31%" alt="Patient app: insights" />
+  <img src="docs/img/patient_try.png" width="31%" alt="Patient app: try a change" />
+</p>
+
 ## 4. How it works
 
 ```mermaid

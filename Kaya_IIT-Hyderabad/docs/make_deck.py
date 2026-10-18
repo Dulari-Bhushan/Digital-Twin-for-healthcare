@@ -228,15 +228,19 @@ ax.text(5, 9, "Walk 20 min after meals, 25% smaller carbohydrate portions, medic
 
 # 11 --------------------------------------------------------------- product
 fig, ax = new("The product", "Doctor workspace and patient view. Replay shows the forecast against what actually happened.")
-H = 35.0
-for path, x0, crop in ((DOCS / "img/doctor_view.png", 14, (0, 1360)), (DOCS / "img/patient_view.png", 58, (0, 1230))):
+H = 33.0
+shots = [(DOCS / "img/doctor_view.png", (0, 1560, 0, 1440)), (DOCS / "img/patient_view.png", (195, 900, 75, 485)),
+         (DOCS / "img/patient_insights.png", (195, 900, 75, 485)), (DOCS / "img/patient_try.png", (195, 900, 75, 485))]
+x0 = 3.0
+for path, (y0, y1, c0, c1) in shots:
     if path.exists():
-        im = mpimg.imread(path)[crop[0]:crop[1]]
+        im = mpimg.imread(path)[y0:y1, c0:c1]
         w_ = H * im.shape[1] / im.shape[0]
-        ax.imshow(im, extent=[x0, x0 + w_, 6.5, 6.5 + H], aspect="auto", zorder=2)
-        ax.add_patch(plt.Rectangle((x0, 6.5), w_, H, fc="none", ec=LINE, lw=1.2, zorder=3))
-ax.text(33, 4.6, "Doctor view", ha="center", fontsize=11, color=MUTED)
-ax.text(71, 4.6, "Patient view", ha="center", fontsize=11, color=MUTED)
+        ax.imshow(im, extent=[x0, x0 + w_, 7.5, 7.5 + H], aspect="auto", zorder=2)
+        ax.add_patch(plt.Rectangle((x0, 7.5), w_, H, fc="none", ec=LINE, lw=1.2, zorder=3))
+        x0 += w_ + 2.2
+ax.text(18.5, 5.2, "Doctor workspace", ha="center", fontsize=11, color=MUTED)
+ax.text(66, 5.2, "Patient app: today, insights, try a change", ha="center", fontsize=11, color=MUTED)
 
 # 12 --------------------------------------------------------------- limits and roadmap
 fig, ax = new("Limitations, ethics and what is next")

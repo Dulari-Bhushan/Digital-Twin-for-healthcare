@@ -1,9 +1,9 @@
-import { useWidth } from '../utils'
+import { useWidth } from '../ui'
 
-/** Small multi-series line chart. series: [{ name, y: number[], color, dash? }], x labels by index. */
-export default function LineChart({ series, yDomain, yFmt = (v) => Math.round(v), xTickEvery, xLabel = (i) => i, bands = [], height = 200 }) {
+/** Pastel multi-series line chart. series: [{ name, y, color, dash? }] */
+export default function LineChart({ series, yDomain, yFmt = (v) => Math.round(v), xTickEvery, xLabel = (i) => i, band = null, height = 190 }) {
   const [ref, W] = useWidth()
-  const pad = { l: 44, r: 12, t: 10, b: 26 }
+  const pad = { l: 40, r: 14, t: 12, b: 26 }
   const iw = W - pad.l - pad.r
   const ih = height - pad.t - pad.b
   const n = series[0].y.length
@@ -17,23 +17,21 @@ export default function LineChart({ series, yDomain, yFmt = (v) => Math.round(v)
   return (
     <div ref={ref} style={{ width: '100%', minWidth: 0, overflow: 'hidden' }}>
       <svg width={W} height={height} role="img">
-        {bands.map((b, i) => <rect key={i} x={pad.l} width={iw} y={y(b[1])} height={y(b[0]) - y(b[1])} fill="var(--range)" />)}
+        {band && <rect x={pad.l} width={iw} y={y(band[1])} height={y(band[0]) - y(band[1])} rx="12" fill="#d6f3e5" opacity=".7" />}
         {yt.map((v, i) => (
           <g key={i}>
-            <line x1={pad.l} x2={W - pad.r} y1={y(v)} y2={y(v)} stroke="var(--border)" strokeDasharray="1 4" />
-            <text x={pad.l - 6} y={y(v) + 4} textAnchor="end" fontSize="11" fill="var(--muted)">{yFmt(v)}</text>
+            <line x1={pad.l} x2={W - pad.r} y1={y(v)} y2={y(v)} stroke="rgba(42,39,66,.07)" strokeDasharray="3 5" />
+            <text x={pad.l - 8} y={y(v) + 4} textAnchor="end" fontSize="11" fontWeight="600" fill="#77748f">{yFmt(v)}</text>
           </g>
         ))}
-        {xt.map((i) => <text key={i} x={x(i)} y={height - 8} fontSize="11" fill="var(--muted)" textAnchor={i === 0 ? 'start' : 'middle'}>{xLabel(i)}</text>)}
+        {xt.map((i) => <text key={i} x={x(i)} y={height - 8} fontSize="11" fontWeight="600" fill="#77748f" textAnchor={i === 0 ? 'start' : 'middle'}>{xLabel(i)}</text>)}
         {series.map((s) => (
-          <polyline key={s.name} fill="none" stroke={s.color} strokeWidth="2" strokeDasharray={s.dash}
+          <polyline key={s.name} fill="none" stroke={s.color} strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray={s.dash}
             points={s.y.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ')} />
         ))}
       </svg>
       <div className="legend">
-        {series.map((s) => (
-          <span key={s.name}><i style={{ background: s.color, opacity: s.dash ? 0.6 : 1 }} />{s.name}</span>
-        ))}
+        {series.map((s) => <span key={s.name}><i style={{ background: s.color }} />{s.name}</span>)}
       </div>
     </div>
   )
