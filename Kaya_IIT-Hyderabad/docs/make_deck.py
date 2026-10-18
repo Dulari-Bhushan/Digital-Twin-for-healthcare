@@ -185,10 +185,12 @@ if eye:
     v = eye["aptos_validation"]
     card(ax, 5, 26, 20, 16, f"{v['qwk']:.2f}", "quadratic kappa\nAPTOS held-out", TEAL)
     card(ax, 28, 26, 20, 16, f"{v['referable_auroc']:.2f}", "referable DR AUROC\nAPTOS held-out", TEAL)
-    if "idrid" in eye:
-        t = eye["idrid"]["test"]
-        card(ax, 5, 7, 20, 16, f"{t['qwk']:.2f}", "quadratic kappa\nIDRiD test (Indian)", BLUE)
+    if "idrid_finetuned" in eye:
+        t = eye["idrid_finetuned"]["test"]
+        z = eye["idrid"]["test"]
+        card(ax, 5, 7, 20, 16, f"{t['qwk']:.2f}", "quadratic kappa, IDRiD test\n(Indian, fine-tuned locally)", BLUE)
         card(ax, 28, 7, 20, 16, f"{t['referable_auroc']:.2f}", "referable DR AUROC\nIDRiD test", BLUE)
+        ax.text(5, 4.6, f"Without fine-tuning on IDRiD: kappa {z['qwk']:.2f}, AUROC {z['referable_auroc']:.2f}. Camera and population shift is real, and local data closes part of the gap.", fontsize=10, color=MUTED)
     imgs = [(ROOT / "artifacts/eye" / f"grade{g}.jpg", ROOT / "artifacts/eye" / f"grade{g}_cam.jpg") for g in (0, 2, 4)]
     for k, (raw, cam) in enumerate(imgs):
         if raw.exists():

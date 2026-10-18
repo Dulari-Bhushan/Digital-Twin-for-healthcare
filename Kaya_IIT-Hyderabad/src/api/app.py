@@ -216,6 +216,18 @@ def fhir_observations(patient: int):
             "entry": [{"resource": o} for o in items]}
 
 
+# ------------------------------------------------------------------ example retina images with Grad-CAM (IDRiD, CC BY 4.0)
+EYE_DIR = ROOT / "artifacts" / "eye"
+if EYE_DIR.exists():
+    app.mount("/eye-img", StaticFiles(directory=EYE_DIR), name="eye-img")
+
+
+@app.get("/api/eye/examples")
+def eye_examples():
+    idx = EYE_DIR / "index.json"
+    return json.loads(idx.read_text()) if idx.exists() else {"items": []}
+
+
 # ------------------------------------------------------------------ dashboard (built React app), if present
 DIST = ROOT / "dashboard" / "dist"
 if DIST.exists():

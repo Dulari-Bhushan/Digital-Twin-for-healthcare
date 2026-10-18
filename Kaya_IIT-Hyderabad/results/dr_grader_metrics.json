@@ -12,5 +12,32 @@
     "accuracy": 0.8036363636363636,
     "referable_auroc": 0.9793886534743078,
     "within_one_grade": 0.96
+  },
+  "idrid": {
+    "train": {
+      "n": 413,
+      "qwk": 0.7535199352997499,
+      "accuracy": 0.5326876513317191,
+      "referable_auroc": 0.936594293737151,
+      "within_one_grade": 0.9007263922518159
+    },
+    "test": {
+      "n": 103,
+      "qwk": 0.5676078272056335,
+      "accuracy": 0.36893203883495146,
+      "referable_auroc": 0.8806089743589743,
+      "within_one_grade": 0.8252427184466019
+    }
+  },
+  "idrid_finetuned": {
+    "test": {
+      "n": 103,
+      "qwk": 0.7087500654553072,
+      "accuracy": 0.42718446601941745,
+      "referable_auroc": 0.9166666666666666,
+      "within_one_grade": 0.8737864077669902
+    },
+    "heldout_val_qwk": 0.8640051152939296,
+    "note": "APTOS-trained model fine-tuned on 80% of the IDRiD training set; evaluated once on the IDRiD test set."
   }
 }

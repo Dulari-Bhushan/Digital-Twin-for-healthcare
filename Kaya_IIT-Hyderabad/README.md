@@ -104,6 +104,18 @@ All numbers below are **out-of-sample**: held-out patients for the synthetic coh
 
 Performance is similar in adults with diabetes (0.76 steatosis, 0.80 fibrosis) and in Asian participants. Full numbers with confidence intervals are in [`results/`](results/).
 
+### Eye (retinopathy grading from fundus photos)
+
+EfficientNet-B2, ordinal regression, trained on APTOS 2019 and tested on the Indian IDRiD dataset.
+
+| Evaluation | Quadratic kappa | Referable DR AUROC | Within one grade |
+|---|---|---|---|
+| APTOS 2019, held-out 15% | 0.89 | 0.98 | 96% |
+| IDRiD test (Indian), no fine-tuning | 0.57 | 0.88 | 83% |
+| IDRiD test (Indian), after fine-tuning on IDRiD train | 0.71 | 0.92 | 87% |
+
+The drop on IDRiD without fine-tuning is expected camera and population shift; a small amount of local data closes part of the gap. Exact-grade accuracy on IDRiD is 43% after fine-tuning, so Kaya reports grades as decision support alongside Grad-CAM heatmaps. Retinopathy *progression* risk is a simulation with editable assumptions.
+
 ## 6. Data
 
 Only open or synthetic data is used, as required by the challenge and the DPDP Act.
@@ -113,7 +125,7 @@ Only open or synthetic data is used, as required by the challenge and the DPDP A
 | CGM, meals, wearables | [CGMacros](https://physionet.org/content/cgmacros/1.0.0/) (PhysioNet) | Used |
 | Liver labels | NHANES 2017-2018 (FibroScan, labs) | Used |
 | Synthetic patients and streams | Our generator (`src/ingest/synthetic_cohort.py`), plus simglucose | Used |
-| Retina images | APTOS 2019, IDRiD | Planned |
+| Retina images | APTOS 2019 (train), IDRiD (Indian test) | Used |
 | Synthetic EHR | Synthea | Planned |
 
 ### An honest note on the synthetic cohort
@@ -155,7 +167,7 @@ No public dataset links one person's glucose stream to their liver, eye and kidn
 | What-if engine | Built |
 | REST API with FHIR read endpoints | Built |
 | Web dashboard: doctor workspace, patient view, replay | Built |
-| Eye module (retinopathy grader and risk) | In progress |
+| Eye module (retinopathy grader, Grad-CAM, progression risk) | Built |
 | Illustrative retina preview | Planned |
 | Kidney module | Stretch goal |
 

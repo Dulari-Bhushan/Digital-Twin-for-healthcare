@@ -123,7 +123,17 @@ export function Organs({ d }) {
         <div className="note">Baseline from a model validated on real NHANES FibroScan data (AUROC 0.83). The 12-month drift from glucose habits is a simulation with editable assumptions. Latest simulated FibroScan: {cl.liver_stiffness_kpa} kPa; FIB-4 {lab.fib4}.</div>
       </div>
       <div className="card">
-        <div className="card-head"><h2>Eye</h2><span className="sim">Simulation</span></div>
+        <div className="card-head"><h2>Eye</h2><span className="real">Grader: real data</span></div>
+        <div className="grid2" style={{ gap: 8, marginBottom: 10 }}>
+          <figure style={{ margin: 0 }}>
+            <img src={`/eye-img/grade${d.eye.grade}.jpg`} alt={`Example fundus photo, grade ${d.eye.grade}`} style={{ width: '100%', borderRadius: 8, display: 'block' }} />
+            <figcaption className="muted" style={{ fontSize: 11, marginTop: 3 }}>Example fundus, grade {d.eye.grade}</figcaption>
+          </figure>
+          <figure style={{ margin: 0 }}>
+            <img src={`/eye-img/grade${d.eye.grade}_cam.jpg`} alt="Grad-CAM heatmap" style={{ width: '100%', borderRadius: 8, display: 'block' }} />
+            <figcaption className="muted" style={{ fontSize: 11, marginTop: 3 }}>Where the model looked</figcaption>
+          </figure>
+        </div>
         <div className="kpi" style={{ marginBottom: 10 }}>
           <div className="l">Retinopathy grade</div>
           <div className="v">{DR[d.eye.grade]}</div>
@@ -135,7 +145,7 @@ export function Organs({ d }) {
           <div className="bar"><i style={{ width: `${d.eye.progression_2y * 100}%`, background: riskColor(d.eye.progression_2y, 0.4, 0.2) }} /></div>
           <div className="s">HbA1c, duration, BP, glucose variability, time in range</div>
         </div>
-        <div className="note">Risk drivers follow DCCT/UKPDS directions; coefficients are assumptions, not fitted. Fundus-image grading arrives with the retina model.</div>
+        <div className="note">Images: representative IDRiD photos (CC BY 4.0) of this patient's recorded grade; patients are synthetic. The grader is validated on real images (APTOS held-out kappa 0.89; Indian IDRiD test 0.71 after local fine-tuning). The 2-year progression risk is a simulation: drivers follow DCCT/UKPDS directions, coefficients are assumptions.</div>
       </div>
       <div className="card">
         <div className="card-head"><h2>Kidney</h2><span className="chip">Monitoring</span></div>

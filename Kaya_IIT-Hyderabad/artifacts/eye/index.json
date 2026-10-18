@@ -1,0 +1,35 @@
+{
+ "source": "IDRiD test set (CC BY 4.0)",
+ "items": [
+  {
+   "grade": 0,
+   "image": "IDRiD_044.jpg",
+   "predicted_severity": 0.36943158507347107,
+   "predicted_grade": 0
+  },
+  {
+   "grade": 1,
+   "image": "IDRiD_063.jpg",
+   "predicted_severity": 0.7669979929924011,
+   "predicted_grade": 1
+  },
+  {
+   "grade": 2,
+   "image": "IDRiD_008.jpg",
+   "predicted_severity": 2.260958671569824,
+   "predicted_grade": 2
+  },
+  {
+   "grade": 3,
+   "image": "IDRiD_007.jpg",
+   "predicted_severity": 2.7821130752563477,
+   "predicted_grade": 3
+  },
+  {
+   "grade": 4,
+   "image": "IDRiD_057.jpg",
+   "predicted_severity": 3.990936756134033,
+   "predicted_grade": 4
+  }
+ ]
+}
