@@ -348,7 +348,7 @@ Kaya_IIT-Hyderabad/
 
 | Item | Link |
 |---|---|
-| Demo video (unlisted YouTube) | **YOUTUBE_LINK_HERE** |
+| Demo video (unlisted YouTube) | [Watch on YouTube](https://youtu.be/SyA4dCjmQi8) |
 | Architecture diagram (PDF) | [`architecture_2page.pdf`](Kaya_IIT-Hyderabad/docs/architecture_2page.pdf) |
 | Presentation (PDF) | [`Kaya_presentation.pdf`](Kaya_IIT-Hyderabad/docs/Kaya_presentation.pdf) |
 | Presentation (PPT) | [`Kaya_pitch_deck.pptx`](Kaya_IIT-Hyderabad/docs/Kaya_pitch_deck.pptx) |
