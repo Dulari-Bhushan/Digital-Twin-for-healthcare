@@ -9,6 +9,9 @@ const ICON = { lab: '🧪', imaging: '🩻', cardiac: '🫀', clinic: '📋', de
 const TREND_KEYS = [['hba1c', 'HbA1c (%)', '#0F6E68'], ['egfr', 'eGFR', '#4f8196'], ['uacr', 'Urine albumin (mg/g)', '#d9894a'], ['alt', 'ALT (U/L)', '#E9A23B'], ['ldl', 'LDL (mg/dL)', '#4d8f6b'], ['sbp', 'Systolic BP', '#c4645b'], ['weight', 'Weight (kg)', '#0B4F4B']]
 
 export const fmtDate = (iso, long = true) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-IN', long ? { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' } : { day: 'numeric', month: 'short', timeZone: 'UTC' })
+const DEC = { hba1c: 1, creatinine: 2, fib4: 2 }
+/** A result value with the decimals that test is normally written with (9.0, not 9). */
+export const showVal = (r) => (typeof r.value === 'number' && DEC[r.key] != null ? r.value.toFixed(DEC[r.key]) : r.value)
 const num = (v, dec) => (typeof v === 'number' ? v.toLocaleString('en-IN', { minimumFractionDigits: dec, maximumFractionDigits: dec }) : v)
 const tone = (t) => TONE[t] || TONE.mint
 
@@ -138,7 +141,7 @@ export function ReportDoc({ rep, pid, audience, profile }) {
               <table className="rt">
                 <thead><tr><th>Test</th><th>Result</th><th>Reference</th><th>Flag</th><th>Previous</th></tr></thead>
                 <tbody>{s.rows.map((r) => (
-                  <tr key={r.test}><td><b>{r.test}</b></td><td><b>{r.value}</b> {r.unit}</td><td className="muted">{r.ref}</td>
+                  <tr key={r.test}><td><b>{r.test}</b></td><td><b>{showVal(r)}</b> {r.unit}</td><td className="muted">{r.ref}</td>
                     <td>{r.flag && <span className="chip" style={{ background: tone(r.tone).bg, color: tone(r.tone).dd }}>{r.flag}</span>}</td><td><Prev r={r} /></td></tr>
                 ))}</tbody>
               </table>
@@ -147,7 +150,7 @@ export function ReportDoc({ rep, pid, audience, profile }) {
             <div key={r.test} className="rep-prow">
               <div style={{ minWidth: 0 }}><b>{r.test}</b>{r.ref && <div className="muted" style={{ fontSize: 11.5 }}>Healthy: {r.ref}</div>}</div>
               <div style={{ textAlign: 'right' }}>
-                <b style={{ fontSize: 16 }}>{r.value} <small className="muted">{r.unit}</small></b>
+                <b style={{ fontSize: 16 }}>{showVal(r)} <small className="muted">{r.unit}</small></b>
                 <div>{r.flag && <span className="chip" style={{ background: tone(r.tone).bg, color: tone(r.tone).dd, fontSize: 11, padding: '3px 9px' }}>{r.flag}</span>}</div>
               </div>
             </div>
@@ -259,7 +262,7 @@ export function PatientReports({ t, pid, changes }) {
   return (
     <>
       <div className="p-h">{t('rep_title1')}<br /><span style={{ color: 'var(--muted)', fontWeight: 600 }}>{t('rep_title2')}</span></div>
-      <div style={{ marginTop: 6 }}><PatientUploads t={t} pid={pid} today={data.today} onChange={reload} /></div>
+      <div style={{ marginTop: 6 }}><PatientUploads t={t} pid={pid} today={data.today} onChange={reload} reports={data.reports} onOpenReport={setOpen} /></div>
       <div style={{ marginTop: 12 }}><ChangesCard ch={changes} audience="patient" /></div>
       <div className="sect"><span>{t('rep_trends')}</span></div>
       <div className="p-card" style={{ background: '#f0f5f4', marginTop: 4 }}>

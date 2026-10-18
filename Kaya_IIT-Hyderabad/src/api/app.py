@@ -541,6 +541,24 @@ def _start_reading(pid: int, uid: str) -> None:
     threading.Thread(target=job, daemon=True).start()
 
 
+@app.post("/api/patients/{pid}/uploads/{uid}/read")
+def uploads_read(pid: int, uid: str, request: Request):
+    """The patient agreed to have a saved upload read by the document service. Nothing leaves the server before this call."""
+    _rate_limit(request, limit=20)
+    _get(pid)
+    if VOICE.get("client") is None:
+        raise HTTPException(503, "automatic reading is not set up on this server")
+    found = upl.get_file(pid, uid)
+    if found is None:
+        raise HTTPException(404, "file not found")
+    if found[1].get("ocr", {}).get("state") in ("pending", "reading"):
+        raise HTTPException(409, "already being read")
+    upl.set_ocr(pid, uid, state="pending", error=None, results=[], text="", doc_date=None)
+    adm.TEL.audit("patient app", "reading approved by patient", f"patient {pid}")
+    _start_reading(pid, uid)
+    return upl.public(next(x for x in upl.list_uploads(pid, full=True) if x["id"] == uid))
+
+
 @app.get("/api/patients/{pid}/uploads/{uid}/file")
 def uploads_file(pid: int, uid: str):
     _get(pid)

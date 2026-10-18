@@ -579,7 +579,7 @@ def uploaded_report(pid: int, meta: dict, today: datetime, official: list[dict])
                 r["prev"] = {"value": b["value"], "date": older[0]["date"]}
     text = o.get("text", "")
     lines = [ln.strip() for ln in re.split(r"\n+", re.sub(r"[#*_`|>-]+", " ", text)) if len(ln.strip()) > 3]
-    bad = [f"{r['test']} {r['value']} {r['unit']} ({r['flag'].lower()})" for r in rows if r["tone"] != "mint"]
+    bad = [f"{r['test']} {r['value']} {r['unit']} ({r['flag'][:1].lower() + r['flag'][1:]})" for r in rows if r["tone"] != "mint"]
     warn = "Read automatically by software from your upload. It can make mistakes, so compare with the original document. A clinician has not reviewed it."
     return {
         "id": f"{pid}-{date}-UPL-{meta['id']}", "code": "UPL", "type": _CAT_TYPE.get(meta["category"], "clinic") if not rows else "lab", "name": meta["title"],

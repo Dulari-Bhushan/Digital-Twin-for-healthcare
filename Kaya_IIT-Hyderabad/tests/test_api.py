@@ -200,3 +200,34 @@ def test_failed_reading_keeps_the_file(client, tmp_path, monkeypatch):
         time.sleep(0.1)
     assert item["ocr"]["state"] == "failed"
     assert client.get(f"/api/patients/1636/uploads/{u['id']}/file").status_code == 200
+
+
+def test_reading_happens_only_after_the_patient_says_yes(client, tmp_path, monkeypatch):
+    import time
+
+    import uploads
+
+    calls = []
+
+    class FakeSarvam:
+        def digitise(self, data, filename, media, lang="en-IN", wait_s=90):
+            calls.append(filename)
+            return "HbA1c 9.0 %\nSerum Creatinine 1.35 mg/dL"
+
+    monkeypatch.setattr(uploads, "UP_DIR", tmp_path)
+    monkeypatch.setitem(kaya.VOICE, "client", FakeSarvam())
+    png = b"\x89PNG\r\n\x1a\n" + b"0" * 64
+    u = client.post("/api/patients/1636/uploads", content=png, headers={"x-filename": "a.png", "x-ocr": "0"}).json()
+    time.sleep(0.3)
+    assert calls == [] and u["ocr"]["state"] == "off"                     # saving alone never sends anything out
+    assert client.post("/api/patients/1636/uploads/nope/read").status_code == 404
+    r = client.post(f"/api/patients/1636/uploads/{u['id']}/read")
+    assert r.status_code == 200 and r.json()["ocr"]["state"] == "pending"
+    for _ in range(40):
+        item = client.get("/api/patients/1636/uploads").json()["items"][0]
+        if item["ocr"]["state"] not in ("pending", "reading"):
+            break
+        time.sleep(0.1)
+    assert calls == ["report.png"] and item["ocr"]["state"] == "done" and item["ocr"]["results"] == 2
+    monkeypatch.setitem(kaya.VOICE, "client", None)
+    assert client.post(f"/api/patients/1636/uploads/{u['id']}/read").status_code == 503

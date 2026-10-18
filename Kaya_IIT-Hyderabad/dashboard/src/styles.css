@@ -164,6 +164,10 @@ input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 
 .atoggle { border: 0; background: #e8f1ef; color: var(--lav-dd); font-weight: 800; font-size: 12px; padding: 8px 11px; border-radius: 999px; }
 .atoggle.on { background: var(--lav-d); color: #fff; }
 .phone.large .screen { zoom: 1.22; }
+.phone.large .sheet .msg { font-size: 19px; }
+.phone.large .sheet .chips button { font-size: 16px; padding: 11px 15px; }
+.phone.large .sheet .composer input { font-size: 19px; }
+.phone.large .sheet .readrow, .phone.large .sheet .note { zoom: 1.22; }
 .speak { border: 0; background: rgba(255, 255, 255, .9); width: 34px; height: 34px; border-radius: 50%; font-size: 15px; box-shadow: 0 3px 8px rgba(28, 52, 50, .12); }
 .speak.on { background: var(--lav-d); color: #fff; }
 .readrow { padding: 10px 14px 0; }
@@ -309,3 +313,5 @@ a.btn.go { color: #fff; }
 .rep-src { margin-top: 14px; font-size: 13px; }
 .rep-src summary { cursor: pointer; font-weight: 800; color: var(--muted); }
 .rep-src pre { white-space: pre-wrap; background: #f0f5f4; border-radius: 12px; padding: 10px 12px; max-height: 280px; overflow: auto; font-family: inherit; font-size: 12.5px; }
+
+.big-btn.alt { background: #fff; color: var(--butter-dd); box-shadow: none; margin-top: 8px; }

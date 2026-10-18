@@ -74,7 +74,7 @@ def footer(p, left, y):
 
 # ===================================================================== page 1
 def overview():
-    p = Page(1920, 1010)
+    p = Page(1920, 1080)
     header(p, "Kaya: one twin per patient", "It shows what glucose does to the liver, eyes and kidneys, and lets you test a change before trying it on the real patient.")
 
     p.label(70, 150, "1   WHAT GOES IN")
@@ -115,6 +115,7 @@ def overview():
     lanes = [
         (TEAL, "PATIENT", "on a phone, in 4 languages", [("Today", "one next action, and why"), ("Quick log", "medicines, walk, mood"), ("Try a change", "see tonight's curve"), ("Ask", "by voice or text")]),
         (BLUE, "DOCTOR", "triage, understand, decide", [("Triage", "sorted by risk, with reasons"), ("Full record", "glucose, organs, labs"), ("What-if studio", "test before the real patient"), ("PDF summary", "reports with trends")]),
+        (AMBER, "ADMIN", "run it safely", [("Service health", "uptime, requests, latency"), ("Models and data", "what is running, validated how"), ("Audit trail", "who did what, safety stops"), ("Self-test", "checks, hardening list, FHIR API")]),
     ]
     LY, LH, LG = 570, 118, 40
     for li, (col, name, sub, steps) in enumerate(lanes):
@@ -132,25 +133,18 @@ def overview():
             if si < 3:
                 p.arrow(f"M{x + 369},{y + LH / 2} L{x + 387},{y + LH / 2}", col, 2.4)
         p.arrow(f"M42,{y + LH / 2} L68,{y + LH / 2}", SLATE, 2.4)
-    p.arrow(f"M70,500 L42,500 L42,{LY + LH + LG + LH / 2}", SLATE, 2.4, marker=False)
+    p.arrow(f"M70,500 L42,500 L42,{LY + 2 * (LH + LG) + LH / 2}", SLATE, 2.4, marker=False)
     # cross links
-    for si, lab in ((1, "the log becomes the doctor's adherence diary"), (2, "same twin, same what-if engine")):
-        cx = 314 + si * 390 + 186
-        y1 = LY + LH
+    for li2, si, lab in ((0, 1, "the log becomes the doctor's adherence diary"), (0, 2, "same twin, same what-if engine"), (1, 2, "every action is written to the audit trail")):
+        cx = 314 + si * 390 + 183
+        y1 = LY + li2 * (LH + LG) + LH
         p.arrow(f"M{cx},{y1 + 3} L{cx},{y1 + LG - 3}", SLATE, 2.2, start=True)
         p.text(cx + 14, y1 + 26, lab, 13.5, SLATE, 600)
     # loop
     py = LY + LH / 2
     p.arrow(f"M{314 + 3 * 390 + 366},{py} L1888,{py} L1888,201 L1854,201", TEAL, 2.4, dash=True)
 
-    # hospital IT
-    hy = LY + 2 * (LH + LG) - 14
-    p.rect(70, hy, 1780, 54, "#fff", AMBER, 14, 1.8)
-    p.add(f'<rect x="70" y="{hy}" width="220" height="54" rx="14" fill="{AMBER}"/>')
-    p.text(180, hy + 34, "HOSPITAL IT", 19, "#fff", 800, "middle", 'letter-spacing="1.5"')
-    p.text(314, hy + 34, "Plugs in through the REST API:  live readings in  ·  FHIR R4 out  ·  Docker deploy.   Governance and ABDM are on the roadmap.", 16.5, INK, 500)
-
-    footer(p, "Kaya is decision support for clinicians, not a diagnostic device. All patients are synthetic.     Models, metrics and frameworks are on the next page.", 986)
+    footer(p, "Kaya is decision support for clinicians, not a diagnostic device. All patients are synthetic.     Models, metrics and frameworks are on the next page.", 1056)
     p.save("architecture_overview.svg")
 
 
@@ -196,8 +190,8 @@ def detail():
         ]),
         (SLATE, "4   WHAT PEOPLE GET", [
             ("🧑‍⚕️", "Doctor dashboard", "who needs help, and why", False),
-            ("📱", "Patient app", "plain words, 4 languages", False),
-            ("🎙️", "Voice helper", "ask in your own language  ⁸", False),
+            ("📱", "Patient app", "plain words, 4 languages, voice  ⁸", False),
+            ("🖥️", "Admin page", "health, models, audit trail", False),
             ("🔄", "What-if testing", "try a change on the twin first", False),
         ]),
     ]
@@ -239,8 +233,8 @@ def detail():
                                               "AUROC: liver 0.83 (standard FIB-4: 0.63), kidney 0.85. 1.0 is perfect, 0.5 a coin flip."]),
         (7, TEAL, "Eye model", ["EfficientNet-B2 (timm), grades 0-4, Grad-CAM heat-maps. Kappa 0.89 on APTOS, 0.71 on IDRiD.",
                                 "Eye progression and the 5-year kidney path are simulations."]),
-        (8, AMBER, "Voice assistant (Sarvam AI, server-side only)", ["saaras:v4 speech-to-text, sarvam-105b-conversations chat, bulbul:v4-flash text-to-speech.",
-                                                                    "Emergency and dose rules run in code, before the model."]),
+        (8, AMBER, "Voice and documents (Sarvam AI, server-side only)", ["saaras:v4 speech-to-text, sarvam-105b-conversations chat, bulbul:v4-flash text-to-speech.",
+                                                                    "Sarvam Document AI reads uploaded reports. Emergency and dose rules run in code, before the model."]),
     ]
     PH = 368
     p.rect(70, fy, 1780, PH, "#fff", LINE, 18, 1.4)
@@ -265,7 +259,7 @@ def detail():
     p.text(1001, ny + 0.5, "i", 14, "#fff", 800, "middle")
     p.text(1022, ny, "Good to know", 15, INK, 700)
     for k, l in enumerate(["Live mode runs the GRU in pure NumPy: about 1 ms per reading, no GPU.",
-                           "Not built yet: consent records, audit log, model-health page, ABDM. Not clinically validated."]):
+                           "Not built yet: consent records, a persistent audit log, ABDM. Not clinically validated."]):
         p.text(1022, ny + 22 + k * 19, l, 13.5, MUTED)
 
     end = fy + PH + 56

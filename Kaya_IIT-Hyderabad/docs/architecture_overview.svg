@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1010" width="1920" height="1010" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
 <defs><filter id="sh" x="-5%" y="-5%" width="110%" height="120%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f2530" flood-opacity="0.10"/></filter><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7fafb"/><stop offset="1" stop-color="#eef3f5"/></linearGradient><linearGradient id="core" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9f7f4"/><stop offset="1" stop-color="#eaf1fc"/></linearGradient>
 <marker id="a9aa8b2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9aa8b2"/></marker>
 <marker id="a0f766e" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0f766e"/></marker>
@@ -6,7 +6,7 @@
 <marker id="ab45309" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker>
 <marker id="a475569" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
 </defs>
-<rect width="1920" height="1010" fill="url(#bg)"/>
+<rect width="1920" height="1080" fill="url(#bg)"/>
 <text x="70" y="68" font-size="38" fill="#14212b" font-weight="800" text-anchor="start" >Kaya: one twin per patient</text>
 <text x="70" y="102" font-size="18" fill="#5b6b77" font-weight="400" text-anchor="start" >It shows what glucose does to the liver, eyes and kidneys, and lets you test a change before trying it on the real patient.</text>
 <rect x="1500" y="40" width="350" height="34" rx="17.0" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>
@@ -129,17 +129,46 @@
 <text x="1546" y="778" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >PDF summary</text>
 <text x="1546" y="810" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >reports with trends</text>
 <path d="M42,787.0 L68,787.0" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a475569)"/>
-<path d="M70,500 L42,500 L42,787.0" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
-<path d="M890,691 L890,725" fill="none" stroke="#475569" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a475569)" marker-start="url(#a475569)"/>
-<text x="904" y="714" font-size="13.5" fill="#475569" font-weight="600" text-anchor="start" >the log becomes the doctor's adherence diary</text>
-<path d="M1280,691 L1280,725" fill="none" stroke="#475569" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a475569)" marker-start="url(#a475569)"/>
-<text x="1294" y="714" font-size="13.5" fill="#475569" font-weight="600" text-anchor="start" >same twin, same what-if engine</text>
+<rect x="70" y="886" width="220" height="118" rx="16" fill="#b45309" stroke="#b45309" stroke-width="0" filter="url(#sh)"/>
+<text x="180" y="940" font-size="25" fill="#fff" font-weight="800" text-anchor="middle" letter-spacing="1.5">ADMIN</text>
+<text x="180" y="966" font-size="13.5" fill="#fff" font-weight="400" text-anchor="middle" >run it safely</text>
+<rect x="314" y="886" width="366" height="118" rx="14" fill="#fff" stroke="#b45309" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="315" y="887" width="364" height="116" rx="13" fill="#fdf1dc" opacity="0.55"/>
+<circle cx="348" cy="928" r="15" fill="#b45309"/>
+<text x="348" y="933.5" font-size="15" fill="#fff" font-weight="700" text-anchor="middle" >1</text>
+<text x="376" y="936" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >Service health</text>
+<text x="376" y="968" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >uptime, requests, latency</text>
+<path d="M683,945.0 L701,945.0" fill="none" stroke="#b45309" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#ab45309)"/>
+<rect x="704" y="886" width="366" height="118" rx="14" fill="#fff" stroke="#b45309" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="705" y="887" width="364" height="116" rx="13" fill="#fdf1dc" opacity="0.55"/>
+<circle cx="738" cy="928" r="15" fill="#b45309"/>
+<text x="738" y="933.5" font-size="15" fill="#fff" font-weight="700" text-anchor="middle" >2</text>
+<text x="766" y="936" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >Models and data</text>
+<text x="766" y="968" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >what is running, validated how</text>
+<path d="M1073,945.0 L1091,945.0" fill="none" stroke="#b45309" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#ab45309)"/>
+<rect x="1094" y="886" width="366" height="118" rx="14" fill="#fff" stroke="#b45309" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="1095" y="887" width="364" height="116" rx="13" fill="#fdf1dc" opacity="0.55"/>
+<circle cx="1128" cy="928" r="15" fill="#b45309"/>
+<text x="1128" y="933.5" font-size="15" fill="#fff" font-weight="700" text-anchor="middle" >3</text>
+<text x="1156" y="936" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >Audit trail</text>
+<text x="1156" y="968" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >who did what, safety stops</text>
+<path d="M1463,945.0 L1481,945.0" fill="none" stroke="#b45309" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#ab45309)"/>
+<rect x="1484" y="886" width="366" height="118" rx="14" fill="#fff" stroke="#b45309" stroke-width="1.8" filter="url(#sh)"/>
+<rect x="1485" y="887" width="364" height="116" rx="13" fill="#fdf1dc" opacity="0.55"/>
+<circle cx="1518" cy="928" r="15" fill="#b45309"/>
+<text x="1518" y="933.5" font-size="15" fill="#fff" font-weight="700" text-anchor="middle" >4</text>
+<text x="1546" y="936" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >Self-test</text>
+<text x="1546" y="968" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >checks, hardening list, FHIR API</text>
+<path d="M42,945.0 L68,945.0" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a475569)"/>
+<path d="M70,500 L42,500 L42,945.0" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M887,691 L887,725" fill="none" stroke="#475569" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a475569)" marker-start="url(#a475569)"/>
+<text x="901" y="714" font-size="13.5" fill="#475569" font-weight="600" text-anchor="start" >the log becomes the doctor's adherence diary</text>
+<path d="M1277,691 L1277,725" fill="none" stroke="#475569" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a475569)" marker-start="url(#a475569)"/>
+<text x="1291" y="714" font-size="13.5" fill="#475569" font-weight="600" text-anchor="start" >same twin, same what-if engine</text>
+<path d="M1277,849 L1277,883" fill="none" stroke="#475569" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a475569)" marker-start="url(#a475569)"/>
+<text x="1291" y="872" font-size="13.5" fill="#475569" font-weight="600" text-anchor="start" >every action is written to the audit trail</text>
 <path d="M1850,629.0 L1888,629.0 L1888,201 L1854,201" fill="none" stroke="#0f766e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 6" marker-end="url(#a0f766e)"/>
-<rect x="70" y="872" width="1780" height="54" rx="14" fill="#fff" stroke="#b45309" stroke-width="1.8" filter="url(#sh)"/>
-<rect x="70" y="872" width="220" height="54" rx="14" fill="#b45309"/>
-<text x="180" y="906" font-size="19" fill="#fff" font-weight="800" text-anchor="middle" letter-spacing="1.5">HOSPITAL IT</text>
-<text x="314" y="906" font-size="16.5" fill="#14212b" font-weight="500" text-anchor="start" >Plugs in through the REST API:  live readings in  ·  FHIR R4 out  ·  Docker deploy.   Governance and ABDM are on the roadmap.</text>
-<line x1="70" x2="1850" y1="962" y2="962" stroke="#9aa8b2" stroke-width="1"/>
-<text x="70" y="986" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >Kaya is decision support for clinicians, not a diagnostic device. All patients are synthetic.     Models, metrics and frameworks are on the next page.</text>
-<text x="1850" y="986" font-size="14" fill="#5b6b77" font-weight="600" text-anchor="end" >Team Kaya · IIT Hyderabad · Digital Twin Challenge, Phase 1</text>
+<line x1="70" x2="1850" y1="1032" y2="1032" stroke="#9aa8b2" stroke-width="1"/>
+<text x="70" y="1056" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >Kaya is decision support for clinicians, not a diagnostic device. All patients are synthetic.     Models, metrics and frameworks are on the next page.</text>
+<text x="1850" y="1056" font-size="14" fill="#5b6b77" font-weight="600" text-anchor="end" >Team Kaya · IIT Hyderabad · Digital Twin Challenge, Phase 1</text>
 </svg>

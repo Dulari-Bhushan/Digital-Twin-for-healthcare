@@ -28,3 +28,4 @@ export const deleteUpload = (id, uid) => fetch(`/api/patients/${id}/uploads/${ui
 export const getLog = (id) => fetch(`/api/patients/${id}/log`).then(j)
 export const postLog = (id, body) =>
   fetch(`/api/patients/${id}/log`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(j)
+export const readUpload = (id, uid) => fetch(`/api/patients/${id}/uploads/${uid}/read`, { method: 'POST' }).then(j)
