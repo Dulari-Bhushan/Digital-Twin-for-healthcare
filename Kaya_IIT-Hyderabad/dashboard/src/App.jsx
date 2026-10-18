@@ -29,7 +29,8 @@ function atCursor(series, cursor) {
 export default function App() {
   const [patients, setPatients] = useState([])
   const [sel, setSel] = useState(null)
-  const [mode, setMode] = useState('doctor')
+  const params = new URLSearchParams(window.location.search)
+  const [mode, setMode] = useState(params.get('view') === 'patient' ? 'patient' : 'doctor')
   const [d, setD] = useState(null)
   const [series, setSeries] = useState(null)
   const [cursor, setCursor] = useState(0)
@@ -41,7 +42,7 @@ export default function App() {
     getPatients().then((p) => {
       setPatients(p)
       const demo = [...p].sort((a, b) => b.alerts_24h - a.alerts_24h || b.score - a.score)[0]
-      setSel(demo.id)
+      setSel(params.get('p') ? Number(params.get('p')) : demo.id)
     }).catch((e) => setErr(String(e)))
   }, [])
 

@@ -1,0 +1,16 @@
+{
+  "arch": "efficientnet_b2",
+  "thresholds": [
+    0.5125,
+    1.4249999999999998,
+    2.5625,
+    3.5875000000000004
+  ],
+  "aptos_validation": {
+    "n": 550,
+    "qwk": 0.886576839707969,
+    "accuracy": 0.8036363636363636,
+    "referable_auroc": 0.9793886534743078,
+    "within_one_grade": 0.96
+  }
+}
