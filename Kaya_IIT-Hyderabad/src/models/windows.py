@@ -33,6 +33,7 @@ class Windows:
     ev: np.ndarray       # (N, 2) event onset labels [hyper, hypo]
     ev_mask: np.ndarray  # (N, 2) 1 where the event is defined (not already in state)
     pid: np.ndarray      # (N,) patient id for patient-level splits
+    t: np.ndarray        # (N,) index of the forecast time on the patient's 5-min grid
 
     def subset(self, idx: np.ndarray) -> "Windows":
         return Windows(*(getattr(self, f)[idx] for f in self.__dataclass_fields__))
@@ -76,19 +77,20 @@ def make_windows(series: np.ndarray, stat: tuple, pid: int, stride: int, start_m
     mask = np.stack([gl <= HYPER, gl >= HYPO], 1).astype(np.float32)
     mod = (start_minute + ends * STEP_MIN) % 1440
     return Windows(_scale_channels(xw), _static(*stat, mod), y.astype(np.float32), gl.astype(np.float32),
-                   ev, mask, np.full(len(ends), pid, dtype=np.int32))
+                   ev, mask, np.full(len(ends), pid, dtype=np.int32), ends.astype(np.int32))
 
 
 def concat(ws: list[Windows]) -> Windows:
     return Windows(*(np.concatenate([getattr(w, f) for w in ws]) for f in Windows.__dataclass_fields__))
 
 
-def load_synthetic(root: Path, stride: int = 6, max_patients: int | None = None) -> Windows:
+def load_synthetic(root: Path, stride: int = 6, max_patients: int | None = None,
+                   ids: np.ndarray | None = None) -> Windows:
     pat = pd.read_parquet(root / "patients.parquet")
     ts = pd.read_parquet(root / "timeseries.parquet")
     ts["act"] = np.clip(ts["steps"] / 600.0, 0, 1)
     out = []
-    ids = pat.patient_id.to_numpy()[:max_patients]
+    ids = pat.patient_id.to_numpy()[:max_patients] if ids is None else ids
     for pid, grp in ts[ts.patient_id.isin(ids)].groupby("patient_id", sort=True):
         r = pat.loc[pat.patient_id == pid].iloc[0]
         series = grp[["glucose", "heart_rate", "act", "meal_carbs_g"]].to_numpy(np.float32)
