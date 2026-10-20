@@ -48,28 +48,37 @@
 <text x="236" y="404" font-size="21" fill="#14212b" font-weight="800" text-anchor="middle" >encoder</text>
 <text x="236" y="432" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="middle" >one fused twin</text>
 <path d="M374,395 L408,395" fill="none" stroke="#0f766e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a0f766e)"/>
-<rect x="412" y="336" width="226" height="118" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
+<rect x="412" y="336" width="190" height="118" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
 <rect x="412" y="336" width="8" height="118" rx="4" fill="#1d6fb8"/>
-<text x="440" y="380" font-size="24" fill="#14212b" font-weight="800" text-anchor="start" >Glucose</text>
-<text x="440" y="410" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >2-hour forecast and alerts</text>
-<rect x="656" y="336" width="226" height="118" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
-<rect x="656" y="336" width="8" height="118" rx="4" fill="#1d6fb8"/>
-<text x="684" y="380" font-size="24" fill="#14212b" font-weight="800" text-anchor="start" >Liver</text>
-<text x="684" y="410" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >fat and fibrosis risk</text>
-<rect x="900" y="336" width="226" height="118" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
-<rect x="900" y="336" width="8" height="118" rx="4" fill="#1d6fb8"/>
-<text x="928" y="380" font-size="24" fill="#14212b" font-weight="800" text-anchor="start" >Eye</text>
-<text x="928" y="410" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >retinopathy grade and path</text>
-<rect x="1144" y="336" width="226" height="118" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
-<rect x="1144" y="336" width="8" height="118" rx="4" fill="#1d6fb8"/>
-<text x="1172" y="380" font-size="24" fill="#14212b" font-weight="800" text-anchor="start" >Kidney</text>
-<text x="1172" y="410" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >eGFR path and risk</text>
-<path d="M1388,395 L1426,395" fill="none" stroke="#0f766e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a0f766e)"/>
-<rect x="1430" y="336" width="392" height="118" rx="16" fill="#fff" stroke="#0f766e" stroke-width="2.6" filter="url(#sh)"/>
-<text x="1626" y="378" font-size="22" fill="#14212b" font-weight="800" text-anchor="middle" >What-if engine</text>
-<text x="1626" y="406" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="middle" >change a meal, walk, sleep or medicine</text>
-<text x="1626" y="430" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="middle" >see the new glucose curve and organ risk</text>
-<text x="960" y="486" font-size="15" fill="#0f766e" font-weight="600" text-anchor="middle" >Explainable   ·   calibrated uncertainty   ·   safety rules in code   ·   served by one REST API</text>
+<text x="436" y="378" font-size="22" fill="#14212b" font-weight="800" text-anchor="start" >Glucose</text>
+<text x="436" y="406" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >2-hour forecast</text>
+<text x="436" y="426" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >and alerts</text>
+<rect x="616" y="336" width="190" height="118" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
+<rect x="616" y="336" width="8" height="118" rx="4" fill="#1d6fb8"/>
+<text x="640" y="378" font-size="22" fill="#14212b" font-weight="800" text-anchor="start" >Liver</text>
+<text x="640" y="406" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >fat and fibrosis</text>
+<text x="640" y="426" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >risk</text>
+<rect x="820" y="336" width="190" height="118" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
+<rect x="820" y="336" width="8" height="118" rx="4" fill="#1d6fb8"/>
+<text x="844" y="378" font-size="22" fill="#14212b" font-weight="800" text-anchor="start" >Eye</text>
+<text x="844" y="406" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >retinopathy grade</text>
+<text x="844" y="426" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >and path</text>
+<rect x="1024" y="336" width="190" height="118" rx="16" fill="#fff" stroke="#1d6fb8" stroke-width="2" filter="url(#sh)"/>
+<rect x="1024" y="336" width="8" height="118" rx="4" fill="#1d6fb8"/>
+<text x="1048" y="378" font-size="22" fill="#14212b" font-weight="800" text-anchor="start" >Kidney</text>
+<text x="1048" y="406" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >eGFR path</text>
+<text x="1048" y="426" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >and risk</text>
+<rect x="1228" y="336" width="190" height="118" rx="16" fill="#fff" stroke="#b45309" stroke-width="2" filter="url(#sh)"/>
+<rect x="1228" y="336" width="8" height="118" rx="4" fill="#b45309"/>
+<text x="1252" y="378" font-size="20" fill="#14212b" font-weight="800" text-anchor="start" >Heart watch</text>
+<text x="1252" y="406" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >cardiovascular event</text>
+<text x="1252" y="426" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >flag, 72 hours ahead</text>
+<path d="M1432,395 L1452,395" fill="none" stroke="#0f766e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a0f766e)"/>
+<rect x="1456" y="336" width="366" height="118" rx="16" fill="#fff" stroke="#0f766e" stroke-width="2.6" filter="url(#sh)"/>
+<text x="1639" y="378" font-size="22" fill="#14212b" font-weight="800" text-anchor="middle" >What-if engine</text>
+<text x="1639" y="406" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="middle" >change a meal, walk, sleep or medicine</text>
+<text x="1639" y="430" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="middle" >see the new glucose curve and organ risk</text>
+<text x="960" y="486" font-size="15" fill="#0f766e" font-weight="600" text-anchor="middle" >Two streams fused (wearable + record)   ·   explainable   ·   calibrated uncertainty   ·   safety rules in code   ·   one REST API</text>
 <text x="70" y="552" font-size="14" fill="#5b6b77" font-weight="800" text-anchor="start" letter-spacing="1.6">3   WHO USES IT, AND HOW</text>
 <rect x="70" y="570" width="220" height="118" rx="16" fill="#0f766e" stroke="#0f766e" stroke-width="0" filter="url(#sh)"/>
 <text x="180" y="624" font-size="25" fill="#fff" font-weight="800" text-anchor="middle" letter-spacing="1.5">PATIENT</text>
@@ -123,15 +132,15 @@
 <rect x="1095" y="729" width="364" height="116" rx="13" fill="#e6eefb" opacity="0.55"/>
 <circle cx="1128" cy="770" r="15" fill="#1d6fb8"/>
 <text x="1128" y="775.5" font-size="15" fill="#fff" font-weight="700" text-anchor="middle" >3</text>
-<text x="1156" y="778" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >What-if studio</text>
-<text x="1156" y="810" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >test before the real patient</text>
+<text x="1156" y="778" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >Heart watch</text>
+<text x="1156" y="810" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >a week of nights, one risk</text>
 <path d="M1463,787.0 L1481,787.0" fill="none" stroke="#1d6fb8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a1d6fb8)"/>
 <rect x="1484" y="728" width="366" height="118" rx="14" fill="#fff" stroke="#1d6fb8" stroke-width="1.8" filter="url(#sh)"/>
 <rect x="1485" y="729" width="364" height="116" rx="13" fill="#e6eefb" opacity="0.55"/>
 <circle cx="1518" cy="770" r="15" fill="#1d6fb8"/>
 <text x="1518" y="775.5" font-size="15" fill="#fff" font-weight="700" text-anchor="middle" >4</text>
-<text x="1546" y="778" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >PDF summary</text>
-<text x="1546" y="810" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >reports with trends</text>
+<text x="1546" y="778" font-size="22" fill="#14212b" font-weight="700" text-anchor="start" >What-if studio</text>
+<text x="1546" y="810" font-size="16" fill="#5b6b77" font-weight="400" text-anchor="start" >test before the real patient</text>
 <path d="M42,787.0 L68,787.0" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a475569)"/>
 <rect x="70" y="886" width="220" height="118" rx="16" fill="#b45309" stroke="#b45309" stroke-width="0" filter="url(#sh)"/>
 <text x="180" y="940" font-size="25" fill="#fff" font-weight="800" text-anchor="middle" letter-spacing="1.5">ADMIN</text>

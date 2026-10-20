@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1260" width="1920" height="1260" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1332" width="1920" height="1332" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
 <defs><filter id="sh" x="-5%" y="-5%" width="110%" height="120%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f2530" flood-opacity="0.10"/></filter><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7fafb"/><stop offset="1" stop-color="#eef3f5"/></linearGradient><linearGradient id="core" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9f7f4"/><stop offset="1" stop-color="#eaf1fc"/></linearGradient>
 <marker id="a9aa8b2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9aa8b2"/></marker>
 <marker id="a0f766e" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0f766e"/></marker>
@@ -6,9 +6,9 @@
 <marker id="ab45309" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker>
 <marker id="a475569" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
 </defs>
-<rect width="1920" height="1260" fill="url(#bg)"/>
+<rect width="1920" height="1332" fill="url(#bg)"/>
 <text x="70" y="68" font-size="38" fill="#14212b" font-weight="800" text-anchor="start" >How Kaya works, at a glance</text>
-<text x="70" y="102" font-size="18" fill="#5b6b77" font-weight="400" text-anchor="start" >Learn from open data, build four AI models, make them trustworthy, then put them in people's hands.</text>
+<text x="70" y="102" font-size="18" fill="#5b6b77" font-weight="400" text-anchor="start" >Learn from open data, build five AI models fusing a wearable stream with the record, make them trustworthy, then put them in people's hands.</text>
 <rect x="1400" y="40" width="350" height="34" rx="17.0" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>
 <text x="1575.0" y="61.9" font-size="14" fill="#0f766e" font-weight="600" text-anchor="middle" >Open + synthetic data only  ·  Decision support</text>
 <clipPath id="lmk"><circle cx="1809" cy="57" r="25"/></clipPath>
@@ -40,27 +40,32 @@
 <circle cx="508.0" cy="434" r="12" fill="#fff" stroke="#9aa8b2" stroke-width="1.4"/>
 <path d="M504.0,434 L512.0,434" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a475569)"/>
 <rect x="522" y="140" width="424" height="40" rx="12" fill="#0f766e" stroke="#0f766e" stroke-width="0"/>
-<text x="542" y="167" font-size="16" fill="#fff" font-weight="800" text-anchor="start" letter-spacing="1.4">2   FOUR AI MODELS</text>
-<rect x="522" y="196" width="424" height="112" rx="16" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
-<circle cx="574" cy="252.0" r="32" fill="#e4f5f2"/>
-<text x="574" y="264.0" font-size="34" fill="#14212b" font-weight="400" text-anchor="middle" >🩸</text>
-<text x="622" y="248.0" font-size="20" fill="#14212b" font-weight="800" text-anchor="start" >Glucose</text>
-<text x="622" y="274.0" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >predicts the next 2 hours  ⁵</text>
-<rect x="522" y="322" width="424" height="112" rx="16" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
-<circle cx="574" cy="378.0" r="32" fill="#e4f5f2"/>
-<g transform="translate(553,366.0) scale(1.05)"><path d="M2,10 C2,4 12,2 22,5 C30,7 36,10 38,14 C30,22 18,24 10,20 C5,18 2,14 2,10 Z" fill="#b4513a"/><path d="M14,8 C20,10 26,12 33,14" stroke="#8a3a29" stroke-width="1.6" fill="none"/></g>
-<text x="622" y="374.0" font-size="20" fill="#14212b" font-weight="800" text-anchor="start" >Liver</text>
-<text x="622" y="400.0" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >fat and scarring risk  ⁶</text>
-<rect x="522" y="448" width="424" height="112" rx="16" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
-<circle cx="574" cy="504.0" r="32" fill="#e4f5f2"/>
-<text x="574" y="516.0" font-size="34" fill="#14212b" font-weight="400" text-anchor="middle" >👁️</text>
-<text x="622" y="500.0" font-size="20" fill="#14212b" font-weight="800" text-anchor="start" >Eye</text>
-<text x="622" y="526.0" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >grades diabetic eye damage  ⁷</text>
-<rect x="522" y="574" width="424" height="112" rx="16" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
-<circle cx="574" cy="630.0" r="32" fill="#e4f5f2"/>
-<text x="574" y="642.0" font-size="34" fill="#14212b" font-weight="400" text-anchor="middle" >🫘</text>
-<text x="622" y="626.0" font-size="20" fill="#14212b" font-weight="800" text-anchor="start" >Kidney</text>
-<text x="622" y="652.0" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >risk and 5-year decline  ⁶</text>
+<text x="542" y="167" font-size="16" fill="#fff" font-weight="800" text-anchor="start" letter-spacing="1.4">2   FIVE AI MODELS</text>
+<rect x="522" y="196" width="424" height="86" rx="16" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
+<circle cx="574" cy="239.0" r="32" fill="#e4f5f2"/>
+<text x="574" y="251.0" font-size="34" fill="#14212b" font-weight="400" text-anchor="middle" >🩸</text>
+<text x="622" y="235.0" font-size="20" fill="#14212b" font-weight="800" text-anchor="start" >Glucose</text>
+<text x="622" y="261.0" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >predicts the next 2 hours  ⁵</text>
+<rect x="522" y="296" width="424" height="86" rx="16" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
+<circle cx="574" cy="339.0" r="32" fill="#e4f5f2"/>
+<g transform="translate(553,327.0) scale(1.05)"><path d="M2,10 C2,4 12,2 22,5 C30,7 36,10 38,14 C30,22 18,24 10,20 C5,18 2,14 2,10 Z" fill="#b4513a"/><path d="M14,8 C20,10 26,12 33,14" stroke="#8a3a29" stroke-width="1.6" fill="none"/></g>
+<text x="622" y="335.0" font-size="20" fill="#14212b" font-weight="800" text-anchor="start" >Liver</text>
+<text x="622" y="361.0" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >fat and scarring risk  ⁶</text>
+<rect x="522" y="396" width="424" height="86" rx="16" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
+<circle cx="574" cy="439.0" r="32" fill="#e4f5f2"/>
+<text x="574" y="451.0" font-size="34" fill="#14212b" font-weight="400" text-anchor="middle" >👁️</text>
+<text x="622" y="435.0" font-size="20" fill="#14212b" font-weight="800" text-anchor="start" >Eye</text>
+<text x="622" y="461.0" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >grades diabetic eye damage  ⁷</text>
+<rect x="522" y="496" width="424" height="86" rx="16" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
+<circle cx="574" cy="539.0" r="32" fill="#e4f5f2"/>
+<text x="574" y="551.0" font-size="34" fill="#14212b" font-weight="400" text-anchor="middle" >🫘</text>
+<text x="622" y="535.0" font-size="20" fill="#14212b" font-weight="800" text-anchor="start" >Kidney</text>
+<text x="622" y="561.0" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >risk and 5-year decline  ⁶</text>
+<rect x="522" y="596" width="424" height="86" rx="16" fill="#fff" stroke="#0f766e" stroke-width="1.8" filter="url(#sh)"/>
+<circle cx="574" cy="639.0" r="32" fill="#e4f5f2"/>
+<text x="574" y="651.0" font-size="34" fill="#14212b" font-weight="400" text-anchor="middle" >🫀</text>
+<text x="622" y="635.0" font-size="20" fill="#14212b" font-weight="800" text-anchor="start" >Heart watch</text>
+<text x="622" y="661.0" font-size="15" fill="#5b6b77" font-weight="400" text-anchor="start" >week of nights + record  ⁹</text>
 <circle cx="960.0" cy="434" r="12" fill="#fff" stroke="#9aa8b2" stroke-width="1.4"/>
 <path d="M956.0,434 L964.0,434" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a475569)"/>
 <rect x="974" y="140" width="424" height="40" rx="12" fill="#b45309" stroke="#b45309" stroke-width="0"/>
@@ -134,7 +139,7 @@
 <rect x="1645" y="730" width="205" height="54" rx="27" fill="#fff" stroke="#475569" stroke-width="1.5" filter="url(#sh)"/>
 <text x="1675" y="766" font-size="24" fill="#14212b" font-weight="400" text-anchor="middle" >🐳</text>
 <text x="1699" y="763" font-size="16" fill="#14212b" font-weight="700" text-anchor="start" >Docker</text>
-<rect x="70" y="812" width="1780" height="368" rx="18" fill="#fff" stroke="#9aa8b2" stroke-width="1.4" filter="url(#sh)"/>
+<rect x="70" y="812" width="1780" height="440" rx="18" fill="#fff" stroke="#9aa8b2" stroke-width="1.4" filter="url(#sh)"/>
 <text x="98" y="848" font-size="14.5" fill="#475569" font-weight="800" text-anchor="start" letter-spacing="1.6">FOOTNOTES</text>
 <text x="1822" y="848" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="end" font-style="italic">the detail behind each icon above</text>
 <circle cx="109" cy="881" r="11" fill="#1d6fb8"/>
@@ -152,13 +157,13 @@
 <circle cx="109" cy="1052" r="11" fill="#1d6fb8"/>
 <text x="109" y="1056.5" font-size="12.5" fill="#fff" font-weight="800" text-anchor="middle" >4</text>
 <text x="130" y="1057" font-size="15" fill="#14212b" font-weight="700" text-anchor="start" >Synthetic cohort</text>
-<text x="130" y="1079" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Our generator + simglucose: 2,000 patients, 14 days each.</text>
+<text x="130" y="1079" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Our generators + simglucose: 2,000 patients; a coupled 28-day cohort links sleep, HRV and glucose.</text>
 <circle cx="109" cy="1109" r="11" fill="#0f766e"/>
 <text x="109" y="1113.5" font-size="12.5" fill="#fff" font-weight="800" text-anchor="middle" >5</text>
 <text x="130" y="1114" font-size="15" fill="#14212b" font-weight="700" text-anchor="start" >Glucose model</text>
 <text x="130" y="1136" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >GRU (PyTorch) + LightGBM ensemble, conformal 80% bands, isotonic-calibrated alerts.</text>
 <text x="130" y="1155" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >RMSE 12.6 / 21.1 / 28.2 mg/dL at 30 / 60 / 120 min; catches 72% of lows, 45 min ahead.</text>
-<line x1="960" x2="960" y1="868" y2="1158" stroke="#9aa8b2" stroke-width="1"/>
+<line x1="960" x2="960" y1="868" y2="1230" stroke="#9aa8b2" stroke-width="1"/>
 <circle cx="1001" cy="881" r="11" fill="#0f766e"/>
 <text x="1001" y="885.5" font-size="12.5" fill="#fff" font-weight="800" text-anchor="middle" >6</text>
 <text x="1022" y="886" font-size="15" fill="#14212b" font-weight="700" text-anchor="start" >Liver and kidney models</text>
@@ -174,12 +179,17 @@
 <text x="1022" y="1038" font-size="15" fill="#14212b" font-weight="700" text-anchor="start" >Voice and documents (Sarvam AI, server-side only)</text>
 <text x="1022" y="1060" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >saaras:v4 speech-to-text, sarvam-105b-conversations chat, bulbul:v4-flash text-to-speech.</text>
 <text x="1022" y="1079" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Sarvam Document AI reads uploaded reports. Emergency and dose rules run in code, before the model.</text>
-<circle cx="1001" cy="1113" r="11" fill="#475569"/>
-<text x="1001" y="1118.5" font-size="14" fill="#fff" font-weight="800" text-anchor="middle" >i</text>
-<text x="1022" y="1118" font-size="15" fill="#14212b" font-weight="700" text-anchor="start" >Good to know</text>
-<text x="1022" y="1140" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Live mode runs the GRU in pure NumPy: about 1 ms per reading, no GPU.</text>
-<text x="1022" y="1159" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Not built yet: consent records, a persistent audit log, ABDM. Not clinically validated.</text>
-<line x1="70" x2="1850" y1="1212" y2="1212" stroke="#9aa8b2" stroke-width="1"/>
-<text x="70" y="1236" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >Kaya is decision support for clinicians, not a diagnostic device.</text>
-<text x="1850" y="1236" font-size="14" fill="#5b6b77" font-weight="600" text-anchor="end" >Team Kaya · IIT Hyderabad · Digital Twin Challenge, Phase 1</text>
+<circle cx="1001" cy="1109" r="11" fill="#0f766e"/>
+<text x="1001" y="1113.5" font-size="12.5" fill="#fff" font-weight="800" text-anchor="middle" >9</text>
+<text x="1022" y="1114" font-size="15" fill="#14212b" font-weight="700" text-anchor="start" >Heart watch (two streams, fused)</text>
+<text x="1022" y="1136" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Wearable week (LightGBM) + record (logistic), combined by a stacker. AUROC 0.83; catches 76% of</text>
+<text x="1022" y="1155" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >cardiovascular events a median 23 h ahead at about 1 false alert per patient-month. Synthetic data.</text>
+<circle cx="1001" cy="1189" r="11" fill="#475569"/>
+<text x="1001" y="1194.5" font-size="14" fill="#fff" font-weight="800" text-anchor="middle" >i</text>
+<text x="1022" y="1194" font-size="15" fill="#14212b" font-weight="700" text-anchor="start" >Good to know</text>
+<text x="1022" y="1216" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Live mode runs the GRU in pure NumPy: about 1 ms per reading, no GPU.</text>
+<text x="1022" y="1235" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Not built yet: consent records, a persistent audit log, ABDM. Not clinically validated.</text>
+<line x1="70" x2="1850" y1="1284" y2="1284" stroke="#9aa8b2" stroke-width="1"/>
+<text x="70" y="1308" font-size="14" fill="#5b6b77" font-weight="400" text-anchor="start" >Kaya is decision support for clinicians, not a diagnostic device.</text>
+<text x="1850" y="1308" font-size="14" fill="#5b6b77" font-weight="600" text-anchor="end" >Team Kaya · IIT Hyderabad · Digital Twin Challenge, Phase 1</text>
 </svg>

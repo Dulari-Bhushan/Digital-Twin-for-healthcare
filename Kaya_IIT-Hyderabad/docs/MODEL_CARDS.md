@@ -17,6 +17,8 @@ Kaya is clinical decision support built on open and synthetic data. It is not a 
 | **Not for** | Insulin dosing or automated treatment decisions |
 | **Live inference** | The dashboard's live mode and the ingest endpoint run the GRU alone (exported to numpy, verified against PyTorch to within 1e-3), with conformal offsets and isotonic calibration fitted for the GRU alone. The offline results above use the GRU + LightGBM ensemble |
 
+**Two-stream version (offline study).** [`ablate_glucose.py`](../src/models/ablate_glucose.py) trains the same GRU on six dynamic channels (glucose, heart rate, activity, meals, HRV, sleep stage), seven slow-context numbers (last night's sleep length and efficiency, last night and 7-night mean HRV and resting heart rate, 7-night mean steps) and a 20-number static vector (adds diabetes duration, HOMA-IR, medicines, PNPLA3, TCF7L2), on the coupled synthetic cohort. Switching input groups on and off, 3 seeds each, on 381,300 held-out windows (full table in [`results/glucose_ablation_table.md`](../results/glucose_ablation_table.md)): basic record and heart rate with activity give the largest forecast gains (about 1.3 and 0.6 mg/dL at +120 min); medicines raise low-glucose AUROC from 0.85 to 0.95; HRV and sleep add about 0.3 mg/dL at +120 min; genetics add nothing measurable. This model is not in the live demo, which runs the four-channel model above. Real CGMacros recordings have no HRV, sleep or genetics, so the two-stream model has not been tested on real data.
+
 ## 2. Liver risk
 
 | | |
@@ -57,6 +59,20 @@ Kaya is clinical decision support built on open and synthetic data. It is not a 
 
 Splits a patient's glucose into a slow baseline and meal-driven excursions, rescales excursions after meals (portion size, walking after meals) and shifts the baseline (medication), then recomputes glucose metrics and feeds them to the liver and eye modules. Effect sizes (a walk after a meal blunts the excursion by about a third; a 25% carbohydrate reduction scales excursions by 0.75) are literature-informed assumptions. Output is a simulation to support a conversation, not a prediction.
 
+## 6. Cardiovascular flag (Heart watch)
+
+| | |
+|---|---|
+| **Purpose** | Every morning at 10:00, the probability of a cardiovascular event in the next 72 hours, with an alert above a threshold and the factors behind the score |
+| **Inputs** | Wearable: seven nightly cycles of sleep length, efficiency, deep and REM share, bed and wake time, night HRV (RMSSD), resting and night heart rate, daytime HRV and heart rate, daily steps, glucose mean, variability, time in range and night glucose, summarised as last night, 7-night mean, change over the week and the last two days against the two before (64 features). Record: age, sex, BMI, systolic and diastolic BP, HbA1c, diabetes duration, LDL, HDL, triglycerides, smoking, prior cardiovascular disease, eGFR, urine albumin (14 features) |
+| **Model** | Late fusion. A LightGBM classifier on the wearable features and a logistic model on the record give two log-odds; a three-parameter logistic stacker, fitted on out-of-fold scores of every training patient, combines them. Explanations are per-feature contributions from both parts on one log-odds scale |
+| **Data** | Coupled synthetic cohort (`src/ingest/cohort_v2.py`): 2,000 patients, 28 days, 641 events and 1,074 benign look-alike episodes. Mornings in the 72 hours after an event are not scored (the patient would be in care) |
+| **Evaluation** | 5-fold cross-validation grouped by patient; thresholds chosen on the training patients for about one false alert per patient-month; intervals from resampling patients |
+| **Results** | AUROC 0.83 (95% CI 0.82 to 0.84), AUPRC 0.31 (prevalence 0.042), Brier 0.034, calibration error 0.003. 76% of 595 events caught, median warning 23 hours, 1.1 false alerts per patient-month. Wearable alone: AUROC 0.82; record alone: 0.69; simple clinical rule: 0.69 (44% caught). The gain over the wearable alone is +0.015 AUROC (95% CI +0.010 to +0.021); at the alert level the two are the same within noise. Among mornings already inside a prodromal episode, the record alone separates dangerous from benign (AUROC 0.80) better than the wearable (0.68) or the fused score (0.74) |
+| **Limits** | Trained and tested on synthetic data whose couplings and event rate we chose; about 32 events per 100 patients per month, far above real life, so precision would be lower at real rates. False alerts concentrate in patients with a high-risk record. No real wearable cohort with cardiovascular outcomes was available to validate it |
+| **Not for** | Diagnosis, or deciding on treatment. It is a prompt to review a patient |
+| **Demo** | `artifacts/cardio/`: six patients scored by the cross-validation model that never saw them, chosen to show a caught event, a missed event, a benign scare the record calmed, a false alarm and a quiet high-risk patient. Rebuild with `src/api/build_cardio_artifacts.py` |
+
 ## Voice and chat assistant
 
 | | |
@@ -74,4 +90,4 @@ Liver and kidney risk drivers are SHAP values from the same LightGBM models (log
 
 ## Data and privacy
 
-Only open or synthetic data is used: CGMacros (PhysioNet), NHANES, APTOS 2019, IDRiD, and a synthetic cohort generated by `src/ingest/synthetic_cohort.py`. No real patient data is stored or processed by the demo.
+Only open or synthetic data is used: CGMacros (PhysioNet), NHANES, APTOS 2019, IDRiD, and synthetic cohorts generated by `src/ingest/synthetic_cohort.py` and `src/ingest/cohort_v2.py`. No real patient data is stored or processed by the demo.

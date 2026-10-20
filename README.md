@@ -9,7 +9,7 @@
 ![CI](https://github.com/Dulari-Bhushan/Digital-Twin-for-healthcare/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 ![Data](https://img.shields.io/badge/data-open%20%2B%20synthetic%20only-green)
-![Tests](https://img.shields.io/badge/tests-84%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-101%20passing-brightgreen)
 
 ![Kaya doctor workspace](Kaya_IIT-Hyderabad/docs/img/doctor_view.png)
 
@@ -50,15 +50,16 @@
 | | Novelty | Why it matters |
 |---|---|---|
 | 1 | **One twin for four organs, not one signal.** The continuous glucose stream feeds a liver, an eye and a kidney module, so the twin shows the organ damage that glucose causes, not just the next spike. | Diabetes harms the organs silently for years; today they are checked once a year, if at all. To our knowledge, no other diabetes twin we reviewed links glucose to organ outcomes. |
-| 2 | **A what-if engine that reaches the organs.** Change a meal, add a walk, improve sleep or alter a medicine, and Kaya re-runs the twin and shows the change in the glucose curve *and* in one-year liver, eye and kidney risk. | A doctor can test a plan on the virtual patient first. Outputs are labelled simulations with editable assumptions. |
-| 3 | **Every module is validated on real data, and benchmarked against the standard score.** Liver against FIB-4, FLI and HSI on 4,745 NHANES adults; glucose on real CGMacros recordings; retinopathy on the Indian IDRiD set. | Honest numbers with baselines. Where the model adds little (kidney), we say so. |
-| 4 | **Trustworthy uncertainty.** Conformal 80% intervals that really cover 80%, and isotonic-calibrated event probabilities (expected calibration error 0.003 to 0.005). | A forecast is only useful if the doctor knows how sure it is. |
-| 5 | **Real-time on a laptop.** The glucose model runs on every 5-minute reading in about 1 ms in pure numpy, with no GPU, so live mode works anywhere. | Deployable in a small clinic. |
-| 6 | **Explainable by design.** Every alert shows why it fired; SHAP shows what drives each liver and kidney risk; Grad-CAM shows where the retina model looked. | Doctors can check the reasoning instead of trusting a number. |
-| 7 | **Built for India.** The retina grader is fine-tuned and tested on Indian IDRiD images; the patient app runs in English, Hindi, Telugu and Kannada with voice (Sarvam AI); lab reports are read in Indian layouts (SGPT/SGOT, lakh/cumm); FHIR R4 endpoints for ABDM-aware integration. | Reach beyond English-speaking, urban users. |
-| 8 | **A safe assistant, with the rules in code.** Emergency words get a fixed "call 108" reply; medicine and dose questions are sent to the doctor; any model reply containing dose advice is replaced. These checks run in code, before and after the language model. | Safety does not depend on the model behaving well. |
-| 9 | **Patient reports are never read without a yes.** A patient can upload a PDF or photo of a report. The AI reads it only after the patient agrees, shows a summary, and the doctor sees every upload marked "not verified". The parser is rule-based, so every number traces to a line of the document. | Consent and traceability, with nothing invented. |
-| 10 | **Run like a product.** Admin page with health, model inventory, latency, audit trail and a one-click self-test; tests and CI; Docker Compose; honest model cards. | Reviewers can see what runs and how it was checked. |
+| 2 | **Two data streams, fused, for two adverse events.** Glucose is forecast from CGM, heart rate, activity, meals, HRV, sleep and a fuller record (medicines, genetics). A new **Heart watch** reads a week of sleep, heart rate and HRV together with the record and flags a cardiovascular event up to 72 hours ahead. Each input group is switched on and off in an ablation, with confidence intervals. | The brief asks for fusion of the record and the wearable. We measure what each stream adds instead of asserting it: medicines lift low-glucose AUROC from 0.85 to 0.95; a week of wearable data flags 76% of cardiovascular events a median 23 hours ahead at about one false alert per patient-month. Where a stream adds little (HRV and sleep for glucose), we say so. |
+| 3 | **A what-if engine that reaches the organs.** Change a meal, add a walk, improve sleep or alter a medicine, and Kaya re-runs the twin and shows the change in the glucose curve *and* in one-year liver, eye and kidney risk. | A doctor can test a plan on the virtual patient first. Outputs are labelled simulations with editable assumptions. |
+| 4 | **Every module is validated on real data, and benchmarked against the standard score.** Liver against FIB-4, FLI and HSI on 4,745 NHANES adults; glucose on real CGMacros recordings; retinopathy on the Indian IDRiD set. | Honest numbers with baselines. Where the model adds little (kidney), we say so. |
+| 5 | **Trustworthy uncertainty.** Conformal 80% intervals that really cover 80%, and isotonic-calibrated event probabilities (expected calibration error 0.003 to 0.005). | A forecast is only useful if the doctor knows how sure it is. |
+| 6 | **Real-time on a laptop.** The glucose model runs on every 5-minute reading in about 1 ms in pure numpy, with no GPU, so live mode works anywhere. | Deployable in a small clinic. |
+| 7 | **Explainable by design.** Every alert shows why it fired; SHAP shows what drives each liver and kidney risk; Grad-CAM shows where the retina model looked. | Doctors can check the reasoning instead of trusting a number. |
+| 8 | **Built for India.** The retina grader is fine-tuned and tested on Indian IDRiD images; the patient app runs in English, Hindi, Telugu and Kannada with voice (Sarvam AI); lab reports are read in Indian layouts (SGPT/SGOT, lakh/cumm); FHIR R4 endpoints for ABDM-aware integration. | Reach beyond English-speaking, urban users. |
+| 9 | **A safe assistant, with the rules in code.** Emergency words get a fixed "call 108" reply; medicine and dose questions are sent to the doctor; any model reply containing dose advice is replaced. These checks run in code, before and after the language model. | Safety does not depend on the model behaving well. |
+| 10 | **Patient reports are never read without a yes.** A patient can upload a PDF or photo of a report. The AI reads it only after the patient agrees, shows a summary, and the doctor sees every upload marked "not verified". The parser is rule-based, so every number traces to a line of the document. | Consent and traceability, with nothing invented. |
+| 11 | **Run like a product.** Admin page with health, model inventory, latency, audit trail and a one-click self-test; tests and CI; Docker Compose; honest model cards. | Reviewers can see what runs and how it was checked. |
 
 ---
 
@@ -68,16 +69,20 @@ The Phase 1 brief asks for a working prototype that fuses a static record with a
 
 | Requirement | Met? | Evidence in this repository |
 |---|---|---|
-| **Static / historical stream** (demographics, diagnoses, labs, genetic markers) | Yes | The synthetic cohort generator [`synthetic_cohort.py`](Kaya_IIT-Hyderabad/src/ingest/synthetic_cohort.py) creates, per patient: age, sex, BMI, waist, diabetes duration, medicines (metformin, insulin or sulfonylurea), HbA1c, blood pressure, HOMA-IR, carbohydrate share of diet, and the **PNPLA3** and **TCF7L2** genetic markers (allele frequencies set for Indian populations). Organ labels (liver fat and fibrosis, retinopathy grade, eGFR, urine albumin) follow documented risk relationships. The demo patients also carry lab panels, retinal and liver scans, ECG, foot exam and clinic notes ([`reports.py`](Kaya_IIT-Hyderabad/src/api/reports.py)). Real labelled data: NHANES 2017-2018 for liver and kidney. |
-| **Dynamic stream** (CGM, HRV, sleep, steps from wearables) | Yes | The same generator produces a 5-minute time series per patient: **glucose, heart rate, HRV (RMSSD), sleep window, steps and meals**. Real data: **CGMacros** (PhysioNet), 34 subjects with CGM, heart rate, activity and meal records. The live feed accepts new readings through `POST /api/live/{id}/reading` and a WebSocket. The forecaster itself is fed glucose, heart rate, activity and meal carbohydrates; HRV and sleep are generated and shown in the wearable trends, and sleep is a what-if lever, but they are not inputs of the forecaster. |
-| **A working model that ingests both streams** | Yes | [`windows.py`](Kaya_IIT-Hyderabad/src/models/windows.py) builds each model input from a 2-hour window of the four wearable channels **plus** static features (age, BMI, HbA1c, sex, time of day). The GRU in [`glucose.py`](Kaya_IIT-Hyderabad/src/models/glucose.py) and the LightGBM models take both. The liver, kidney and eye modules fuse static labs with wearable-derived glucose features. Trained in [`train_glucose.py`](Kaya_IIT-Hyderabad/src/models/train_glucose.py) and [`polish_glucose.py`](Kaya_IIT-Hyderabad/src/models/polish_glucose.py); metrics in [`results/glucose_metrics.json`](Kaya_IIT-Hyderabad/results/glucose_metrics.json) and [`glucose_polish.json`](Kaya_IIT-Hyderabad/results/glucose_polish.json). |
-| **Predicts an adverse event in advance** (the brief's example: a glucose spike 2 hours ahead) | Yes | Forecasts glucose **30, 60 and 120 minutes ahead** with an 80% conformal interval, and the probability of a **high (> 180) or low (< 70) glucose event within 2 hours**. On real CGMacros data the ensemble reaches RMSE 12.6 / 21.1 / 28.2 mg/dL (persistence 16.3 / 25.8 / 36.7). Alert replay ([`alerts.py`](Kaya_IIT-Hyderabad/src/models/alerts.py)) streams a patient's week through the model: at about one false alert per patient-day, **72% of hypoglycemia episodes are caught with a median 45 minutes of warning**. Each alert states the reason it fired. |
-| **Conceptual UI dashboard for a doctor** | Yes, a working one | React dashboard in [`dashboard/`](Kaya_IIT-Hyderabad/dashboard/): triaged patient list, glucose twin with forecast band and a 3-day replay, liver, eye and kidney panels, what-if studio, what-changed-since-last-visit card, full patient record, alert timeline, PDF clinical summary, plus patient and admin views. See the [screenshots](#3-screenshots). Run it with the steps in [10. Run the demo](#10-run-the-demo). |
+| **Static / historical stream** (demographics, diagnoses, labs, genetic markers) | Yes | The synthetic cohort generators [`synthetic_cohort.py`](Kaya_IIT-Hyderabad/src/ingest/synthetic_cohort.py) and [`cohort_v2.py`](Kaya_IIT-Hyderabad/src/ingest/cohort_v2.py) create, per patient: age, sex, BMI, waist, diabetes duration, medicines (metformin, insulin or sulfonylurea), HbA1c, blood pressure, HOMA-IR, carbohydrate share of diet, LDL, smoking, prior cardiovascular disease, and the **PNPLA3** and **TCF7L2** genetic markers (allele frequencies set for Indian populations). Organ labels (liver fat and fibrosis, retinopathy grade, eGFR, urine albumin) follow documented risk relationships. The demo patients also carry lab panels, retinal and liver scans, ECG, foot exam and clinic notes ([`reports.py`](Kaya_IIT-Hyderabad/src/api/reports.py)). Real labelled data: NHANES 2017-2018 for liver and kidney. |
+| **Dynamic stream** (CGM, HRV, sleep, steps from wearables) | Yes | The same generators produce a 5-minute time series per patient: **glucose, heart rate, HRV (RMSSD), sleep stages, steps and meals**. In the coupled cohort (`cohort_v2.py`, 2,000 patients, 28 days) these streams share one physiology: a hidden autonomic load lowers HRV, raises resting heart rate, shortens sleep, lowers steps and raises glucose; short sleep raises next-day insulin resistance; TCF7L2 risk alleles enlarge post-meal rises; medicines and exercise raise the chance of a low. Cardiovascular events and benign look-alike episodes are layered on top. Real data: **CGMacros** (PhysioNet), 34 subjects with CGM, heart rate, activity and meal records. The live feed accepts new readings through `POST /api/live/{id}/reading` and a WebSocket. The glucose model used in the live demo is fed glucose, heart rate, activity and meal carbohydrates. The two-stream models described next also use HRV, sleep and the wider record. |
+| **A working model that ingests both streams** | Yes | [`windows_v2.py`](Kaya_IIT-Hyderabad/src/models/windows_v2.py) builds each glucose input from a 2-hour window of six dynamic channels (glucose, heart rate, activity, meals, HRV, sleep stage), seven slow-context numbers (last night's sleep, HRV and resting heart rate and the 7-night averages) and a 20-number static vector (age, BMI, HbA1c, sex, time of day, duration, HOMA-IR, medicines, PNPLA3, TCF7L2). The GRU in [`glucose.py`](Kaya_IIT-Hyderabad/src/models/glucose.py) takes both streams, and [`ablate_glucose.py`](Kaya_IIT-Hyderabad/src/models/ablate_glucose.py) measures what each input group adds ([results](#fusing-the-two-streams-what-each-stream-adds)). The new [`cardio.py`](Kaya_IIT-Hyderabad/src/models/cardio.py) fuses a week of nightly wearable summaries with the static record. The liver, kidney and eye modules fuse static labs with wearable-derived glucose features. Trained in [`train_glucose.py`](Kaya_IIT-Hyderabad/src/models/train_glucose.py) and [`polish_glucose.py`](Kaya_IIT-Hyderabad/src/models/polish_glucose.py); metrics in [`results/glucose_metrics.json`](Kaya_IIT-Hyderabad/results/glucose_metrics.json) and [`glucose_polish.json`](Kaya_IIT-Hyderabad/results/glucose_polish.json). |
+| **Predicts an adverse event in advance** (the brief's example: a glucose spike 2 hours ahead) | Yes | Forecasts glucose **30, 60 and 120 minutes ahead** with an 80% conformal interval, and the probability of a **high (> 180) or low (< 70) glucose event within 2 hours**. On real CGMacros data the ensemble reaches RMSE 12.6 / 21.1 / 28.2 mg/dL (persistence 16.3 / 25.8 / 36.7). Alert replay ([`alerts.py`](Kaya_IIT-Hyderabad/src/models/alerts.py)) streams a patient's week through the model: at about one false alert per patient-day, **72% of hypoglycemia episodes are caught with a median 45 minutes of warning**. Each alert states the reason it fired. **Second adverse event:** the Heart watch flags a **cardiovascular event within 72 hours** from a week of sleep, heart-rate and HRV data plus the record: AUROC 0.83 (95% CI 0.82 to 0.84), **76% of events caught with a median 23 hours of warning at about one false alert per patient-month**, against 44% for a simple clinical rule at the same false-alert rate. |
+| **Conceptual UI dashboard for a doctor** | Yes, a working one | React dashboard in [`dashboard/`](Kaya_IIT-Hyderabad/dashboard/): triaged patient list, glucose twin with forecast band and a 3-day replay, liver, eye and kidney panels, what-if studio, what-changed-since-last-visit card, full patient record, alert timeline, PDF clinical summary, plus patient and admin views, and the **Heart watch** view (`?view=heart`): a month of nights replayed morning by morning, the wearable and record streams shown as two dials that combine into one risk, the factors behind each alert, and what actually happened. See the [screenshots](#3-screenshots). Run it with the steps in [10. Run the demo](#10-run-the-demo). |
 | **Open, anonymised or synthetic data only** | Yes | CGMacros, NHANES, APTOS 2019 and IDRiD are open datasets; patients and wearable streams are generated by our own synthetic generator and simglucose. No real patient data is stored or processed. See [8. Data](#8-data). |
 | **EHR source** (the brief suggests Synthea or MIMIC-IV, as examples) | Own generator instead | We used our own synthetic cohort generator, tuned to Indian T2D epidemiology, because it is the only way to link one person's glucose stream to organ outcomes. **Synthea is not used yet** and is listed as planned. MIMIC-IV is not used. |
 | **Sensor source** (open datasets or synthetic streams) | Yes | Open dataset (CGMacros) plus synthetic streams that mimic consumer wearables and CGMs. |
 
-**Where this is limited, stated plainly.** The forecaster does not use HRV or detailed sleep stages as inputs. The links between glucose patterns and organ outcomes in the synthetic cohort are simulated from documented relationships; each module's baseline model is validated on real data wherever real data exists (see [8. Data](#8-data) and [13. Limitations and roadmap](#13-limitations-and-roadmap)).
+**Where this is limited, stated plainly.**
+- The live demo and the 24 demo patients still run the original four-channel glucose model. The model that also reads HRV, sleep and the wider record is evaluated offline in the ablation and is not yet in the live feed.
+- For glucose, HRV and sleep add little in our synthetic data (about 0.3 mg/dL at 2 hours). The record adds more (medicines lift low-glucose AUROC from 0.85 to 0.95). The Heart watch is where the wearable stream matters most.
+- The couplings between sleep, HRV, glucose and cardiovascular events in the synthetic cohort are literature-informed assumptions, and cardiovascular events are far more frequent in it than in real life, so precision figures would be lower at real-world rates.
+- The links between glucose patterns and organ outcomes are simulated from documented relationships; each module's baseline model is validated on real data wherever real data exists (see [8. Data](#8-data) and [13. Limitations and roadmap](#13-limitations-and-roadmap)).
 
 ## 1. The problem
 
@@ -96,7 +101,7 @@ Kaya builds a living virtual replica of each patient by fusing two data streams:
 | **Static / historical** (EHR) | Demographics, diagnoses, lab results, genetic markers (PNPLA3, TCF7L2), clinical notes |
 | **Dynamic / real time** (wearables) | Continuous glucose, heart rate, HRV (RMSSD), sleep window, steps, meals |
 
-From that twin, four modules answer four clinical questions:
+From that twin, five modules answer five clinical questions:
 
 | Module | The question it answers | What the doctor gets |
 |---|---|---|
@@ -104,6 +109,7 @@ From that twin, four modules answer four clinical questions:
 | **Liver** | Is the liver carrying a heavy metabolic load, and is fibrosis developing? | Steatosis and advanced-fibrosis risk; a rolling liver-fat state driven by recent glucose |
 | **Eye** | What is the retinopathy grade, and where is it heading? | DR grade with an explanation heatmap and a 2-year progression risk |
 | **Kidney** | Is kidney function declining, and how fast? | Albuminuria and reduced-eGFR risk, plus a 5-year eGFR path |
+| **Heart watch** | Is a cardiovascular event coming in the next 72 hours? | A morning risk from a week of sleep, heart rate and HRV read with the record, with an alert and the factors behind it |
 
 On top sits the **what-if engine**, described above.
 
@@ -129,6 +135,12 @@ On top sits the **what-if engine**, described above.
   <img src="Kaya_IIT-Hyderabad/docs/img/rec_kidneys.png" width="32%" alt="Kidney risk and eGFR path" />
   <img src="Kaya_IIT-Hyderabad/docs/img/rec_alerts.png" width="32%" alt="Alert timeline with reasons" />
   <img src="Kaya_IIT-Hyderabad/docs/img/rec_diary.png" width="32%" alt="Adherence diary" />
+</p>
+
+**Heart watch.** A month of one patient's nights replayed morning by morning: the wearable pattern and the record risk shown as two dials that combine into one 72-hour risk, with the factors behind each alert.
+
+<p>
+  <img src="Kaya_IIT-Hyderabad/docs/img/heart_watch.png" width="70%" alt="Heart watch: alert morning with two dials, a week of nights and the drivers" />
 </p>
 
 **Patient app.** A plain-language phone view with today's habits, weekly time in range and a "try a change" simulator.
@@ -168,10 +180,12 @@ flowchart TD
     S --> L[Liver module]
     S --> E[Eye module]
     S --> K[Kidney module]
+    S --> H[Heart watch<br/>cardiovascular flag]
     G --> W[What-if engine]
     L --> W
     E --> W
     K --> W
+    H --> D
     W --> D[Doctor dashboard]
     W --> P[Patient view]
     W --> R[FHIR API and PDF report]
@@ -185,6 +199,7 @@ The full diagrams are in [`architecture_2page.pdf`](Kaya_IIT-Hyderabad/docs/arch
 |---|---|
 | **Live mode** | The glucose model runs on every incoming 5-minute reading (about 1 ms, pure numpy, no GPU) and the dashboard updates in real time. Press **Go live** in the doctor view, or POST readings to `/api/live/{id}/reading`. A WebSocket feed (`/ws/live/{id}`) simulates a wearable. |
 | **Full patient record** | 14-day glucose history, daily time in range, a typical-day profile, meal responses, wearable trends, liver, eye and kidney projections with their drivers, labs with reference flags, and every alert with its reason. |
+| **Heart watch** | Replays a patient's month morning by morning. Each morning at 10:00 a cardiovascular flag reads the last seven nights (sleep, HRV, resting heart rate, steps, glucose control) with the static record, shows the wearable pattern and the record risk as two dials that combine into one 72-hour risk, raises an alert above a threshold set for about one false alert per patient-month, and lists the factors that pushed the score up. Six held-out patients show a caught event, a missed event, a benign scare the record calmed, a false alarm and a quiet high-risk patient. |
 | **What-if studio** | Meal size, walking after meals, sleep and medicine presets, with the change shown in the glucose curve and in one-year organ risk. |
 | **Medical reports** | Lab panels, retinal and liver scans, chest X-ray, ECG, foot exam, clinic notes and the wearable summary, each with reference ranges, flags, the previous value, a PDF and trends. The patient sees a plain-language version and a medicine list. All reports are synthetic. |
 | **What changed since the last visit** | Compares today with the last clinic visit (HbA1c, eGFR, urine albumin, liver enzymes, blood pressure, weight, eye grade, new medicines) and the last 7 days of wearable data with the week before, and lists what needs attention. |
@@ -196,7 +211,7 @@ The full diagrams are in [`architecture_2page.pdf`](Kaya_IIT-Hyderabad/docs/arch
 | **Clinical summary PDF** | One click from the doctor view (`/api/patients/{id}/report.pdf`): glucose chart with forecast, organ risks with their evidence level, what-if table and recent alerts. |
 | **Admin page** | Service health, model and data inventory with how each model was validated, integration status, latency per route, assistant safety counters (outcomes only, never message text), an audit trail, a one-click self-test and an honest hardening list. Set `KAYA_ADMIN_TOKEN` to require a token. |
 | **FHIR R4** | Read-only `Patient` and `Observation` endpoints under `/fhir`. |
-| **Tests and CI** | 84 tests (data, what-if, live inference against PyTorch, API, assistant safety, uploads, PDF, FHIR) run on every push with GitHub Actions. |
+| **Tests and CI** | 101 tests (data, what-if, live inference against PyTorch, API, assistant safety, uploads, PDF, FHIR, coupled cohort, cardiovascular flag, Heart watch) run on every push with GitHub Actions. |
 
 ## 6. AI/ML models and results
 
@@ -205,12 +220,53 @@ All numbers are **out-of-sample**: held-out patients for the synthetic cohort, a
 | Module | Model | Trained / validated on |
 |---|---|---|
 | Glucose forecast and alerts | GRU with quantile and event heads, blended with LightGBM; conformal intervals; isotonic calibration | Synthetic cohort (2,000 patients), then fine-tuned on real CGMacros (34 subjects) |
+| Glucose forecast, two-stream version | Same GRU with six dynamic channels, slow sleep and HRV context and a 20-number record vector | Coupled synthetic cohort (2,000 patients, 28 days); ablation over input groups, 3 seeds |
+| Heart watch (cardiovascular flag) | Wearable LightGBM and record logistic model, combined by a logistic stacker (late fusion), which also calibrates the probability | Coupled synthetic cohort, 5-fold patient-grouped cross-validation, 40,216 mornings, 595 events |
 | Liver (static) | Regularised LightGBM with SHAP | NHANES 2017-2018, 4,745 adults with FibroScan |
 | Liver (dynamic) | Glycemic-load modifier on the log-odds with a 90-day lag | Literature-informed assumptions, shown as a simulation |
 | Kidney | Regularised LightGBM with SHAP; CKD-EPI 2021 eGFR; linear eGFR path | NHANES 2017-2018, 4,827 adults |
 | Eye | EfficientNet-B2, ordinal regression, Grad-CAM | Trained on APTOS 2019, tested on Indian IDRiD |
 | What-if | Splits glucose into baseline and meal excursions, rescales them, feeds the liver and eye modules | Literature-informed effect sizes, labelled as a simulation |
 | Assistant | Sarvam AI (speech to text, text to speech, chat) behind rule-based safety | Rules tested in four languages |
+
+### Fusing the two streams: what each stream adds
+
+The brief asks for a record and a wearable stream to be fused. We therefore measure, rather than assume, what each input group adds. Everything below is on **held-out synthetic patients** from the coupled cohort (see [8. Data](#8-data)), so it shows that the fusion works as designed, not clinical accuracy.
+
+**Glucose forecast** ([`ablate_glucose.py`](Kaya_IIT-Hyderabad/src/models/ablate_glucose.py), GRU, mean ± standard deviation over 3 seeds, 381,300 test windows; full table in [`results/glucose_ablation_table.md`](Kaya_IIT-Hyderabad/results/glucose_ablation_table.md)):
+
+| Inputs | RMSE +30 / +60 / +120 min (mg/dL) | Low-glucose AUROC |
+|---|---|---|
+| CGM and meal log | 17.08 / 28.99 / 34.27 | 0.839 ± 0.001 |
+| + heart rate and activity | 16.86 / 28.53 / 33.71 | 0.841 ± 0.001 |
+| + age, BMI, HbA1c, sex | 16.43 / 27.53 / 32.37 | 0.847 ± 0.001 |
+| + HRV and sleep (nightly and weekly) | 16.39 / 27.53 / 32.32 | 0.852 ± 0.002 |
+| + labs, medicines, genetics (all inputs) | **16.21 / 27.23 / 32.24** | **0.953 ± 0.003** |
+| all inputs, minus HRV and sleep | 16.24 / 27.42 / 32.56 | 0.953 ± 0.001 |
+| all inputs, minus labs, medicines, genetics | 16.39 / 27.53 / 32.32 | 0.852 ± 0.002 |
+
+- The **basic record** and **heart rate with activity** give the largest forecast gains (about 1.3 and 0.6 mg/dL at two hours).
+- **Medicines** matter most for lows: with insulin or sulfonylurea use in the record, low-glucose AUROC rises from 0.85 to 0.95 in every seed. In the cohort only these patients can have a treatment-related low, which is also the clinical pattern; the size of the jump is the simulator's. Genetics add nothing measurable.
+- **HRV and sleep** add little for glucose: removing them costs about 0.3 mg/dL at two hours (positive in all three seeds, +0.09 to +0.52) and changes event AUROC by less than 0.003. We report it as small.
+
+**Cardiovascular flag** ([`cardio.py`](Kaya_IIT-Hyderabad/src/models/cardio.py), 5-fold cross-validation grouped by patient, 2,000 patients, 40,216 patient-mornings, 595 events, prediction target: an event in the next 72 hours; intervals from resampling patients):
+
+| Input | AUROC (95% CI) | AUPRC (prevalence 0.042) | Events caught | False alerts per patient-month | Median warning |
+|---|---|---|---|---|---|
+| Record only (logistic risk score) | 0.69 (0.67 to 0.71) | 0.08 | 24% | 1.0 | 33 h |
+| Simple clinical rule (HRV falling, resting heart rate rising, sleep shrinking) | 0.69 (0.68 to 0.71) | 0.11 | 44% | 0.9 | 17 h |
+| Wearable week only | 0.82 (0.80 to 0.83) | 0.26 | 77% | 1.1 | 23 h |
+| **Kaya: record + wearable (late fusion)** | **0.83 (0.82 to 0.84)** | **0.31** | 76% | 1.1 | 23 h |
+| One model fed both streams side by side (early fusion) | 0.83 (0.82 to 0.85) | 0.31 | 76% | 1.0 | 26 h |
+
+Honest reading:
+
+- The **wearable week carries most of the early warning**, and the strongest single signal is last night's HRV. A simple clinical rule on the same data is far weaker.
+- Fusing the record improves the wearable alone **modestly but reliably**: AUROC +0.015 (95% CI +0.010 to +0.021) and AUPRC 0.26 to 0.31. At the alert level (events caught for a given false-alert rate) the fused and wearable-only flags are the same within noise.
+- The record's real job is **triage**: among mornings that are already part of a prodromal episode, the record alone separates a dangerous episode from a benign one with AUROC 0.80, against 0.68 for the wearable alone. The combined score has to find the episode and triage it at once, so it does not beat the record alone on that narrow question (0.74), and we do not claim it does.
+- Early and late fusion perform the same. We ship the late-fusion version because its two parts (wearable pattern, record risk) can be shown and explained separately.
+- Calibration of the fused probability: Brier 0.034, expected calibration error 0.003.
+- False alerts concentrate in patients whose record is already high-risk, which is a property of the design: the same wearable change is taken more seriously in a higher-risk person.
 
 ### Glucose forecasting (real CGMacros recordings, 34 subjects)
 
@@ -277,11 +333,13 @@ Only open or synthetic data is used, as required by the challenge and the DPDP A
 |---|---|---|
 | CGM, meals, wearables | [CGMacros](https://physionet.org/content/cgmacros/1.0.0/) (PhysioNet) | Used |
 | Liver and kidney labels | NHANES 2017-2018 (FibroScan, labs) | Used |
-| Synthetic patients and streams | Our generator (`src/ingest/synthetic_cohort.py`), plus simglucose | Used |
+| Synthetic patients and streams | Our generators (`src/ingest/synthetic_cohort.py` for the demo cohort, `src/ingest/cohort_v2.py` for the coupled cohort), plus simglucose | Used |
 | Retina images | APTOS 2019 (train), IDRiD (Indian test, CC BY 4.0) | Used |
 | Synthetic EHR | Synthea | Planned |
 
 ### An honest note on the synthetic cohort
+
+A second, **coupled cohort** (`cohort_v2.py`, 2,000 patients, 28 days) was built for the fusion study, because in the first cohort HRV and sleep did not influence anything and a model could gain nothing from them. In the coupled cohort a hidden autonomic load moves HRV, resting heart rate, sleep, steps and glucose together; prodromal episodes of 3 to 5 days end in a cardiovascular event (more often in people with higher age, blood pressure, HbA1c, LDL, smoking or prior disease) or resolve as a benign episode that looks similar; a few events come with no warning. All effect sizes are assumptions. About 32 events occur per 100 patients per month, **far more than in real life**, so the flag's precision at real-world rates would be much lower than reported here.
 
 No public dataset links one person's glucose stream to their liver, eye and kidney outcomes. We therefore simulate a **bridged cohort** whose distributions follow Indian T2D epidemiology and whose organ outcomes follow documented risk relationships:
 
@@ -317,7 +375,7 @@ uvicorn app:app --app-dir src/api --port 8000
 
 Then open `http://localhost:8000` (dashboard) and `http://localhost:8000/docs` (API documentation).
 
-In the dashboard, switch between **Doctor**, **Patient** and **Admin** at the top right. In the doctor view, press **Replay last 3 days** to watch the twin forecast glucose ahead of what actually happens, then try the **What-if** presets. [`DEMO_GUIDE.md`](Kaya_IIT-Hyderabad/docs/DEMO_GUIDE.md) describes two ready-made patients (a complex multi-organ case and a well-controlled case), their day-by-day stories and a suggested demo flow.
+In the dashboard, switch between **Doctor**, **Heart watch**, **Patient** and **Admin** at the top right. In the doctor view, press **Replay last 3 days** to watch the twin forecast glucose ahead of what actually happens, then try the **What-if** presets. [`DEMO_GUIDE.md`](Kaya_IIT-Hyderabad/docs/DEMO_GUIDE.md) describes two ready-made patients (a complex multi-organ case and a well-controlled case), their day-by-day stories and a suggested demo flow.
 
 **Voice assistant (optional).** Copy `.env.example` to `.env` and set `SARVAM_API_KEY`. Without a key the rest of the app works unchanged.
 
@@ -343,21 +401,34 @@ python src/models/liver_static.py
 
 To regenerate the demo artifacts from the trained models: `PYTHONPATH=src/models:src/whatif python src/api/build_artifacts.py`.
 
+**Reproduce the two-stream study** (CPU is enough for the cardiovascular flag; the glucose ablation uses a GPU, about 100 seconds per run)
+
+```bash
+python src/ingest/cohort_v2.py --n 2000 --days 28 --out data/synthetic_v2
+export PYTHONPATH=src/models:src/ingest:src/features
+python src/models/cardio.py --root data/synthetic_v2                       # cross-validated flag, writes results/cardio_metrics.json
+python src/models/ablate_glucose.py --seeds 3 --out results/glucose_ablation.json
+python src/api/build_cardio_artifacts.py                                   # Heart watch demo patients
+```
+
+The Heart watch opens at `http://localhost:8000/?view=heart`.
+
 ## 11. Repository layout
 
 ```
 Kaya_IIT-Hyderabad/
 ├── src/
-│   ├── api/         FastAPI app, FHIR, reports, uploads, assistant, admin
-│   ├── ingest/      synthetic cohort, NHANES datasets, demo patient stories
-│   ├── models/      glucose, liver, kidney, eye models and alerts
+│   ├── api/         FastAPI app, FHIR, reports, uploads, assistant, admin, Heart watch builder
+│   ├── features/    nightly sleep, HRV and heart-rate summaries shared by the models
+│   ├── ingest/      synthetic cohorts (demo and coupled), NHANES datasets, demo patient stories
+│   ├── models/      glucose (v1 and two-stream), cardiovascular flag, liver, kidney, eye, alerts
 │   └── whatif/      what-if engine
 ├── dashboard/       React doctor, patient and admin views
 ├── artifacts/       precomputed demo patients, live model, retina images
 ├── results/         evaluation metrics (JSON)
 ├── docs/            architecture, presentation, model cards, demo guide, screenshots
 ├── scripts/         data download and server setup
-├── tests/           84 tests
+├── tests/           101 tests
 ├── Dockerfile, docker-compose.yml
 └── requirements.txt, requirements-api.txt
 ```
@@ -381,10 +452,12 @@ Kaya_IIT-Hyderabad/
 - Kaya is decision support, not a diagnostic device, and has not been clinically validated.
 - The link from glucose patterns to organ outcomes is simulated; each module's baseline model is validated on real data, but the dynamic effects (liver drift, retinopathy progression, eGFR path, what-if effect sizes) use literature-informed assumptions.
 - Only 34 real CGM subjects; NHANES is a US population; exact-grade retinopathy accuracy on IDRiD is modest.
+- The cardiovascular flag is trained and tested only on synthetic data whose couplings and event rates we chose. It shows that fusing a wearable week with the record works as designed; it is not evidence of clinical accuracy, and no open dataset links a week of wearable data to cardiovascular outcomes for diabetes.
+- The Heart watch demo patients were picked to illustrate each outcome (for each, the example with the fewest alerts). The table above, not the demo, is the measure of performance.
 - The Hindi, Telugu and Kannada texts and the speech quality need native-speaker review.
 - The demo uses synthetic patients and has no authentication; the admin page lists what must be hardened before real patient data.
 
-**Roadmap:** illustrative retina preview (a generated fundus image at the predicted grade, always labelled as a preview), Synthea-based EHR, authentication and role-based access, fuller FHIR and ABDM coverage, and prospective validation with a clinical partner.
+**Roadmap:** feed HRV and sleep into the live glucose forecast, validate the flag on a real wearable cohort with outcomes, illustrative retina preview (a generated fundus image at the predicted grade, always labelled as a preview), Synthea-based EHR, authentication and role-based access, fuller FHIR and ABDM coverage, and prospective validation with a clinical partner.
 
 ## 14. License
 

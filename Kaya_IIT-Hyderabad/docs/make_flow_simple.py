@@ -101,25 +101,27 @@ def overview():
     p.text(236, 404, "encoder", 21, INK, 800, "middle")
     p.text(236, 432, "one fused twin", 15, MUTED, 400, "middle")
     p.arrow("M374,395 L408,395", TEAL, 2.6)
-    organs = [("Glucose", "2-hour forecast and alerts"), ("Liver", "fat and fibrosis risk"), ("Eye", "retinopathy grade and path"), ("Kidney", "eGFR path and risk")]
-    for i, (t, s) in enumerate(organs):
-        x = 412 + i * 244
-        p.rect(x, 336, 226, 118, "#fff", BLUE, 16, 2)
-        p.add(f'<rect x="{x}" y="336" width="8" height="118" rx="4" fill="{BLUE}"/>')
-        p.text(x + 28, 380, t, 24, INK, 800)
-        p.text(x + 28, 410, s, 15, MUTED)
-    p.arrow("M1388,395 L1426,395", TEAL, 2.6)
-    p.rect(1430, 336, 392, 118, "#fff", TEAL, 16, 2.6)
-    p.text(1626, 378, "What-if engine", 22, INK, 800, "middle")
-    p.text(1626, 406, "change a meal, walk, sleep or medicine", 15, MUTED, 400, "middle")
-    p.text(1626, 430, "see the new glucose curve and organ risk", 15, MUTED, 400, "middle")
-    p.text(960, 486, "Explainable   ·   calibrated uncertainty   ·   safety rules in code   ·   served by one REST API", 15, TEAL, 600, "middle")
+    organs = [("Glucose", ["2-hour forecast", "and alerts"], BLUE), ("Liver", ["fat and fibrosis", "risk"], BLUE), ("Eye", ["retinopathy grade", "and path"], BLUE),
+              ("Kidney", ["eGFR path", "and risk"], BLUE), ("Heart watch", ["cardiovascular event", "flag, 72 hours ahead"], AMBER)]
+    for i, (t, sub_, col) in enumerate(organs):
+        x = 412 + i * 204
+        p.rect(x, 336, 190, 118, "#fff", col, 16, 2)
+        p.add(f'<rect x="{x}" y="336" width="8" height="118" rx="4" fill="{col}"/>')
+        p.text(x + 24, 378, t, 22 if len(t) < 9 else 20, INK, 800)
+        for k, line in enumerate(sub_):
+            p.text(x + 24, 406 + k * 20, line, 14, MUTED)
+    p.arrow("M1432,395 L1452,395", TEAL, 2.6)
+    p.rect(1456, 336, 366, 118, "#fff", TEAL, 16, 2.6)
+    p.text(1639, 378, "What-if engine", 22, INK, 800, "middle")
+    p.text(1639, 406, "change a meal, walk, sleep or medicine", 14, MUTED, 400, "middle")
+    p.text(1639, 430, "see the new glucose curve and organ risk", 14, MUTED, 400, "middle")
+    p.text(960, 486, "Two streams fused (wearable + record)   ·   explainable   ·   calibrated uncertainty   ·   safety rules in code   ·   one REST API", 15, TEAL, 600, "middle")
 
     # users
     p.label(70, 552, "3   WHO USES IT, AND HOW")
     lanes = [
         (TEAL, "PATIENT", "on a phone, in 4 languages", [("Today", "one next action, and why"), ("Quick log", "medicines, walk, mood"), ("Try a change", "see tonight's curve"), ("Ask", "by voice or text")]),
-        (BLUE, "DOCTOR", "triage, understand, decide", [("Triage", "sorted by risk, with reasons"), ("Full record", "glucose, organs, labs"), ("What-if studio", "test before the real patient"), ("PDF summary", "reports with trends")]),
+        (BLUE, "DOCTOR", "triage, understand, decide", [("Triage", "sorted by risk, with reasons"), ("Full record", "glucose, organs, labs"), ("Heart watch", "a week of nights, one risk"), ("What-if studio", "test before the real patient")]),
         (AMBER, "ADMIN", "run it safely", [("Service health", "uptime, requests, latency"), ("Models and data", "what is running, validated how"), ("Audit trail", "who did what, safety stops"), ("Self-test", "checks, hardening list, FHIR API")]),
     ]
     LY, LH, LG = 570, 118, 40
@@ -172,7 +174,7 @@ def tile(p, x, y, w, h, icon, title, sub, col, liver=False):
 
 def detail():
     p = Page(1920, 1130)
-    header(p, "How Kaya works, at a glance", "Learn from open data, build four AI models, make them trustworthy, then put them in people's hands.")
+    header(p, "How Kaya works, at a glance", "Learn from open data, build five AI models fusing a wearable stream with the record, make them trustworthy, then put them in people's hands.")
 
     cols = [
         (BLUE, "1   LEARNED FROM", [
@@ -181,11 +183,12 @@ def detail():
             ("👁️", "Retina photos", "including Indian patients  ³", False),
             ("🧬", "Synthetic patients", "2,000 made-up, privacy-safe  ⁴", False),
         ]),
-        (TEAL, "2   FOUR AI MODELS", [
+        (TEAL, "2   FIVE AI MODELS", [
             ("🩸", "Glucose", "predicts the next 2 hours  ⁵", False),
             ("", "Liver", "fat and scarring risk  ⁶", True),
             ("👁️", "Eye", "grades diabetic eye damage  ⁷", False),
             ("🫘", "Kidney", "risk and 5-year decline  ⁶", False),
+            ("🫀", "Heart watch", "week of nights + record  ⁹", False),
         ]),
         (AMBER, "3   MADE TRUSTWORTHY", [
             ("🎯", "Says how sure it is", "honest uncertainty bands", False),
@@ -205,8 +208,9 @@ def detail():
         x = 70 + ci * (CWID + CGAP)
         p.rect(x, 140, CWID, 40, col, col, 12, 0, shadow=False)
         p.text(x + 20, 167, head, 16, "#fff", 800, extra='letter-spacing="1.4"')
+        th = TH if len(tiles) == 4 else (4 * TH + 3 * TG - 4 * TG) // len(tiles)      # five tiles share the height of four
         for ti, (ic, t, sub, liver) in enumerate(tiles):
-            tile(p, x, TY + ti * (TH + TG), CWID, TH, ic, t, sub, col, liver)
+            tile(p, x, TY + ti * (th + TG), CWID, th, ic, t, sub, col, liver)
         if ci < 3:
             ax = x + CWID + CGAP / 2
             p.add(f'<circle cx="{ax}" cy="{TY + 2 * TH + TG}" r="12" fill="#fff" stroke="{LINE}" stroke-width="1.4"/>')
@@ -229,7 +233,7 @@ def detail():
         (1, BLUE, "CGMacros (PhysioNet)", ["Real glucose, meals and Fitbit data from 34 people."]),
         (2, BLUE, "NHANES 2017-18", ["4,745 adults with FibroScan liver labels; 4,827 for kidney."]),
         (3, BLUE, "APTOS 2019 + IDRiD", ["Retina photographs: APTOS for training, Indian IDRiD for testing."]),
-        (4, BLUE, "Synthetic cohort", ["Our generator + simglucose: 2,000 patients, 14 days each."]),
+        (4, BLUE, "Synthetic cohort", ["Our generators + simglucose: 2,000 patients; a coupled 28-day cohort links sleep, HRV and glucose."]),
         (5, TEAL, "Glucose model", ["GRU (PyTorch) + LightGBM ensemble, conformal 80% bands, isotonic-calibrated alerts.",
                                     "RMSE 12.6 / 21.1 / 28.2 mg/dL at 30 / 60 / 120 min; catches 72% of lows, 45 min ahead."]),
     ]
@@ -240,8 +244,10 @@ def detail():
                                 "Eye progression and the 5-year kidney path are simulations."]),
         (8, AMBER, "Voice and documents (Sarvam AI, server-side only)", ["saaras:v4 speech-to-text, sarvam-105b-conversations chat, bulbul:v4-flash text-to-speech.",
                                                                     "Sarvam Document AI reads uploaded reports. Emergency and dose rules run in code, before the model."]),
+        (9, TEAL, "Heart watch (two streams, fused)", ["Wearable week (LightGBM) + record (logistic), combined by a stacker. AUROC 0.83; catches 76% of",
+                                                       "cardiovascular events a median 23 h ahead at about 1 false alert per patient-month. Synthetic data."]),
     ]
-    PH = 368
+    PH = 440
     p.rect(70, fy, 1780, PH, "#fff", LINE, 18, 1.4)
     p.text(98, fy + 36, "FOOTNOTES", 14.5, SLATE, 800, extra='letter-spacing="1.6"')
     p.text(1822, fy + 36, "the detail behind each icon above", 14, MUTED, 400, "end", 'font-style="italic"')
@@ -255,11 +261,11 @@ def detail():
             for k, l in enumerate(lines):
                 p.text(x0 + 32, y + 22 + k * 19, l, 13.5, MUTED)
             y += 22 + len(lines) * 19 + 16
+        return y
 
     column(98, left)
     p.add(f'<line x1="960" x2="960" y1="{fy + 56}" y2="{fy + PH - 22}" stroke="{LINE}" stroke-width="1"/>')
-    column(990, right)
-    ny = fy + 74 + 3 * (22 + 2 * 19 + 16) + 4
+    ny = column(990, right) + 4
     p.add(f'<circle cx="1001" cy="{ny - 5}" r="11" fill="{SLATE}"/>')
     p.text(1001, ny + 0.5, "i", 14, "#fff", 800, "middle")
     p.text(1022, ny, "Good to know", 15, INK, 700)

@@ -99,16 +99,17 @@ for i, (a, b, c) in enumerate(rows):
         ax.plot([4, 96], [yy - 2.8, yy - 2.8], color=LINE, lw=0.8)
 
 # 4 ---------------------------------------------------------------- what Kaya does
-fig, ax = new("What Kaya does", "Two data streams fused into one twin, four questions answered, one place to test a change")
-mods = [("Glucose", "What will glucose do in the\nnext 2 hours? Is an event coming?", TEAL),
+fig, ax = new("What Kaya does", "Two data streams fused into one twin, five questions answered, one place to test a change")
+mods = [("Glucose", "What will glucose do in\nthe next 2 hours?", TEAL),
         ("Liver", "Is fat building up?\nIs fibrosis developing?", BLUE),
         ("Eye", "What is the retinopathy grade\nand where is it heading?", BLUE),
-        ("Kidney", "Is kidney function declining,\nand how fast?", BLUE)]
+        ("Kidney", "Is kidney function declining,\nand how fast?", BLUE),
+        ("Heart watch", "Is a cardiovascular event\ncoming in the next 72 hours?", AMBER)]
 for i, (t, s, c) in enumerate(mods):
-    x = 5 + i * 23.3
-    ax.add_patch(FancyBboxPatch((x, 20), 21.5, 17, boxstyle="round,pad=0,rounding_size=1", fc="#f5f7f8", ec=c, lw=1.8, ls="-"))
-    ax.text(x + 10.75, 33.5, t, ha="center", fontsize=16, fontweight="bold", color=c)
-    ax.text(x + 10.75, 26.5, s, ha="center", va="center", fontsize=11, color=INK, linespacing=1.4)
+    x = 5 + i * 18.4
+    ax.add_patch(FancyBboxPatch((x, 20), 17.2, 17, boxstyle="round,pad=0,rounding_size=1", fc="#f5f7f8", ec=c, lw=1.8, ls="-"))
+    ax.text(x + 8.6, 33.5, t, ha="center", fontsize=15, fontweight="bold", color=c)
+    ax.text(x + 8.6, 26.5, s, ha="center", va="center", fontsize=9.6, color=INK, linespacing=1.4)
 ax.add_patch(FancyBboxPatch((5, 8), 90, 9, boxstyle="round,pad=0,rounding_size=1", fc="#d9f0ec", ec=TEAL, lw=1.5))
 ax.text(50, 13.8, "What-if engine", ha="center", fontsize=16, fontweight="bold", color=TEAL)
 ax.text(50, 10.4, "Change carbohydrates, walking, medication or steps, and see the glucose curve and one-year organ risk move", ha="center", fontsize=12, color=INK)
@@ -116,7 +117,7 @@ ax.text(5, 41.5, "Static: labs, genetics, history     +     Dynamic: CGM, heart 
 
 # 5 ---------------------------------------------------------------- architecture
 fig, ax = new("")
-img = mpimg.imread(DOCS / "architecture.png")
+img = mpimg.imread(DOCS / "architecture_overview.png")
 ih, iw = img.shape[:2]
 hh = 47.5
 ww = hh * iw / ih
@@ -127,9 +128,10 @@ fig, ax = new("Data: open or synthetic only", "What is real, what is simulated, 
 tbl = [("CGMacros (PhysioNet)", "Real", "Glucose forecaster: 34 subjects, subject-level cross-validation", TEAL),
        ("NHANES 2017-2018", "Real", "Liver model: 4,745 adults with FibroScan labels", TEAL),
        ("APTOS 2019 + IDRiD", "Real", "Retina grader: train on APTOS, test on Indian IDRiD", TEAL),
-       ("Synthetic cohort", "Simulated", "2,000 patients: links glucose patterns to organs for the twin and what-if", AMBER)]
+       ("Synthetic cohort", "Simulated", "2,000 patients: links glucose patterns to organs for the twin and what-if", AMBER),
+       ("Coupled cohort (new)", "Simulated", "2,000 patients x 28 days: HRV, sleep and glucose coupled; cardiac events", AMBER)]
 for i, (a, b, c, col) in enumerate(tbl):
-    yy = 38 - i * 6.2
+    yy = 40 - i * 5.3
     ax.text(5, yy, a, fontsize=14, fontweight="bold", color=INK, va="center")
     ax.add_patch(FancyBboxPatch((33, yy - 1.5), 9, 3, boxstyle="round,pad=0,rounding_size=1.2", fc=col, ec="none"))
     ax.text(37.5, yy, b, color="white", fontsize=11, fontweight="bold", ha="center", va="center")
@@ -224,6 +226,61 @@ if eye:
 else:
     ax.text(5, 30, "Results pending", fontsize=16, color=MUTED)
 
+# 9b --------------------------------------------------------------- two streams fused
+abl = json.loads((ROOT / "results/glucose_ablation.json").read_text())["rungs"]
+cv = json.loads((ROOT / "results/cardio_metrics.json").read_text())
+fig, ax = new("Two streams fused: what each one adds", "Measured on held-out synthetic patients: input groups switched on one at a time (glucose) and a 5-fold study (heart)")
+axg = fig.add_axes([0.07, 0.30, 0.39, 0.40])
+names = [("cgm_meals", "CGM +\nmeals"), ("plus_hr_activity", "+ heart rate,\nactivity"), ("plus_basic_record", "+ age, BMI,\nHbA1c"),
+         ("plus_hrv_sleep", "+ HRV,\nsleep"), ("full_fusion", "+ medicines,\ngenetics")]
+rm = [sum(r["rmse"][2] for r in abl[k]["runs"]) / len(abl[k]["runs"]) for k, _ in names]
+lo = [sum(r["hypo"]["auroc"] for r in abl[k]["runs"]) / len(abl[k]["runs"]) for k, _ in names]
+xs = list(range(len(names)))
+axg.bar(xs, lo, 0.6, color=[LINE if i < 4 else TEAL for i in xs])
+for i in xs:
+    axg.text(i, lo[i] + 0.012, f"{lo[i]:.2f}", ha="center", fontsize=11, fontweight="bold", color=INK if i < 4 else TEAL)
+axg.set_ylim(0.45, 1.02)
+axg.set_xticks(xs)
+axg.set_xticklabels([f"{n}\nRMSE {r:.1f}" for (_, n), r in zip(names, rm)], fontsize=8)
+axg.set_ylabel("Low-glucose AUROC (higher is better)")
+axg.spines[["top", "right"]].set_visible(False)
+axg.set_title("Glucose: medicines lift low-glucose detection", fontsize=12, fontweight="bold", color=INK, loc="left")
+axh = fig.add_axes([0.59, 0.30, 0.36, 0.40])
+hn = [("rule", "Clinical\nrule"), ("static_logistic", "Record\nonly"), ("wearable", "Wearable\nweek"), ("fused", "Kaya:\nboth")]
+au = [cv["auroc_with_ci"][k]["auroc"] for k, _ in hn]
+ci = [cv["auroc_with_ci"][k]["ci95"] for k, _ in hn]
+axh.bar(range(4), au, 0.6, color=[LINE, LINE, "#9fd3cc", TEAL],
+        yerr=[[a - c[0] for a, c in zip(au, ci)], [c[1] - a for a, c in zip(au, ci)]], capsize=4, ecolor=MUTED)
+for i, v in enumerate(au):
+    axh.text(i, ci[i][1] + 0.012, f"{v:.2f}", ha="center", fontsize=11, fontweight="bold", color=TEAL if i == 3 else INK)
+axh.set_ylim(0.5, 0.92)
+axh.set_xticks(range(4))
+axh.set_xticklabels([n for _, n in hn], fontsize=9)
+axh.set_ylabel("AUROC, cardiovascular event in 72 h")
+axh.spines[["top", "right"]].set_visible(False)
+axh.set_title("Heart watch: the wearable week does most of the work", fontsize=12, fontweight="bold", color=INK, loc="left")
+al_ = cv["alert_replay"]["fused"]
+ax.text(5, 9.2, f"Heart watch at about 1 false alert per patient-month: {al_['sensitivity'] * 100:.0f}% of events caught, median {al_['median_lead_h']:.0f} h of warning "
+        f"(simple clinical rule: {cv['alert_replay']['rule']['sensitivity'] * 100:.0f}%).", fontsize=11, color=INK)
+ax.text(5, 6.6, "For glucose, HRV and sleep add little (about 0.3 mg/dL at +2 h); the record, mainly medicines, adds the most. RMSE = forecast error at +2 h.", fontsize=10.5, color=INK)
+ax.text(5, 4.2, "Synthetic cohort with assumed couplings and many more events than real life: it shows the fusion works as designed, not clinical accuracy.", fontsize=10, color=AMBER)
+
+# 9c --------------------------------------------------------------- heart watch product
+fig, ax = new("Heart watch: a week of nights, read with the record", "Each morning: wearable pattern + record risk = one 72-hour risk, with the reasons")
+path = DOCS / "img/heart_watch.png"
+if path.exists():
+    im = mpimg.imread(path)[75:1075, 380:1440]
+    w_ = 36.5 * im.shape[1] / im.shape[0]
+    ax.imshow(im, extent=[4, 4 + w_, 6.5, 43], aspect="auto", zorder=2)
+    ax.add_patch(plt.Rectangle((4, 6.5), w_, 36.5, fc="none", ec=LINE, lw=1.2, zorder=3))
+    ax.text(4 + w_ / 2, 4.4, "Alert morning: HRV falling, resting heart rate rising", ha="center", fontsize=10, color=MUTED)
+bullets(ax, 50, 41, ["The wearable model asks: is a prodrome under way?",
+                     "The record model asks: how dangerous is that for this person?",
+                     "A stacker combines the two; every alert lists its drivers",
+                     "Replay a month, then see what really happened, including a\nmissed event and a false alarm",
+                     "76% of events caught, median 23 h ahead, about 1 false alert\nper patient-month"], 12, 6.2)
+ax.text(50, 9.5, "Synthetic data. Decision support, not a diagnosis.", fontsize=10.5, color=AMBER)
+
 # 10 --------------------------------------------------------------- what-if
 fig, ax = new("What-if: test the change on the virtual patient", "Patient 1705, last 14 days replayed with three changes together")
 sys.path.insert(0, str(ROOT / "src" / "api"))
@@ -281,14 +338,14 @@ for i, (t_, d_, c_) in enumerate(feats):
 # 12 --------------------------------------------------------------- limits and roadmap
 fig, ax = new("Limitations, ethics and what is next")
 ax.text(5, 44, "Limitations we state openly", fontsize=15, fontweight="bold", color=AMBER)
-bullets(ax, 5, 40.5, ["Glucose-to-organ links and what-if effect sizes are assumptions, not clinical findings",
+bullets(ax, 5, 40.5, ["Glucose-to-organ links, what-if effect sizes and the Heart watch couplings are assumptions, not clinical findings",
                       "Glucose model validated on 34 real subjects; patients in the demo are synthetic",
                       "Decision support for clinicians, not a diagnostic device; not clinically validated"], 12.5, 4.6)
 ax.text(5, 24.5, "Roadmap", fontsize=15, fontweight="bold", color=TEAL)
 bullets(ax, 5, 21, ["An illustrative, clearly labelled retina progression preview and a blood-pressure what-if",
                     "Consent records, audit log, role-based access, fuller FHIR and ABDM alignment",
                     "Native-speaker review of the Hindi, Telugu and Kannada patient app; synthetic clinical notes with a text model",
-                    "Validate the glucose-to-organ links on real longitudinal data when available"], 12.5, 4.6)
+                    "Validate the glucose-to-organ links and the Heart watch on real longitudinal data when available"], 12.5, 4.6)
 
 # 13 --------------------------------------------------------------- close
 fig = plt.figure(figsize=(13.33, 7.5))

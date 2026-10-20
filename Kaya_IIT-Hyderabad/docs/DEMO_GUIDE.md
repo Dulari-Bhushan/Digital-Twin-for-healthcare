@@ -79,6 +79,22 @@ In the patient app, Reports tab, **Add a report** lets the patient choose a PDF 
 
 Open **Admin** in the header (or `?view=admin`). It shows service health and uptime, request counts with p50 and p95 latency, the model and data inventory, integrations (voice, FHIR, live feed), assistant safety counters, an audit trail of recent actions (diary entries, PDF downloads, assistant outcomes, live sessions) and a hardening checklist. Press **Run self-test** (or open `?view=admin&selftest=1`) to run the main code paths once: artifacts, triage, what-if, the live model, record history, PDF rendering and storage. Start the server with `KAYA_ADMIN_TOKEN=...` to require a token. Counters and the audit trail are in memory and reset when the server restarts; no patient data or keys are shown.
 
+## Heart watch: a second adverse event from a week of sleep and heart-rate data
+
+Open **Heart watch** in the header (or `http://localhost:8000/?view=heart`). Six synthetic patients from the coupled cohort are listed; every score comes from a model that never saw that patient, so misses and false alarms are shown too.
+
+| Patient | What it shows |
+|---|---|
+| Abdul Rahman, Harish Menon | An event the flag warned about 1.5 to 3 days ahead (37 and 66 hours). Press **Replay the month**, watch night HRV fall and resting heart rate rise, then the alert, then the event marker at the end |
+| Venkat Rao | A missed event: no alert, and the screen says so |
+| Sarla Iyer | A benign scare the record calmed: the wearable pattern is unusual (amber verdict, "Watching") but her record risk is low, so no alert |
+| Dinesh Patel | A false alarm on a benign episode |
+| Sudhir Kulkarni | A high-risk record with a quiet wearable week: no alert |
+
+Direct links: `?view=heart&hp=1878&day=17` opens Harish Menon on his alert morning; `hp` is the patient id (726, 1878, 21, 1643, 1405, 1691) and `day` the morning (7 to 27).
+
+The two dials show the two streams (wearable pattern and record-risk percentile) and the combined 72-hour risk. **Why this score** lists the factors that pushed it up, tagged wearable or record. The table at the bottom is the measured performance on 2,000 held-out patients: use it, not the six examples, when asked how well it works. Say plainly that the cohort is synthetic and that cardiovascular events are far more frequent in it than in real life.
+
 ## Suggested flow (about 6 minutes)
 
 1. **Doctor view, Rajesh.** Show the triage list (sorted by priority; Priya is further down, pick her by name). Point at why he is flagged (time in range, liver, kidney, retinopathy). Press **Replay last 3 days**: the forecast fan appears before the evening spike.
@@ -89,6 +105,7 @@ Open **Admin** in the header (or `?view=admin`). It shows service health and upt
 6. **Assistant.** Tap the small microphone icon, ask a question in Hindi or Kannada, and try "how much insulin should I take" to show the safety rule.
 7. **Reports.** In the doctor view show the changes card, then open Reports and a retinal report; in the patient app tap the Reports tab.
 8. **Go live** in the doctor view and the **clinical summary** button, if time allows.
+9. **Heart watch.** Pick Harish Menon, replay the month, stop on the alert morning and show the two dials and the drivers. Then Sarla Iyer, to show the record calming a wearable scare. End on the evidence table.
 
 ## How the stories were made
 
