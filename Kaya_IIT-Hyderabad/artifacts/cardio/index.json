@@ -1,0 +1,58 @@
+{
+ "patients": [
+  {
+   "id": 1878,
+   "name": "Harish Menon",
+   "age": 69,
+   "sex": "M",
+   "story": "caught",
+   "n_alerts": 1,
+   "has_event": true
+  },
+  {
+   "id": 726,
+   "name": "Abdul Rahman",
+   "age": 56,
+   "sex": "M",
+   "story": "caught",
+   "n_alerts": 1,
+   "has_event": true
+  },
+  {
+   "id": 1643,
+   "name": "Venkat Rao",
+   "age": 60,
+   "sex": "M",
+   "story": "missed",
+   "n_alerts": 0,
+   "has_event": true
+  },
+  {
+   "id": 1691,
+   "name": "Sarla Iyer",
+   "age": 36,
+   "sex": "F",
+   "story": "reassured",
+   "n_alerts": 0,
+   "has_event": false
+  },
+  {
+   "id": 21,
+   "name": "Dinesh Patel",
+   "age": 46,
+   "sex": "M",
+   "story": "false_alarm",
+   "n_alerts": 1,
+   "has_event": false
+  },
+  {
+   "id": 1405,
+   "name": "Sudhir Kulkarni",
+   "age": 61,
+   "sex": "M",
+   "story": "quiet_high_risk",
+   "n_alerts": 0,
+   "has_event": false
+  }
+ ]
+}

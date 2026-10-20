@@ -1,0 +1,215 @@
+{
+ "n_mornings": 40216,
+ "n_patients": 2000,
+ "positive_rate": 0.041799283867117565,
+ "horizon_h": 72,
+ "folds": 5,
+ "overall": {
+  "static_logistic": {
+   "auroc": 0.6924413762931124,
+   "auprc": 0.07838597521449074,
+   "prevalence": 0.041799283867117565
+  },
+  "static": {
+   "auroc": 0.6628767917049999,
+   "auprc": 0.07188607554130866,
+   "prevalence": 0.041799283867117565
+  },
+  "rule": {
+   "auroc": 0.6946404556470253,
+   "auprc": 0.10727843684560545,
+   "prevalence": 0.041799283867117565
+  },
+  "wearable": {
+   "auroc": 0.8153604651997493,
+   "auprc": 0.26271006805352687,
+   "prevalence": 0.041799283867117565
+  },
+  "fused_early": {
+   "auroc": 0.8317812549713569,
+   "auprc": 0.30510569544634136,
+   "prevalence": 0.041799283867117565
+  },
+  "fused": {
+   "auroc": 0.8308792419447327,
+   "auprc": 0.30607255414223966,
+   "prevalence": 0.041799283867117565,
+   "brier": 0.03387464411659264,
+   "ece": 0.0029057128510913584
+  }
+ },
+ "auroc_with_ci": {
+  "static_logistic": {
+   "auroc": 0.6924413762931124,
+   "ci95": [
+    0.6719464977691205,
+    0.7086796137294916
+   ],
+   "fused_minus_this": {
+    "mean": 0.13902013126346652,
+    "ci95": [
+     0.120687790208234,
+     0.15838104463616554
+    ]
+   }
+  },
+  "static": {
+   "auroc": 0.6628767917049999,
+   "ci95": [
+    0.6380470013935516,
+    0.6804599586834794
+   ],
+   "fused_minus_this": {
+    "mean": 0.16887380721883638,
+    "ci95": [
+     0.14733860937051776,
+     0.18727924663038253
+    ]
+   }
+  },
+  "rule": {
+   "auroc": 0.6946404556470253,
+   "ci95": [
+    0.6762897150336602,
+    0.713457197355977
+   ],
+   "fused_minus_this": {
+    "mean": 0.13473113933109532,
+    "ci95": [
+     0.12003678423093526,
+     0.15025096906718013
+    ]
+   }
+  },
+  "wearable": {
+   "auroc": 0.8153604651997493,
+   "ci95": [
+    0.799587457494486,
+    0.8297763042288304
+   ],
+   "fused_minus_this": {
+    "mean": 0.015248397745552629,
+    "ci95": [
+     0.009550864293785167,
+     0.020865747786724204
+    ]
+   }
+  },
+  "fused_early": {
+   "auroc": 0.8317812549713569,
+   "ci95": [
+    0.8158451744487083,
+    0.8453915528846248
+   ],
+   "fused_minus_this": {
+    "mean": -0.0010652695950522106,
+    "ci95": [
+     -0.005800459083251638,
+     0.004158211060073024
+    ]
+   }
+  },
+  "fused": {
+   "auroc": 0.8308792419447327,
+   "ci95": [
+    0.8159810856772018,
+    0.8434097242780747
+   ]
+  }
+ },
+ "prodrome_event_vs_benign": {
+  "n": 4391,
+  "events": 1557,
+  "static_logistic": 0.8029374477908178,
+  "static": 0.7562477648917698,
+  "rule": 0.5874740342179489,
+  "wearable": 0.6753727673280094,
+  "fused_early": 0.733879005687883,
+  "fused": 0.7391102354246014
+ },
+ "alert_replay": {
+  "budget_false_alerts_per_patient_month": 1.0,
+  "static_logistic": {
+   "threshold": 0.07774036659595066,
+   "events": 595,
+   "caught": 145,
+   "sensitivity": 0.24369747899159663,
+   "alerts": 1459,
+   "true_alerts": 145,
+   "precision": 0.0993831391363948,
+   "patient_days": 40216,
+   "false_alerts_per_patient_month": 0.9802068828327034,
+   "median_lead_h": 32.833333333333336,
+   "lead_h_p25": 14.5
+  },
+  "rule": {
+   "threshold": 3.972822680465697,
+   "events": 595,
+   "caught": 262,
+   "sensitivity": 0.4403361344537815,
+   "alerts": 1467,
+   "true_alerts": 262,
+   "precision": 0.17859577368779822,
+   "patient_days": 40216,
+   "false_alerts_per_patient_month": 0.8988959618062463,
+   "median_lead_h": 17.458333333333332,
+   "lead_h_p25": 7.1875
+  },
+  "wearable": {
+   "threshold": 0.11272644733304597,
+   "events": 595,
+   "caught": 460,
+   "sensitivity": 0.773109243697479,
+   "alerts": 1875,
+   "true_alerts": 460,
+   "precision": 0.24533333333333332,
+   "patient_days": 40216,
+   "false_alerts_per_patient_month": 1.05555002983887,
+   "median_lead_h": 22.666666666666664,
+   "lead_h_p25": 9.145833333333332
+  },
+  "fused_early": {
+   "threshold": 0.11237402047018648,
+   "events": 595,
+   "caught": 450,
+   "sensitivity": 0.7563025210084033,
+   "alerts": 1785,
+   "true_alerts": 450,
+   "precision": 0.25210084033613445,
+   "patient_days": 40216,
+   "false_alerts_per_patient_month": 0.9958722896359659,
+   "median_lead_h": 25.708333333333336,
+   "lead_h_p25": 10.1875
+  },
+  "fused": {
+   "threshold": 0.11877354024542748,
+   "events": 595,
+   "caught": 454,
+   "sensitivity": 0.7630252100840336,
+   "alerts": 1926,
+   "true_alerts": 454,
+   "precision": 0.23572170301142265,
+   "patient_days": 40216,
+   "false_alerts_per_patient_month": 1.0980704197334394,
+   "median_lead_h": 23.0,
+   "lead_h_p25": 9.416666666666666
+  }
+ },
+ "stack_weights": {
+  "wearable_logit": 1.031261323034308,
+  "static_logit": 0.6780240855908198,
+  "intercept": 2.1948912372362117
+ },
+ "top_wearable_features_gain": {
+  "night HRV (RMSSD) (last night)": 0.3825744369008531,
+  "resting heart rate (last two days vs the two before)": 0.08831828310798663,
+  "night heart rate (90th pct) (last night)": 0.0652284492794409,
+  "resting heart rate (last night)": 0.03979059625220979,
+  "night HRV (RMSSD) (7-day average)": 0.03482613695282785,
+  "night heart rate (90th pct) (last two days vs the two before)": 0.0345427128671564,
+  "night HRV (RMSSD) (last two days vs the two before)": 0.02465087316260162,
+  "deep-sleep share (last night)": 0.020080627559449983,
+  "glucose variability (7-day average)": 0.01918812687518009,
+  "daytime HRV (7-day average)": 0.017855925589176164
+ }
+}

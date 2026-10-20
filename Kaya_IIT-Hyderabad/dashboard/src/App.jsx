@@ -4,6 +4,7 @@ import { AlertsCard, GlucoseCard, Hero, Organs, ProbCard, RangeCard, Sidebar, Wh
 import PatientApp from './components/PatientApp'
 import Record from './components/Record'
 import Admin from './components/Admin'
+import Heart from './components/Heart'
 import { ChangesCard } from './components/Reports'
 import { useLive } from './live'
 import { Logo } from './ui'
@@ -32,7 +33,7 @@ export default function App() {
   const params = new URLSearchParams(window.location.search)
   const [patients, setPatients] = useState([])
   const [sel, setSel] = useState(null)
-  const [mode, setMode] = useState(['patient', 'admin'].includes(params.get('view')) ? params.get('view') : 'doctor')
+  const [mode, setMode] = useState(['patient', 'admin', 'heart'].includes(params.get('view')) ? params.get('view') : 'doctor')
   const [d, setD] = useState(null)
   const [series, setSeries] = useState(null)
   const [changes, setChanges] = useState(null)
@@ -100,13 +101,14 @@ export default function App() {
         )}
         <div className="switch" role="tablist">
           <button className={mode === 'doctor' ? 'on' : ''} onClick={() => setMode('doctor')}>Doctor</button>
+          <button className={mode === 'heart' ? 'on' : ''} onClick={() => setMode('heart')}>Heart watch</button>
           <button className={mode === 'patient' ? 'on' : ''} onClick={() => setMode('patient')}>Patient</button>
           <button className={mode === 'admin' ? 'on' : ''} onClick={() => setMode('admin')}>Admin</button>
         </div>
       </header>
 
       {record && d && d.profile.id === sel && <Record d={d} pid={sel} tab={record.tab} setTab={(tab) => setRecord({ tab })} onClose={() => setRecord(null)} changes={changes} />}
-      {mode === 'admin' ? <Admin /> : mode === 'patient' ? (
+      {mode === 'admin' ? <Admin /> : mode === 'heart' ? <Heart /> : mode === 'patient' ? (
         ready ? <PatientApp d={d} at={at} pid={sel} changes={changes} /> : <div className="stage muted">Loading…</div>
       ) : (
         <div className="layout">

@@ -41,6 +41,7 @@ from voice import CHAT_MODEL, LANG_CODES, STT_MODEL, TTS_MODEL, SarvamClient, Vo
 from liver_dynamic import LiverParams, risk_timeline  # noqa: E402
 
 ART_DIR = Path(os.environ.get("KAYA_ARTIFACTS", ROOT / "artifacts" / "demo"))
+CARDIO_DIR = Path(os.environ.get("KAYA_CARDIO", ROOT / "artifacts" / "cardio"))
 T0 = datetime(2026, 1, 1, tzinfo=timezone.utc)
 STEP_MIN = 5
 HORIZONS_MIN = [30, 60, 120]
@@ -63,6 +64,7 @@ async def _telemetry(request: Request, call_next):
 
 
 STORE: dict[int, dict] = {}
+CARDIO: dict = {"patients": {}, "evidence": None}
 META: dict = {}
 MODEL_DIR = Path(os.environ.get("KAYA_MODEL", ROOT / "artifacts" / "model"))
 LIVE: dict = {}
@@ -117,6 +119,10 @@ def load() -> None:
         STORE[item["id"]] = json.loads((ART_DIR / f"{item['id']}.json").read_text())
         STORE[item["id"]]["profile"]["name"] = name_of(item["id"])
         STORE[item["id"]]["profile"]["demo_tag"] = DEMO_TAGS.get(item["id"])
+    if (CARDIO_DIR / "index.json").exists():
+        for item in json.loads((CARDIO_DIR / "index.json").read_text())["patients"]:
+            CARDIO["patients"][item["id"]] = json.loads((CARDIO_DIR / f"{item['id']}.json").read_text())
+        CARDIO["evidence"] = json.loads((CARDIO_DIR / "evidence.json").read_text())
     key = load_key(ROOT)
     VOICE["client"] = SarvamClient(key) if key else None
     if (MODEL_DIR / "gru_numpy.npz").exists():
@@ -656,6 +662,12 @@ def admin_selftest(request: Request):
             f.write(b"ok")
         return "writable"
 
+    def heart_watch():
+        assert CARDIO["patients"], "Heart watch artifacts not built"
+        a = next(iter(CARDIO["patients"].values()))
+        assert all(0 <= x["p"] <= 1 for x in a["mornings"])
+        return f"{len(CARDIO['patients'])} patients, {len(a['mornings'])} mornings each"
+
     def voice_key():
         assert VOICE.get("client") is not None, "no key configured"
         return "configured"
@@ -668,6 +680,7 @@ def admin_selftest(request: Request):
     run("Triage list", triage)
     run("What-if engine", whatif_run)
     run("Live model (numpy GRU)", live_model)
+    run("Heart watch artifacts", heart_watch, warn=True)
     run("Medical record history", records)
     run("PDF rendering", pdf)
     run("Diary storage writable", diary_dir)
@@ -713,6 +726,33 @@ def fhir_observations(patient: int):
     ]
     return {"resourceType": "Bundle", "type": "searchset", "total": len(items),
             "entry": [{"resource": o} for o in items]}
+
+
+# ------------------------------------------------------------------ Heart watch: cardiovascular flag on a coupled synthetic cohort
+@app.get("/api/cardio/patients")
+def cardio_patients():
+    """Heart watch patients. Scores were produced by a model that never saw the patient (patient-grouped cross-validation)."""
+    out = []
+    for pid, a in CARDIO["patients"].items():
+        pr, m = a["profile"], a["mornings"]
+        out.append({"id": pid, "name": pr["name"], "age": pr["age"], "sex": pr["sex"], "prior_cvd": pr["prior_cvd"],
+                    "smoker": pr["smoker"], "sbp": pr["sbp"], "alerts": sum(x["alert"] for x in m),
+                    "peak_p": max(x["p"] for x in m), "record_pct": round(sum(x["record_pct"] for x in m) / len(m), 3)})
+    return sorted(out, key=lambda r: -r["peak_p"])
+
+
+@app.get("/api/cardio/evidence")
+def cardio_evidence():
+    if CARDIO["evidence"] is None:
+        raise HTTPException(404, "Heart watch artifacts not built (run src/api/build_cardio_artifacts.py)")
+    return CARDIO["evidence"]
+
+
+@app.get("/api/cardio/{pid}")
+def cardio_patient(pid: int):
+    if pid not in CARDIO["patients"]:
+        raise HTTPException(404, f"Heart watch patient {pid} not found")
+    return CARDIO["patients"][pid]
 
 
 # ------------------------------------------------------------------ example retina images with Grad-CAM (IDRiD, CC BY 4.0)
