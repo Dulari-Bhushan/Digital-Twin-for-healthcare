@@ -250,3 +250,38 @@ def test_whatif_by_medicine(client):
     if opts["can_add"]:
         added = client.post(f"/api/patients/{pid}/whatif", json={"medicines": {opts["can_add"][0]["key"]: "add"}}).json()
         assert added["metrics"]["after"]["mean"] < plain["metrics"]["after"]["mean"]
+
+
+def test_alert_evidence_trades_catches_against_false_alerts(client):
+    ev = client.get("/api/alerts/evidence").json()
+    for kind in ("hyper", "hypo"):
+        pts = {p["setting"]: p for p in ev["events"][kind]}
+        assert set(pts) == {"strict", "balanced", "sensitive"}
+        assert pts["strict"]["caught"] < pts["balanced"]["caught"] < pts["sensitive"]["caught"]
+        assert pts["strict"]["false_alerts_per_day"] < pts["balanced"]["false_alerts_per_day"] < pts["sensitive"]["false_alerts_per_day"]
+        assert all(0 <= p["caught"] <= 1 and 0 <= p["right"] <= 1 for p in pts.values())
+
+
+def test_doctor_message_prescription_flow(client, tmp_path, monkeypatch):
+    import messages
+
+    monkeypatch.setattr(messages, "MSG_DIR", tmp_path)
+    pid = client.get("/api/patients").json()[0]["id"]
+    assert client.get(f"/api/patients/{pid}/messages").json() == {"items": [], "unread": 0}
+    # urgent message needs an action
+    assert client.post(f"/api/patients/{pid}/messages", json={"kind": "urgent", "body": "Come in"}).status_code == 422
+    u = client.post(f"/api/patients/{pid}/messages", json={"kind": "urgent", "body": "Come to the clinic today", "action": "come_to_clinic"}).json()
+    assert client.get(f"/api/patients/{pid}/messages").json()["unread"] == 1
+    assert client.post(f"/api/patients/{pid}/messages/{u['id']}/read").json()["read"] is True
+    assert client.post(f"/api/patients/{pid}/messages/zzz/read").status_code == 404
+    # a prescription updates the medicine list and adds a report
+    before = client.get(f"/api/patients/{pid}/reports").json()
+    first = before["medications"][0]["name"]
+    rx = client.post(f"/api/patients/{pid}/prescriptions", json={"changes": [
+        {"medicine": first, "action": "stop"}, {"medicine": "Sitagliptin", "action": "start", "dose": "100 mg once a day"}], "note": "Reviewed your data"}).json()
+    assert rx["kind"] == "prescription"
+    after = client.get(f"/api/patients/{pid}/reports").json()
+    names = [m["name"] for m in after["medications"]]
+    assert first not in names and "Sitagliptin" in names
+    assert any(r["code"] == "RX" and r["days_ago"] == 0 for r in after["reports"])
+    assert client.post(f"/api/patients/{pid}/prescriptions", json={"changes": [{"medicine": "X", "action": "start"}]}).status_code == 422

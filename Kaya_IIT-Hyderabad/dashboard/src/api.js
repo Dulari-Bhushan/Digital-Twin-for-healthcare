@@ -3,6 +3,7 @@ const j = (r) => {
   return r.json()
 }
 
+export const getAlertEvidence = () => fetch('/api/alerts/evidence').then(j)
 export const getPatients = () => fetch('/api/patients').then(j)
 export const getPatient = (id) => fetch(`/api/patients/${id}`).then(j)
 export const getSeries = (id, days = 3) => fetch(`/api/patients/${id}/series?days=${days}`).then(j)
@@ -13,6 +14,15 @@ export const postWhatIf = (id, body) =>
     body: JSON.stringify(body),
   }).then(j)
 export const getWhatIfMedicines = (id) => fetch(`/api/patients/${id}/whatif/medicines`).then(j)
+export const getMessages = (id) => fetch(`/api/patients/${id}/messages`).then(j)
+const post = async (url, body) => {
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
+  if (!r.ok) { let m = `${r.status}`; try { m = (await r.json()).detail || m } catch (e) { /* not json */ } throw new Error(typeof m === 'string' ? m : 'Please check the form') }
+  return r.json()
+}
+export const sendMessage = (id, body) => post(`/api/patients/${id}/messages`, body)
+export const sendPrescription = (id, body) => post(`/api/patients/${id}/prescriptions`, body)
+export const readMessage = (id, mid) => post(`/api/patients/${id}/messages/${mid}/read`)
 export const getReports = (id) => fetch(`/api/patients/${id}/reports`).then(j)
 export const getChanges = (id) => fetch(`/api/patients/${id}/changes`).then(j)
 export const getUploads = (id) => fetch(`/api/patients/${id}/uploads`).then(j)

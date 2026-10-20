@@ -35,6 +35,7 @@ import admin as adm  # noqa: E402
 import diary  # noqa: E402
 import labparse  # noqa: E402
 import uploads as upl  # noqa: E402
+import messages as msgs  # noqa: E402
 import reports as rpt  # noqa: E402
 from live import Calibration, LiveTwin, NumpyGRU  # noqa: E402
 from names import DEMO_TAGS, name_of  # noqa: E402
@@ -153,6 +154,15 @@ def patients():
     return sorted(rows, key=lambda r: -r["score"])
 
 
+@app.get("/api/alerts/evidence")
+def alert_evidence():
+    """How reliable the glucose alerts are on real recordings: caught, right, false alerts per day and warning time, at three settings."""
+    f = ART_DIR / "alert_evidence.json"
+    if not f.exists():
+        raise HTTPException(404, "alert evidence not built (run src/api/build_alert_evidence.py)")
+    return json.loads(f.read_text())
+
+
 @app.get("/api/patients/{pid}")
 def patient(pid: int):
     a = _get(pid)
@@ -207,7 +217,7 @@ class WhatIf(BaseModel):
 def whatif_medicines(pid: int):
     """The patient's current medicines, what can be changed for each, and drugs that could be added, with the assumed effect of each."""
     _get(pid)
-    meds = _record(pid)["record"]["medications"]
+    meds = _meds_now(pid)
     keys = {k for k in (med.key_of(m["name"]) for m in meds) if k}
     out = med.options(keys)
     dose = {m["name"]: m["dose"] for m in meds}
@@ -224,12 +234,18 @@ def whatif(pid: int, body: WhatIf):
     return _whatif_compute(_get(pid), body)
 
 
+def _meds_now(pid: int) -> list[dict]:
+    """The medicine list including any prescriptions the doctor has sent."""
+    rx = [m for m in msgs.list_messages(pid) if m["kind"] == "prescription"]
+    return msgs.apply_to_medicines(_record(pid)["record"]["medications"], rx)
+
+
 def _whatif_compute(a: dict, body: WhatIf):
     sr, pr = a["series"], a["profile"]
     g = np.array(sr["glucose"], dtype=float)
     meals = np.array(sr["meal_carbs"], dtype=float)
     steps_day = float(np.sum(sr["steps"]) / (len(g) / 288))
-    cur = {k for k in (med.key_of(m["name"]) for m in _record(pr["id"])["record"]["medications"]) if k}
+    cur = {k for k in (med.key_of(m["name"]) for m in _meds_now(pr["id"])) if k}
     try:
         m_shift, m_low, m_carb, m_rows = med.combine(body.medicines, cur)
     except ValueError as e:
@@ -309,9 +325,81 @@ def reports_list(pid: int):
     out = {k: v for k, v in rec.items() if not k.startswith("_")}
     today = _today(pid)
     extra = [r for r in (rpt.uploaded_report(pid, m, today, rec["reports"]) for m in upl.list_uploads(pid, full=True)) if r]
+    rx = [m for m in msgs.list_messages(pid) if m["kind"] == "prescription"]
+    for m in rx:                                           # the doctor's virtual consultation notes
+        days = max(0, (today.date() - datetime.strptime(m["created"][:10], "%Y-%m-%d").date()).days)
+        extra.append(msgs.report_for(pid, m, days))
     if extra:
         out["reports"] = sorted(rec["reports"] + extra, key=lambda r: (r["days_ago"], r["code"]))
+    if rx:
+        out["medications"] = msgs.apply_to_medicines(out["medications"], rx)   # prescriptions change the medicine list
     return out
+
+
+# ------------------------------------------------------------------ messages and prescriptions from the doctor to the patient
+class MessageReq(BaseModel):
+    kind: str = Field(..., description="urgent or advice")
+    title: str = Field("", max_length=80)
+    body: str = Field(..., min_length=1, max_length=1000)
+    action: str | None = Field(None, description="for urgent: come_to_clinic, go_to_er or call_clinic")
+
+
+class RxChange(BaseModel):
+    medicine: str = Field(..., min_length=1, max_length=60)
+    action: str = Field(..., description="start, stop or change_dose")
+    dose: str = Field("", max_length=80)
+    instructions: str = Field("", max_length=200)
+
+
+class RxReq(BaseModel):
+    changes: list[RxChange] = Field(default_factory=list, max_length=msgs.MAX_CHANGES)
+    note: str = Field("", max_length=1000)
+
+
+def _stamp(pid: int) -> str:
+    return f"{_today(pid).strftime('%Y-%m-%d')} {datetime.now().strftime('%H:%M:%S')}"
+
+
+@app.get("/api/patients/{pid}/messages")
+def messages_list(pid: int):
+    _get(pid)
+    items = msgs.list_messages(pid)
+    return {"items": items, "unread": sum(not m["read"] for m in items)}
+
+
+@app.post("/api/patients/{pid}/messages")
+def messages_send(pid: int, body: MessageReq):
+    """The doctor sends the patient an urgent message or advice. It appears in the patient app within seconds."""
+    _get(pid)
+    try:
+        m = msgs.send(pid, body.kind, body.title, body.body, body.action, _stamp(pid))
+    except ValueError as e:
+        raise HTTPException(422, str(e)) from e
+    adm.TEL.audit("clinician", f"{m['kind']} message sent to patient", f"patient {pid}")
+    return m
+
+
+@app.post("/api/patients/{pid}/prescriptions")
+def prescriptions_send(pid: int, body: RxReq):
+    """A virtual consultation note with medicine changes. It updates the medicine list, adds a report, and pops up in the patient app."""
+    _get(pid)
+    try:
+        m = msgs.prescribe(pid, [c.model_dump() for c in body.changes], body.note, _stamp(pid))
+    except ValueError as e:
+        raise HTTPException(422, str(e)) from e
+    adm.TEL.audit("clinician", "prescription and consultation note sent", f"patient {pid}: {len(m['changes'])} medicine change(s)")
+    return m
+
+
+@app.post("/api/patients/{pid}/messages/{mid}/read")
+def messages_read(pid: int, mid: str):
+    """The patient has seen the message."""
+    _get(pid)
+    m = msgs.mark_read(pid, mid)
+    if m is None:
+        raise HTTPException(404, "message not found")
+    adm.TEL.audit("patient app", "message acknowledged", f"patient {pid}")
+    return m
 
 
 @app.get("/api/patients/{pid}/changes")

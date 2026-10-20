@@ -9,7 +9,7 @@
 ![CI](https://github.com/Dulari-Bhushan/Digital-Twin-for-healthcare/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 ![Data](https://img.shields.io/badge/data-open%20%2B%20synthetic%20only-green)
-![Tests](https://img.shields.io/badge/tests-101%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-116%20passing-brightgreen)
 
 ![Kaya doctor workspace](Kaya_IIT-Hyderabad/docs/img/doctor_view.png)
 
@@ -200,6 +200,7 @@ The full diagrams are in [`architecture_2page.pdf`](Kaya_IIT-Hyderabad/docs/arch
 | **Live mode** | The glucose model runs on every incoming 5-minute reading (about 1 ms, pure numpy, no GPU) and the dashboard updates in real time. Press **Go live** in the doctor view, or POST readings to `/api/live/{id}/reading`. A WebSocket feed (`/ws/live/{id}`) simulates a wearable. |
 | **Full patient record** | 14-day glucose history, daily time in range, a typical-day profile, meal responses, wearable trends, liver, eye and kidney projections with their drivers, labs with reference flags, and every alert with its reason. |
 | **Heart watch** | Replays a patient's month morning by morning. Each morning at 10:00 a cardiovascular flag reads the last seven nights (sleep, HRV, resting heart rate, steps, glucose control) with the static record, shows the wearable pattern and the record risk as two dials that combine into one 72-hour risk, raises an alert above a threshold set for about one false alert per patient-month, and lists the factors that pushed the score up. Six held-out patients show a caught event, a missed event, a benign scare the record calmed, a false alarm and a quiet high-risk patient. |
+| **Message the patient** | In the doctor's record, a **Message patient** tab sends an urgent message (come to the clinic, go to the emergency room, call the clinic) or plain advice, with quick templates. It shows at the top of the patient app within seconds, and the doctor sees when it has been seen. The same tab writes a **consultation note and prescription**: stop, start or change the dose of medicines, with a note. It updates the medicine list, adds a "Teleconsultation note and prescription" report to the Reports tab, and pops up in the patient app until the patient acknowledges it. Demonstration only; no real prescribing. |
 | **What-if studio** | Meal size, walking after meals, sleep and medicine presets (or medicine by medicine: stop, change the dose, or add a drug), with the change shown in the glucose curve and in one-year organ risk. |
 | **Medical reports** | Lab panels, retinal and liver scans, chest X-ray, ECG, foot exam, clinic notes and the wearable summary, each with reference ranges, flags, the previous value, a PDF and trends. The patient sees a plain-language version and a medicine list. All reports are synthetic. |
 | **What changed since the last visit** | Compares today with the last clinic visit (HbA1c, eGFR, urine albumin, liver enzymes, blood pressure, weight, eye grade, new medicines) and the last 7 days of wearable data with the week before, and lists what needs attention. |
@@ -211,7 +212,7 @@ The full diagrams are in [`architecture_2page.pdf`](Kaya_IIT-Hyderabad/docs/arch
 | **Clinical summary PDF** | One click from the doctor view (`/api/patients/{id}/report.pdf`): glucose chart with forecast, organ risks with their evidence level, what-if table and recent alerts. |
 | **Admin page** | Service health, model and data inventory with how each model was validated, integration status, latency per route, assistant safety counters (outcomes only, never message text), an audit trail, a one-click self-test and an honest hardening list. Set `KAYA_ADMIN_TOKEN` to require a token. |
 | **FHIR R4** | Read-only `Patient` and `Observation` endpoints under `/fhir`. |
-| **Tests and CI** | 101 tests (data, what-if, live inference against PyTorch, API, assistant safety, uploads, PDF, FHIR, coupled cohort, cardiovascular flag, Heart watch) run on every push with GitHub Actions. |
+| **Tests and CI** | 116 tests (data, what-if, live inference against PyTorch, API, assistant safety, uploads, PDF, FHIR, coupled cohort, cardiovascular flag, Heart watch) run on every push with GitHub Actions. |
 
 ## 6. AI/ML models and results
 
@@ -428,7 +429,7 @@ Kaya_IIT-Hyderabad/
 ├── results/         evaluation metrics (JSON)
 ├── docs/            architecture, presentation, model cards, demo guide, screenshots
 ├── scripts/         data download and server setup
-├── tests/           101 tests
+├── tests/           116 tests
 ├── Dockerfile, docker-compose.yml
 └── requirements.txt, requirements-api.txt
 ```

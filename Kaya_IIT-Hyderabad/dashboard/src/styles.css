@@ -345,3 +345,30 @@ a.btn.go { color: #fff; }
 .medform label { display: grid; gap: 4px; font-size: 12.5px; font-weight: 700; color: var(--muted); }
 .medform input[type=text], .medform input:not([type]) { border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 12px; font: inherit; color: var(--ink); }
 .medform .chk { display: flex; gap: 8px; align-items: center; }
+.reliab { margin-top: 14px; padding: 10px 14px; border-radius: 16px; background: rgba(28, 52, 50, .05); }
+.reliab summary { cursor: pointer; font-weight: 800; font-size: 13.5px; color: var(--lav-dd); }
+
+/* doctor messages */
+.medform textarea { border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 12px; font: inherit; color: var(--ink); resize: vertical; }
+.rx-in { border: 1.5px solid var(--line); border-radius: 12px; padding: 7px 11px; font: inherit; color: var(--ink); min-width: 220px; flex: 1; }
+.in-urgent, .in-advice { border-radius: 20px; padding: 12px 14px; margin: 4px 0 10px; font-size: 13.5px; }
+.in-urgent { background: var(--rose); color: var(--rose-dd); border: 2px solid var(--rose-d); position: sticky; top: 0; z-index: 4; box-shadow: 0 8px 20px rgba(196, 100, 91, .3); }
+.in-advice { background: var(--sky); color: var(--sky-dd); }
+.in-h { font-size: 11.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 4px; }
+.in-urgent p, .in-advice p, .rx-note p { margin: 3px 0 6px; font-weight: 600; line-height: 1.4; }
+.in-act { font-weight: 800; font-size: 15px; background: #fff; border-radius: 12px; padding: 8px 10px; margin-bottom: 8px; }
+.in-urgent button, .in-advice button { border: 0; border-radius: 999px; padding: 8px 16px; font-weight: 800; background: var(--rose-d); color: #fff; }
+.in-advice button { background: var(--sky-d); }
+.in-past { font-size: 12.5px; color: var(--muted); margin-bottom: 8px; }
+.in-past summary { cursor: pointer; font-weight: 800; }
+.in-past > div { padding: 6px 0; border-top: 1px solid var(--line); }
+.in-past small { display: block; opacity: .8; } .in-past p { margin: 2px 0 0; }
+.rx-overlay { position: absolute; inset: 0; z-index: 40; background: rgba(28, 52, 50, .45); display: grid; place-items: center; padding: 18px; }
+.rx-card { background: #fff; border-radius: 28px; padding: 18px; max-height: 100%; overflow-y: auto; width: 100%; }
+.rx-card .in-h { color: var(--lav-dd); font-size: 13px; }
+.rx-list { display: grid; gap: 8px; margin: 8px 0; }
+.rx-row { display: flex; gap: 10px; align-items: flex-start; background: var(--mint); border-radius: 16px; padding: 10px 12px; font-size: 14px; }
+.rx-row.stop { background: var(--rose); } .rx-row.change_dose { background: var(--butter); }
+.rx-row small { display: block; color: var(--muted); font-weight: 600; }
+.rx-tag { flex: none; font-size: 11px; font-weight: 800; text-transform: uppercase; background: #fff; border-radius: 999px; padding: 3px 9px; }
+.rx-note { background: #f5f7f6; border-radius: 16px; padding: 10px 12px; font-size: 13.5px; }

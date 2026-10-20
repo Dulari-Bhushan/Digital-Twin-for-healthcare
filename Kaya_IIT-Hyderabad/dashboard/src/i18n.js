@@ -136,6 +136,32 @@ const kn = {
   loading: 'ಲೋಡ್ ಆಗುತ್ತಿದೆ…', lang_note: 'ಹಿಂದಿ, ತೆಲುಗು ಮತ್ತು ಕನ್ನಡ ಅನುವಾದಗಳು ಸ್ಥಳೀಯ ಭಾಷಾ ತಜ್ಞರ ಪರಿಶೀಲನೆಯವರೆಗೆ ಕರಡುಗಳು.',
 }
 
+// Doctor messages and prescriptions (the doctor's own text is shown as written, not translated)
+Object.assign(en, {
+  msg_urgent: 'Urgent message from your doctor', msg_advice: 'Message from your doctor', msg_seen: 'I have seen this',
+  msg_act_clinic: 'Please come to the clinic today.', msg_act_er: 'Please go to the nearest emergency room now.', msg_act_call: 'Please call the clinic.',
+  msg_past: 'Earlier messages', rx_title: 'Your doctor changed your medicines', rx_note_title: "Doctor's note",
+  rx_start: 'Start', rx_stop: 'Stop', rx_dose: 'Change dose', rx_ok: 'Got it, show me my reports',
+})
+Object.assign(hi, {
+  msg_urgent: 'डॉक्टर का ज़रूरी संदेश', msg_advice: 'डॉक्टर का संदेश', msg_seen: 'मैंने देख लिया',
+  msg_act_clinic: 'कृपया आज ही क्लिनिक आएँ।', msg_act_er: 'कृपया अभी नज़दीकी इमरजेंसी में जाएँ।', msg_act_call: 'कृपया क्लिनिक को फ़ोन करें।',
+  msg_past: 'पिछले संदेश', rx_title: 'आपके डॉक्टर ने आपकी दवाएँ बदली हैं', rx_note_title: 'डॉक्टर का नोट',
+  rx_start: 'शुरू करें', rx_stop: 'बंद करें', rx_dose: 'खुराक बदलें', rx_ok: 'समझ गया, मेरी रिपोर्ट दिखाएँ',
+})
+Object.assign(te, {
+  msg_urgent: 'డాక్టర్ నుండి అత్యవసర సందేశం', msg_advice: 'డాక్టర్ నుండి సందేశం', msg_seen: 'నేను చూశాను',
+  msg_act_clinic: 'దయచేసి ఈ రోజే క్లినిక్‌కు రండి.', msg_act_er: 'దయచేసి వెంటనే దగ్గరలోని అత్యవసర విభాగానికి వెళ్ళండి.', msg_act_call: 'దయచేసి క్లినిక్‌కు ఫోన్ చేయండి.',
+  msg_past: 'ఇంతకు ముందు సందేశాలు', rx_title: 'మీ డాక్టర్ మీ మందులను మార్చారు', rx_note_title: 'డాక్టర్ గమనిక',
+  rx_start: 'మొదలుపెట్టండి', rx_stop: 'ఆపండి', rx_dose: 'మోతాదు మార్చండి', rx_ok: 'అర్థమైంది, నా రిపోర్టులు చూపించు',
+})
+Object.assign(kn, {
+  msg_urgent: 'ವೈದ್ಯರಿಂದ ತುರ್ತು ಸಂದೇಶ', msg_advice: 'ವೈದ್ಯರ ಸಂದೇಶ', msg_seen: 'ನಾನು ನೋಡಿದೆ',
+  msg_act_clinic: 'ದಯವಿಟ್ಟು ಇಂದೇ ಕ್ಲಿನಿಕ್‌ಗೆ ಬನ್ನಿ.', msg_act_er: 'ದಯವಿಟ್ಟು ಈಗಲೇ ಹತ್ತಿರದ ತುರ್ತು ವಿಭಾಗಕ್ಕೆ ಹೋಗಿ.', msg_act_call: 'ದಯವಿಟ್ಟು ಕ್ಲಿನಿಕ್‌ಗೆ ಕರೆ ಮಾಡಿ.',
+  msg_past: 'ಹಿಂದಿನ ಸಂದೇಶಗಳು', rx_title: 'ನಿಮ್ಮ ವೈದ್ಯರು ನಿಮ್ಮ ಔಷಧಿಗಳನ್ನು ಬದಲಾಯಿಸಿದ್ದಾರೆ', rx_note_title: 'ವೈದ್ಯರ ಟಿಪ್ಪಣಿ',
+  rx_start: 'ಪ್ರಾರಂಭಿಸಿ', rx_stop: 'ನಿಲ್ಲಿಸಿ', rx_dose: 'ಪ್ರಮಾಣ ಬದಲಿಸಿ', rx_ok: 'ಅರ್ಥವಾಯಿತು, ನನ್ನ ವರದಿಗಳನ್ನು ತೋರಿಸಿ',
+})
+
 const DICT = { en, hi, te, kn }
 
 export function makeT(lang) {

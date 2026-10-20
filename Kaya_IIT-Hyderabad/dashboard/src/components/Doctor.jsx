@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { getWhatIfMedicines, postWhatIf } from '../api'
+import { getAlertEvidence, getWhatIfMedicines, postWhatIf } from '../api'
 import { fmtDT, fmtHM, explain } from '../utils'
 import { DR, EyeArt, KidneyArt, LiverArt, Ring, SegRing, TONE, pct, tierTone } from '../ui'
 import GlucoseChart from './GlucoseChart'
@@ -35,7 +35,7 @@ function Drivers({ items, title }) {
   )
 }
 
-const guard = (fn) => (e) => { if (e.target.closest('button, a, input, select, label')) return; fn() }
+const guard = (fn) => (e) => { if (e.target.closest('button, a, input, select, label, details, summary')) return; fn() }
 
 export const initialsOf = (name) => (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('')
 
@@ -82,6 +82,7 @@ export function Hero({ d, onOpen }) {
       </div>
       <div style={{ textAlign: 'right' }}>
         <a className="btn sm go" style={{ textDecoration: 'none', marginBottom: 10 }} href={`/api/patients/${p.id}/report.pdf`} target="_blank" rel="noreferrer">📄 Download clinical summary</a>
+        <button className="btn sm" style={{ marginBottom: 10, marginLeft: 6, background: 'var(--rose)', color: 'var(--rose-dd)' }} onClick={() => onOpen('message')}>✉ Message patient</button>
         <br />
         <span className="chip" style={{ background: t.bg, color: t.dd, fontSize: 14, padding: '9px 16px' }}>
           {d.summary.tier} priority
@@ -454,6 +455,43 @@ export function WhatIfStudio({ pid }) {
   )
 }
 
+const SETTING = { strict: 'Strict', balanced: 'Balanced (used here)', sensitive: 'Sensitive' }
+
+/** How much to trust an alert: what the alerts did on real recordings at three settings. Opens on demand. */
+function AlertReliability() {
+  const [ev, setEv] = useState(null)
+  const [open, setOpen] = useState(false)
+  useEffect(() => { if (open && !ev) getAlertEvidence().then(setEv).catch(() => setEv(false)) }, [open])
+  const table = (key, title, icon) => (
+    <div style={{ marginTop: 10 }}>
+      <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 4 }}>{icon} {title} <span className="muted" style={{ fontWeight: 600 }}>({ev.events[key][0].episodes} real episodes)</span></div>
+      <table className="rt">
+        <thead><tr><th>Setting</th><th>Episodes warned about</th><th>Alerts that were right</th><th>False alerts a day</th><th>Typical warning</th></tr></thead>
+        <tbody>{ev.events[key].map((r) => (
+          <tr key={r.setting} style={r.setting === 'balanced' ? { background: 'var(--lav)', fontWeight: 800 } : undefined}>
+            <td>{SETTING[r.setting]}</td><td>{pct(r.caught)}</td><td>{pct(r.right)}</td><td>{r.false_alerts_per_day.toFixed(1)}</td><td>{Math.round(r.median_warning_min)} min</td>
+          </tr>
+        ))}</tbody>
+      </table>
+    </div>
+  )
+  return (
+    <details className="reliab" onToggle={(e) => setOpen(e.target.open)}>
+      <summary>How reliable are these alerts?</summary>
+      {ev === false && <div className="muted" style={{ marginTop: 8 }}>The evidence file is not available on this server.</div>}
+      {ev && (
+        <>
+          {table('hyper', 'High glucose (above 180)', '📈')}
+          {table('hypo', 'Low glucose (below 70)', '🍬')}
+          <div className="muted" style={{ fontSize: 12, marginTop: 10 }}>
+            {ev.source}. A stricter setting means fewer false alarms but many episodes go unwarned; a looser one warns about more but most alerts are then false. The forecast looks 2 hours ahead, but the typical alert fires 40 to 50 minutes before the event.
+          </div>
+        </>
+      )}
+    </details>
+  )
+}
+
 export function AlertsCard({ alerts, series, onOpen }) {
   const list = [...alerts].reverse().slice(0, 6)
   return (
@@ -478,6 +516,7 @@ export function AlertsCard({ alerts, series, onOpen }) {
           )
         })}
       </div>
+      <AlertReliability />
     </div>
   )
 }

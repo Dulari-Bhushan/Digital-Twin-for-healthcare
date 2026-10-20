@@ -6,9 +6,10 @@ import { FEATURE_NAMES, agp, dailyStats, dayLabel, egfrStage, eyeFactors, kidney
 import LineChart from './LineChart'
 import DiarySection from './Diary'
 import { ChangesCard, ReportsTab } from './Reports'
+import MessageTab from './Message'
 import { AgpChart, Bars, CgmChart, Contrib, DataTable, StackedTir } from './RecordCharts'
 
-export const TABS = [['catchup', 'Catch-up'], ['overview', 'Overview'], ['reports', 'Reports'], ['glucose', 'Glucose'], ['liver', 'Liver'], ['eyes', 'Eyes'], ['kidneys', 'Kidneys'], ['alerts', 'Alerts'], ['profile', 'Profile and labs']]
+export const TABS = [['catchup', 'Catch-up'], ['overview', 'Overview'], ['reports', 'Reports'], ['glucose', 'Glucose'], ['liver', 'Liver'], ['eyes', 'Eyes'], ['kidneys', 'Kidneys'], ['alerts', 'Alerts'], ['message', '✉ Message patient'], ['profile', 'Profile and labs']]
 
 const Section = ({ title, hint, children, tone }) => (
   <section className={`card ${tone || 'soft'} rec-sec`} style={{ boxShadow: 'none' }}>
@@ -391,7 +392,7 @@ export default function Record({ d, pid, tab, setTab, onClose, changes }) {
             tab === 'liver' ? <LiverTab d={d} /> :
             tab === 'eyes' ? <EyesTab d={d} /> :
             tab === 'kidneys' ? <KidneyTab d={d} /> :
-            tab === 'alerts' ? <AlertsTab d={d} series={series} /> : <ProfileTab d={d} />
+            tab === 'alerts' ? <AlertsTab d={d} series={series} /> : tab === 'message' ? <MessageTab pid={pid} /> : <ProfileTab d={d} />
           )}
         </div>
       </aside>

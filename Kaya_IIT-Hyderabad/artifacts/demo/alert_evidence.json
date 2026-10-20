@@ -1,0 +1,58 @@
+{
+ "source": "Real CGMacros recordings, 34 subjects, alert replay on held-out subjects",
+ "unit": "per patient-day",
+ "events": {
+  "hyper": [
+   {
+    "setting": "strict",
+    "false_alerts_per_day": 0.11,
+    "caught": 0.054,
+    "right": 0.333,
+    "median_warning_min": 20.0,
+    "episodes": 316
+   },
+   {
+    "setting": "balanced",
+    "false_alerts_per_day": 0.85,
+    "caught": 0.519,
+    "right": 0.374,
+    "median_warning_min": 40.0,
+    "episodes": 316
+   },
+   {
+    "setting": "sensitive",
+    "false_alerts_per_day": 2.66,
+    "caught": 0.794,
+    "right": 0.226,
+    "median_warning_min": 50.0,
+    "episodes": 316
+   }
+  ],
+  "hypo": [
+   {
+    "setting": "strict",
+    "false_alerts_per_day": 0.04,
+    "caught": 0.125,
+    "right": 0.5,
+    "median_warning_min": 35.0,
+    "episodes": 104
+   },
+   {
+    "setting": "balanced",
+    "false_alerts_per_day": 0.99,
+    "caught": 0.721,
+    "right": 0.19,
+    "median_warning_min": 45.0,
+    "episodes": 104
+   },
+   {
+    "setting": "sensitive",
+    "false_alerts_per_day": 2.38,
+    "caught": 0.875,
+    "right": 0.106,
+    "median_warning_min": 50.0,
+    "episodes": 104
+   }
+  ]
+ }
+}
