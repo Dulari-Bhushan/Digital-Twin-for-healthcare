@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { postWhatIf } from '../api'
+import { getWhatIfMedicines, postWhatIf } from '../api'
 import { fmtDT, fmtHM, explain } from '../utils'
 import { DR, EyeArt, KidneyArt, LiverArt, Ring, SegRing, TONE, pct, tierTone } from '../ui'
 import GlucoseChart from './GlucoseChart'
@@ -269,12 +269,12 @@ export function Organs({ d, onOpen }) {
 }
 
 const PRESETS = [
-  { e: '🚶', name: 'Walk after meals', v: { carb_scale: 1, walk_after_meals: 20, baseline_shift: 0, steps_delta: 2000 } },
-  { e: '🍚', name: 'Smaller portions', v: { carb_scale: 0.75, walk_after_meals: 0, baseline_shift: 0, steps_delta: 0 } },
-  { e: '💊', name: 'Medication tuned', v: { carb_scale: 1, walk_after_meals: 0, baseline_shift: -15, steps_delta: 0 } },
-  { e: '✨', name: 'All three', v: { carb_scale: 0.75, walk_after_meals: 20, baseline_shift: -12, steps_delta: 2000 } },
+  { e: '🚶', name: 'Walk after meals', v: { carb_scale: 1, walk_after_meals: 20, baseline_shift: 0, steps_delta: 2000, medicines: {}, custom: [] } },
+  { e: '🍚', name: 'Smaller portions', v: { carb_scale: 0.75, walk_after_meals: 0, baseline_shift: 0, steps_delta: 0, medicines: {}, custom: [] } },
+  { e: '💊', name: 'Medication tuned', v: { carb_scale: 1, walk_after_meals: 0, baseline_shift: -15, steps_delta: 0, medicines: {}, custom: [] } },
+  { e: '✨', name: 'All three', v: { carb_scale: 0.75, walk_after_meals: 20, baseline_shift: -12, steps_delta: 2000, medicines: {}, custom: [] } },
 ]
-const ZERO = { carb_scale: 1, walk_after_meals: 0, baseline_shift: 0, steps_delta: 0 }
+const ZERO = { carb_scale: 1, walk_after_meals: 0, baseline_shift: 0, steps_delta: 0, medicines: {}, custom: [] }
 
 function Delta({ label, before, after, fmt, lowerBetter = true }) {
   const same = Math.abs(after - before) < 1e-9
@@ -293,14 +293,34 @@ export function WhatIfStudio({ pid }) {
   const [v, setV] = useState(ZERO)
   const [res, setRes] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [mdata, setMdata] = useState(null)
   const timer = useRef(null)
-  useEffect(() => { setV(ZERO); setRes(null) }, [pid])
+  useEffect(() => { setV(ZERO); setRes(null); setMdata(null); getWhatIfMedicines(pid).then(setMdata).catch(() => {}) }, [pid])
+  const [form, setForm] = useState(null)      // the "other medicine" form: { name, shift, lows } while open
+  const addCustom = () => {
+    const name = form.name.trim()
+    if (!name || v.custom.length >= 5) return
+    setV((x) => ({ ...x, custom: [...x.custom, { name, baseline_shift: Number(form.shift), causes_lows: form.lows }] }))
+    setForm(null)
+  }
+  const dropCustom = (i) => setV((x) => ({ ...x, custom: x.custom.filter((_, j) => j !== i) }))
+  const pickSuggestion = (text) => {
+    const m = mdata?.suggestions.find((x) => x.name === text)
+    setForm((f) => ({ ...f, name: text, ...(m ? { shift: m.shift, lows: m.lows } : {}) }))
+  }
+  const setMed = (key, action) => setV((x) => { const m = { ...x.medicines }; if (action) m[key] = action; else delete m[key]; return { ...x, medicines: m } })
+  const medShift = (key, action) => {
+    const c = mdata?.current.find((i) => i.key === key)
+    const e = c ? c.actions.find((a) => a.action === action) : mdata?.can_add.find((a) => a.key === key)
+    return e ? e.baseline_shift : 0
+  }
+  const medTotal = mdata ? Object.entries(v.medicines).reduce((s, [k, a]) => s + medShift(k, a), 0) + v.custom.reduce((s, c) => s + c.baseline_shift, 0) : 0
   useEffect(() => {
     clearTimeout(timer.current)
     if (JSON.stringify(v) === JSON.stringify(ZERO)) { setRes(null); return }
     timer.current = setTimeout(() => {
       setBusy(true)
-      postWhatIf(pid, v).then(setRes).catch(() => setRes(null)).finally(() => setBusy(false))
+      postWhatIf(pid, { ...v, custom_medicines: v.custom }).then(setRes).catch(() => setRes(null)).finally(() => setBusy(false))
     }, 180)
     return () => clearTimeout(timer.current)
   }, [v, pid])
@@ -329,8 +349,57 @@ export function WhatIfStudio({ pid }) {
           </div>
           {ctl('🍚', 'Carbohydrate portions', 'carb_scale', 0.5, 1.2, 0.05, `${Math.round(v.carb_scale * 100)}%`)}
           {ctl('🚶', 'Walk after meals', 'walk_after_meals', 0, 45, 5, `${v.walk_after_meals} min`)}
-          {ctl('💊', 'Medication effect', 'baseline_shift', -40, 20, 1, `${v.baseline_shift > 0 ? '+' : ''}${v.baseline_shift} mg/dL`)}
+          {ctl('💊', 'All medicines together', 'baseline_shift', -40, 20, 1, `${v.baseline_shift > 0 ? '+' : ''}${v.baseline_shift} mg/dL`)}
           {ctl('👟', 'Daily steps', 'steps_delta', -3000, 8000, 500, `${v.steps_delta > 0 ? '+' : ''}${v.steps_delta}`)}
+          {mdata && (
+            <div className="medpanel">
+              <div className="row" style={{ justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                <b>💊 Medicine by medicine</b>
+                <span className="muted" style={{ fontSize: 12, fontWeight: 700 }}>{Object.keys(v.medicines).length + v.custom.length ? `Medicine changes: ${medTotal > 0 ? '+' : ''}${Math.round(medTotal)} mg/dL on average glucose` : 'Pick a change for one medicine'}</span>
+              </div>
+              {mdata.current.map((c) => (
+                <div key={c.key} className="medrow">
+                  <div style={{ minWidth: 0, flex: 1 }}><b>{c.name}</b><small>{c.dose}</small></div>
+                  {c.glucose_active ? (
+                    <div className="seg" title={c.note}>
+                      <button className={!v.medicines[c.key] ? 'on' : ''} onClick={() => setMed(c.key, null)}>As now</button>
+                      {c.actions.map((a) => <button key={a.action} className={v.medicines[c.key] === a.action ? 'on' : ''} onClick={() => setMed(c.key, a.action)}>{a.label}</button>)}
+                    </div>
+                  ) : <span className="muted" style={{ fontSize: 12, fontWeight: 600 }}>No direct effect on glucose</span>}
+                </div>
+              ))}
+              <div className="row wrap" style={{ gap: 6, marginTop: 8 }}>
+                <span className="muted" style={{ fontSize: 12, fontWeight: 700 }}>Try adding</span>
+                {mdata.can_add.map((a) => <button key={a.key} title={a.note} className={`preset ${v.medicines[a.key] === 'add' ? 'on' : ''}`} onClick={() => setMed(a.key, v.medicines[a.key] === 'add' ? null : 'add')}>＋ {a.name}</button>)}
+                {v.custom.map((c, i) => (
+                  <span key={`${c.name}${i}`} className="preset on" style={{ cursor: 'default' }}>
+                    ＋ {c.name} <small style={{ opacity: .85 }}>{c.baseline_shift > 0 ? '+' : ''}{c.baseline_shift} mg/dL{c.causes_lows ? ', lows' : ''}</small>
+                    <button className="x" aria-label={`Remove ${c.name}`} onClick={() => dropCustom(i)}>×</button>
+                  </span>
+                ))}
+                {!form && v.custom.length < 5 && <button className="preset" onClick={() => setForm({ name: '', shift: -10, lows: false })}>＋ Other medicine…</button>}
+              </div>
+              {form && (
+                <div className="medform">
+                  <div style={{ fontSize: 12.5, fontWeight: 800 }}>Add a medicine yourself</div>
+                  <label>Name
+                    <input list="med-suggest" value={form.name} maxLength={40} placeholder="Type a name or pick one" onChange={(e) => pickSuggestion(e.target.value)} />
+                    <datalist id="med-suggest">{mdata.suggestions.map((m) => <option key={m.name} value={m.name} />)}</datalist>
+                  </label>
+                  <label>Expected change in average glucose: <b>{form.shift > 0 ? '+' : ''}{form.shift} mg/dL</b>
+                    <input type="range" min="-50" max="40" step="1" value={form.shift} onChange={(e) => setForm({ ...form, shift: Number(e.target.value) })} />
+                  </label>
+                  <label className="chk"><input type="checkbox" checked={form.lows} onChange={(e) => setForm({ ...form, lows: e.target.checked })} /> Can cause low glucose</label>
+                  <div className="row" style={{ gap: 8 }}>
+                    <button className="btn sm go" disabled={!form.name.trim()} onClick={addCustom}>Add to the simulation</button>
+                    <button className="btn sm" onClick={() => setForm(null)}>Cancel</button>
+                  </div>
+                  <div className="muted" style={{ fontSize: 11.5 }}>For a medicine the list above does not cover. The effect is your estimate, not the patient's measured response.</div>
+                </div>
+              )}
+              <div className="muted" style={{ fontSize: 11.5, marginTop: 8 }}>{mdata.assumptions}</div>
+            </div>
+          )}
         </div>
         <div style={{ opacity: busy ? 0.6 : 1, transition: 'opacity .2s' }}>
           {!m && (

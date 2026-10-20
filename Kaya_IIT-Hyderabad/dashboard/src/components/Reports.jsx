@@ -34,6 +34,11 @@ function dirMark(it) {
   return [it.direction === 'worse' ? 'rose' : 'mint', up ? '▲' : '▼']
 }
 
+/** A short label and icon for an attention line, from what it talks about. */
+const TOPICS = [[/low|hypo|glucose|time in range/i, '🩸', 'Glucose'], [/albumin|egfr|kidney/i, '🫘', 'Kidney'], [/retinopathy|eye/i, '👁️', 'Eye'],
+  [/alt|liver|fibrosis|steatosis/i, '🍂', 'Liver'], [/hba1c/i, '📈', 'Control'], [/medicine|dose|missed|logged/i, '💊', 'Adherence']]
+const topic = (text) => { const t = TOPICS.find(([re]) => re.test(text)); return t ? [t[1], t[2]] : ['⚑', 'Note'] }
+
 export function ChangesCard({ ch, audience = 'doctor', onOpen }) {
   if (!ch) return null
   const visit = ch.items.filter((i) => i.scope === 'visit')
@@ -43,11 +48,15 @@ export function ChangesCard({ ch, audience = 'doctor', onOpen }) {
   const doc = audience === 'doctor'
   const tile = (it) => {
     const [tn, ar] = dirMark(it)
+    const t = TONE[tn]
+    // only the changes that matter most are tinted red: the two worst moves, a retinopathy progression, new lows
+    const crit = it.direction === 'worse' && ((ch.worst || []).includes(it.key) || it.key === 'dr' || it.key === 'low')
     return (
-      <div key={it.key} className="chg-tile" style={{ background: TONE[tn].bg, color: TONE[tn].dd }}>
+      <div key={it.key} className={`chg-tile${crit ? ' crit' : ''}`} style={{ '--bg': t.bg, '--d': t.d, '--dd': t.dd }}>
         <div className="l">{doc ? it.label : it.plain_label}</div>
-        <div className="v"><span>{valText(it, it.before)}</span> <span style={{ opacity: 0.6 }}>→</span> <b>{valText(it, it.after)}</b></div>
-        <div className="d">{ar} {deltaText(it)}</div>
+        <div className="big">{valText(it, it.after)}</div>
+        <div className="was">was {valText(it, it.before)}</div>
+        <span className="pill">{ar} {deltaText(it)}</span>
       </div>
     )
   }
@@ -64,14 +73,36 @@ export function ChangesCard({ ch, audience = 'doctor', onOpen }) {
         </div>
       </div>
       {doc && ch.attention.length > 0 && (
-        <div className="chg-attn">
-          {ch.attention.map((a, i) => <div key={i} style={{ background: TONE[a.tone].bg, color: TONE[a.tone].dd }}><b>!</b> {a.text}</div>)}
-        </div>
+        <>
+          <div className="chg-sub" style={{ marginTop: 4 }}>Needs your attention</div>
+          <div className="chg-attn">
+            {ch.attention.map((a, i) => {
+              const [ic, cat] = topic(a.text)
+              const t = TONE[a.tone]
+              return (
+                <div key={i} className="attn" style={a.tone === 'rose' ? { '--d': t.d, '--dd': t.dd } : { '--d': 'rgba(28,52,50,.18)', '--dd': 'var(--muted)' }}>
+                  <span className="ic">{ic}</span>
+                  <div><b>{cat}</b><p>{a.text}</p></div>
+                </div>
+              )
+            })}
+          </div>
+        </>
       )}
       {!doc && ch.counts.worse > 0 && <p className="note" style={{ margin: '4px 0 8px', fontSize: 13 }}>Some results moved the wrong way. That is useful to know, not a reason to panic. Your doctor will go through them with you.</p>}
-      {moved.length > 0 && <div className="chg-grid">{moved.map(tile)}</div>}
-      {same.length > 0 && <div className="chg-same">Unchanged: {same.map((i) => (doc ? i.label : i.plain_label)).join(', ')}.</div>}
-      {ch.new_medicines.length > 0 && <div className="chg-same">New medicine since then: <b>{ch.new_medicines.join('; ')}</b></div>}
+      {moved.length > 0 && (
+        <>
+          <div className="chg-sub">{doc ? 'What moved since the last visit' : 'What moved'}</div>
+          <div className="chg-grid">{moved.map(tile)}</div>
+        </>
+      )}
+      {(same.length > 0 || ch.new_medicines.length > 0) && (
+        <div className="chg-chips">
+          {ch.new_medicines.map((m) => <span key={m} className="chg-chip med">💊 New: {m}</span>)}
+          {same.length > 0 && <span className="chg-chip-h">Unchanged</span>}
+          {same.map((i) => <span key={i.key} className="chg-chip">{doc ? i.label : i.plain_label}</span>)}
+        </div>
+      )}
       {week.length > 0 && (
         <>
           <div className="chg-sub">{doc ? 'Wearable data: last 7 days against the 7 days before' : 'Your last 7 days compared with the week before'}</div>
@@ -172,7 +203,7 @@ export function ReportDoc({ rep, pid, audience, profile }) {
       <div className="rep-sec"><h3>Impression</h3><p style={{ margin: 0, fontWeight: 700 }}>{rep.impression}</p></div>
       {rep.recommendations.length > 0 && <div className="rep-sec"><h3>{doc ? 'Recommendations' : 'What happens next'}</h3><ul>{rep.recommendations.map((f, i) => <li key={i}>{f}</li>)}</ul></div>}
       {rep.source_text && <details className="rep-src"><summary>Text read from the document</summary><pre>{rep.source_text}</pre></details>}
-      <div className="note">{rep.uploaded ? 'Uploaded by the patient and read by software; not verified.' : 'Synthetic report for a demonstration. It describes an invented person and has no clinical meaning.'}</div>
+      <div className="note">{rep.uploaded ? (rep.verified ? 'Uploaded by the patient, read by software and checked against the original by a clinician.' : 'Uploaded by the patient and read by software; not verified.') : 'Synthetic report for a demonstration. It describes an invented person and has no clinical meaning.'}</div>
     </article>
   )
 }

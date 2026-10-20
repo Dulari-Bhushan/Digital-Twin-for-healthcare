@@ -231,3 +231,22 @@ def test_reading_happens_only_after_the_patient_says_yes(client, tmp_path, monke
     assert calls == ["report.png"] and item["ocr"]["state"] == "done" and item["ocr"]["results"] == 2
     monkeypatch.setitem(kaya.VOICE, "client", None)
     assert client.post(f"/api/patients/1636/uploads/{u['id']}/read").status_code == 503
+
+
+def test_whatif_by_medicine(client):
+    pid = client.get("/api/patients").json()[0]["id"]
+    opts = client.get(f"/api/patients/{pid}/whatif/medicines").json()
+    assert opts["current"] and all({"key", "name", "glucose_active", "actions"} <= c.keys() for c in opts["current"])
+    active = next(c for c in opts["current"] if c["glucose_active"])
+    plain = client.post(f"/api/patients/{pid}/whatif", json={}).json()
+    stopped = client.post(f"/api/patients/{pid}/whatif", json={"medicines": {active["key"]: "stop"}}).json()
+    assert stopped["metrics"]["after"]["mean"] > plain["metrics"]["after"]["mean"]       # stopping a glucose-lowering drug raises glucose
+    assert stopped["medicine_effects"][0]["key"] == active["key"]
+    assert client.post(f"/api/patients/{pid}/whatif", json={"medicines": {"nonsense": "stop"}}).status_code == 422
+    own = client.post(f"/api/patients/{pid}/whatif", json={"custom_medicines": [{"name": "Prednisolone", "baseline_shift": 25}]}).json()
+    assert own["metrics"]["after"]["mean"] > plain["metrics"]["after"]["mean"] and own["medicine_effects"][-1]["name"] == "Prednisolone"
+    assert client.post(f"/api/patients/{pid}/whatif", json={"custom_medicines": [{"name": "X", "baseline_shift": 999}]}).status_code == 422
+    assert client.post(f"/api/patients/{pid}/whatif", json={"custom_medicines": [{"name": "<>", "baseline_shift": -5}]}).status_code == 422
+    if opts["can_add"]:
+        added = client.post(f"/api/patients/{pid}/whatif", json={"medicines": {opts["can_add"][0]["key"]: "add"}}).json()
+        assert added["metrics"]["after"]["mean"] < plain["metrics"]["after"]["mean"]

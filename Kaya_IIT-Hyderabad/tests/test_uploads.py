@@ -57,3 +57,26 @@ def test_limits_and_defaults(tmp_path, monkeypatch):
     uploads.save(7, PNG, "b.png", "", "other", "", NOW)
     with pytest.raises(ValueError):
         uploads.save(7, PNG, "c.png", "", "other", "", NOW)
+
+
+def test_clinician_can_verify_and_withdraw(tmp_path, monkeypatch):
+    monkeypatch.setattr(uploads, "UP_DIR", tmp_path)
+    m = uploads.save(7, _pdf(), "lab.pdf", "", "blood test", "2026-01-05", NOW)
+    assert m["verified"] is False
+    v = uploads.set_verified(7, m["id"], True, NOW)
+    assert v["verified"] is True and v["verified_at"] == NOW.strftime("%Y-%m-%d %H:%M")
+    assert uploads.list_uploads(7)[0]["verified"] is True                      # persisted
+    w = uploads.set_verified(7, m["id"], False, NOW)
+    assert w["verified"] is False and w["verified_at"] is None
+    assert uploads.set_verified(7, "nope", True, NOW) is None
+
+
+def test_verified_upload_is_labelled_in_the_report_list():
+    import reports
+    meta = {"id": "abc", "title": "Lab", "category": "blood test", "date": "2026-01-05", "verified": True, "verified_at": "2026-01-06 10:00",
+            "ocr": {"state": "no_values", "text": "Some text that was read from the document"}}
+    r = reports.uploaded_report(7, meta, NOW, [])
+    assert r["status"] == "Verified" and r["verified"] and "Checked by a clinician" in r["clinician"]
+    meta["verified"] = False
+    r = reports.uploaded_report(7, meta, NOW, [])
+    assert r["status"] == "Unverified" and not r["verified"]

@@ -10,6 +10,7 @@ Scenario fields:
   walk_after_meals   minutes of walking after meals (>= 15 min blunts the excursion by walk_blunt)
   baseline_shift     mg/dL shift of the glucose baseline (e.g. -15 for starting/optimising metformin)
   steps_delta        change in daily steps (used by the liver/eye risk models, not by the glucose curve)
+  low_scale          multiply the dips below the baseline (insulin or sulfonylurea dose changes make lows rarer or more frequent)
 """
 from __future__ import annotations
 
@@ -30,6 +31,7 @@ class Scenario:
     walk_blunt: float = 0.68
     baseline_shift: float = 0.0
     steps_delta: float = 0.0
+    low_scale: float = 1.0
 
     def describe(self) -> dict:
         return asdict(self)
@@ -51,7 +53,7 @@ def apply_scenario(glucose: np.ndarray, meal_carbs: np.ndarray, sc: Scenario) ->
     walk = sc.walk_blunt if sc.walk_after_meals >= 15 else 1.0
     for i in meal_idx:
         factor[i:i + POST_MEAL_STEPS] = sc.carb_scale * walk
-    return np.clip(base + sc.baseline_shift + exc * factor + neg, 40, 400)
+    return np.clip(base + sc.baseline_shift + exc * factor + neg * sc.low_scale, 40, 400)
 
 
 def glucose_metrics(g: np.ndarray, steps_per_day: float) -> dict:

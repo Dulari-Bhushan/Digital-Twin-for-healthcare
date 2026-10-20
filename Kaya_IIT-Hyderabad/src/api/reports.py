@@ -580,15 +580,19 @@ def uploaded_report(pid: int, meta: dict, today: datetime, official: list[dict])
     text = o.get("text", "")
     lines = [ln.strip() for ln in re.split(r"\n+", re.sub(r"[#*_`|>-]+", " ", text)) if len(ln.strip()) > 3]
     bad = [f"{r['test']} {r['value']} {r['unit']} ({r['flag'][:1].lower() + r['flag'][1:]})" for r in rows if r["tone"] != "mint"]
-    warn = "Read automatically by software from your upload. It can make mistakes, so compare with the original document. A clinician has not reviewed it."
+    ok = bool(meta.get("verified"))
+    warn = ("Read automatically by software, then checked against the original document by a clinician." if ok
+            else "Read automatically by software from your upload. It can make mistakes, so compare with the original document. A clinician has not reviewed it.")
     return {
         "id": f"{pid}-{date}-UPL-{meta['id']}", "code": "UPL", "type": _CAT_TYPE.get(meta["category"], "clinic") if not rows else "lab", "name": meta["title"],
-        "facility": "Uploaded by the patient (read automatically)", "clinician": "Not reviewed by a clinician", "date": date, "days_ago": days, "status": "Unverified", "new": True,
+        "facility": "Uploaded by the patient (read automatically)", "clinician": f"Checked by a clinician on {meta.get('verified_at', '')[:10]}" if ok else "Not reviewed by a clinician", "date": date, "days_ago": days,
+        "status": "Verified" if ok else "Unverified", "verified": ok, "new": not ok,
         "uploaded": True, "upload_id": meta["id"], "file_url": f"/api/patients/{pid}/uploads/{meta['id']}/file",
         "sections": [{"title": "Values read from the document", "rows": rows}] if rows else [],
         "findings": [warn] + ([] if rows else lines[:12]),
         "impression": (("Out of range: " + "; ".join(bad) + ".") if bad else "All recognised values are within the usual range.") if rows else "Text read from the uploaded document; no lab values were recognised.",
         "plain": ("We read these values from the document you uploaded. " + ("Some are outside the healthy range: " + "; ".join(bad) + ". Show this to your doctor." if bad else "They look within the usual range.") + " The reading is automatic and can contain mistakes, so check it against your paper copy.") if rows
         else "We read the text of the document you uploaded and added it here. Your doctor can see it. Open the original to check anything important.",
-        "recommendations": ["Compare with the original document", "Your doctor has not reviewed this report yet"], "source_text": text[:8000],
+        "recommendations": ["Your doctor checked this against the original document"] if ok else ["Compare with the original document", "Your doctor has not reviewed this report yet"],
+        "source_text": text[:8000],
     }

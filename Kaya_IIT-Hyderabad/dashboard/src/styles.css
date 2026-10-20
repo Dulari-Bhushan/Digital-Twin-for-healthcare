@@ -231,17 +231,26 @@ figcaption { font-size: 12px; font-weight: 700; color: var(--muted); margin-top:
 .filt.on { background: var(--lav-d); color: #fff; }
 .chg { padding: 18px 20px; }
 .chg-h { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
-.chg-attn { display: grid; gap: 6px; margin-bottom: 12px; }
-.chg-attn > div { border-radius: 14px; padding: 9px 14px; font-weight: 600; font-size: 13.5px; }
-.chg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.chg-attn { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 10px; margin-bottom: 6px; }
+.attn { display: flex; gap: 12px; align-items: flex-start; background: #f5f7f6; border-radius: 16px; padding: 12px 14px; border-left: 4px solid var(--d); color: var(--ink); }
+.attn .ic { width: 34px; height: 34px; flex: none; border-radius: 11px; background: #fff; display: grid; place-items: center; font-size: 17px; }
+.attn b { font-size: 11.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--dd); }
+.attn p { margin: 2px 0 0; font-weight: 600; font-size: 13.5px; line-height: 1.4; }
+.chg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
 .chg-p .chg-grid { grid-template-columns: 1fr; }
-.chg-tile { border-radius: 18px; padding: 11px 14px; }
-.chg-tile .l { font-size: 12px; font-weight: 700; opacity: .85; }
-.chg-tile .v { font-size: 16px; font-weight: 600; margin: 2px 0; }
-.chg-tile .v b { font-weight: 800; font-size: 18px; }
-.chg-tile .d { font-size: 12px; font-weight: 800; }
-.chg-same { font-size: 12.5px; color: var(--muted); font-weight: 600; margin-top: 10px; }
-.chg-sub { font-size: 12px; font-weight: 800; color: var(--muted); margin: 14px 0 8px; text-transform: uppercase; letter-spacing: .05em; }
+.chg-tile { background: #f5f7f6; color: var(--ink); border-radius: 16px; padding: 12px 14px; display: grid; gap: 1px; align-content: start; }
+.chg-tile .l { font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.chg-tile .big { font-size: 24px; font-weight: 800; letter-spacing: -.03em; line-height: 1.15; margin-top: 4px; }
+.chg-tile .was { font-size: 12px; font-weight: 600; color: var(--muted); }
+.chg-tile .pill { justify-self: start; margin-top: 8px; font-size: 12px; font-weight: 800; background: var(--bg); color: var(--dd); border-radius: 999px; padding: 3px 10px; }
+.chg-tile.crit { background: var(--rose); color: var(--rose-dd); box-shadow: inset 0 0 0 1.5px rgba(196, 100, 91, .35); }
+.chg-tile.crit .l, .chg-tile.crit .was { color: var(--rose-dd); opacity: .85; }
+.chg-tile.crit .pill { background: #fff; }
+.chg-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 14px; }
+.chg-chip-h { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin: 0 4px 0 2px; }
+.chg-chip { font-size: 12.5px; font-weight: 700; padding: 4px 11px; border-radius: 999px; background: rgba(15, 110, 104, .08); color: var(--muted); }
+.chg-chip.med { background: rgba(28, 52, 50, .09); color: var(--ink); }
+.chg-sub { font-size: 12px; font-weight: 800; color: var(--muted); margin: 16px 0 8px; text-transform: uppercase; letter-spacing: .05em; }
 .rep-grid { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 16px; align-items: start; }
 .rep-list { padding: 16px; position: sticky; top: 0; }
 .rep-scroll { display: grid; gap: 6px; max-height: 560px; overflow-y: auto; }
@@ -321,3 +330,18 @@ a.btn.go { color: #fff; }
 .up-row > span { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; }
 .up-actions { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
 .up-actions .filt { white-space: nowrap; }
+
+/* what-if: medicine by medicine */
+.medpanel { margin-top: 14px; padding: 12px 14px; border-radius: 20px; background: rgba(255, 255, 255, .65); }
+.medrow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 0; border-top: 1px solid var(--line); margin-top: 8px; }
+.medrow:first-of-type { border-top: 0; }
+.medrow b { display: block; font-size: 13.5px; }
+.medrow small { display: block; font-size: 11.5px; color: var(--muted); font-weight: 600; }
+.seg { display: inline-flex; background: rgba(28, 52, 50, .07); border-radius: 999px; padding: 3px; flex-wrap: wrap; }
+.seg button { border: 0; background: transparent; padding: 5px 11px; border-radius: 999px; font-size: 12px; font-weight: 800; color: var(--muted); }
+.seg button.on { background: var(--lav-d); color: #fff; }
+.preset .x { border: 0; background: rgba(255, 255, 255, .25); color: inherit; border-radius: 50%; width: 18px; height: 18px; margin-left: 6px; line-height: 16px; font-weight: 800; padding: 0; }
+.medform { display: grid; gap: 10px; margin-top: 10px; padding: 12px 14px; border-radius: 16px; background: #fff; box-shadow: 0 4px 14px rgba(15, 110, 104, .08); }
+.medform label { display: grid; gap: 4px; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.medform input[type=text], .medform input:not([type]) { border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 12px; font: inherit; color: var(--ink); }
+.medform .chk { display: flex; gap: 8px; align-items: center; }

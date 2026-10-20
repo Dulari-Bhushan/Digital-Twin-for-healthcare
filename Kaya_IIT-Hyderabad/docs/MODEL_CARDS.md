@@ -59,6 +59,8 @@ Kaya is clinical decision support built on open and synthetic data. It is not a 
 
 Splits a patient's glucose into a slow baseline and meal-driven excursions, rescales excursions after meals (portion size, walking after meals) and shifts the baseline (medication), then recomputes glucose metrics and feeds them to the liver and eye modules. Effect sizes (a walk after a meal blunts the excursion by about a third; a 25% carbohydrate reduction scales excursions by 0.75) are literature-informed assumptions. Output is a simulation to support a conversation, not a prediction.
 
+**Medicine by medicine.** Besides the single "all medicines together" slider, each of the patient's glucose-lowering medicines can be stopped, changed by 25% either way, or a new one added ([`medicines.py`](../src/whatif/medicines.py)). Each drug has its own assumed effect on mean glucose (for example metformin about -20 mg/dL, insulin glargine -25, glimepiride -18, dapagliflozin -14, sitagliptin -12, semaglutide -30), and insulin and glimepiride also make low-glucose dips rarer or more frequent. These are average, literature-informed assumptions, not the patient's own response. Medicines with no glucose effect in the model (telmisartan, atorvastatin) are listed but cannot be changed, and changes that do not apply (adding a drug already taken) are rejected. The doctor can also add a medicine the list does not cover (up to five): a free-text name, an estimated change in average glucose, and whether it can cause lows; typical values are suggested (for example a steroid raises glucose) but the number is the doctor's own estimate.
+
 ## 6. Cardiovascular flag (Heart watch)
 
 | | |

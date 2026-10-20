@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { deleteUpload, getUploads, readUpload, uploadReport } from '../api'
+import { deleteUpload, getUploads, readUpload, uploadReport, verifyUpload } from '../api'
 import { TONE } from '../ui'
 import { showVal } from './Reports'
 
@@ -159,27 +159,47 @@ export function PatientUploads({ t, pid, today, onChange, reports, onOpenReport 
   )
 }
 
-/** Doctor view: what the patient has uploaded, clearly marked as not verified. */
+/** Doctor view: what the patient has uploaded, marked not verified until a clinician confirms it. */
 export function DoctorUploads({ pid, onChange }) {
   const [items, setItems] = useState(null)
+  const [asking, setAsking] = useState(null)       // upload id waiting for the "I checked the original" confirmation
+  const [busy, setBusy] = useState(null)
+  const setVerified = (u, v) => {
+    setBusy(u.id)
+    verifyUpload(pid, u.id, v).then((m) => { setItems((x) => (x || []).map((i) => (i.id === m.id ? m : i))); setAsking(null); if (onChange) onChange([m]) })
+      .catch(() => {}).finally(() => setBusy(null))
+  }
   useEffect(() => { setItems(null); getUploads(pid).then((d) => setItems(d.items)).catch(() => setItems([])) }, [pid])
   useReadingPoll(pid, items, setItems, onChange)
   if (!items) return null
   return (
     <section className="card soft rec-sec" style={{ boxShadow: 'none' }}>
-      <div className="card-h"><h2>Uploaded by the patient</h2><span className="chip" style={{ background: TONE.butter.bg, color: TONE.butter.dd }}>not verified</span><span className="chip">{items.length}</span></div>
+      <div className="card-h"><h2>Uploaded by the patient</h2>
+        {items.length > 0 && items.every((u) => u.verified)
+          ? <span className="chip" style={{ background: TONE.mint.bg, color: TONE.mint.dd }}>all verified</span>
+          : <span className="chip" style={{ background: TONE.butter.bg, color: TONE.butter.dd }}>{items.filter((u) => u.verified).length ? `${items.filter((u) => u.verified).length} of ${items.length} verified` : 'not verified'}</span>}
+        <span className="chip">{items.length}</span></div>
       {items.length === 0 ? <div className="muted" style={{ fontWeight: 600 }}>Nothing uploaded yet. Patients can add a PDF or a photo of a report from the Reports tab of their app.</div> : (
         <div style={{ display: 'grid', gap: 8 }}>
           {items.map((u) => (
             <div key={u.id} className="rep-row" style={{ cursor: 'default' }}>
               <Thumb pid={pid} u={u} size={56} />
-              <span style={{ minWidth: 0, flex: 1 }}><b>{u.title}</b><small>{CAT_EN[u.category] || 'Other'} · report dated {fmt(u.date)} · uploaded {u.uploaded} · {u.size_kb} KB · {u.ext.toUpperCase()}</small>{statusLine(u, null)}</span>
-              <a className="btn sm go" style={{ textDecoration: 'none' }} href={fileUrl(pid, u)} target="_blank" rel="noreferrer">Open</a>
+              <span style={{ minWidth: 0, flex: 1 }}><b>{u.title}</b><small>{CAT_EN[u.category] || 'Other'} · report dated {fmt(u.date)} · uploaded {u.uploaded} · {u.size_kb} KB · {u.ext.toUpperCase()}</small>{statusLine(u, null)}
+                {u.verified && <small style={{ color: 'var(--mint-dd)', fontWeight: 800 }}>✓ Verified by a clinician{u.verified_at ? ` on ${u.verified_at.slice(0, 10)}` : ''}</small>}
+                {asking === u.id && <small style={{ color: 'var(--butter-dd)', fontWeight: 700 }}>Confirm that you checked this against the original document. The patient will see it as verified.</small>}</span>
+              <span className="row" style={{ gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                {u.verified
+                  ? <button className="btn sm" disabled={busy === u.id} onClick={() => setVerified(u, false)}>Undo</button>
+                  : asking === u.id
+                    ? <><button className="btn sm go" disabled={busy === u.id} onClick={() => setVerified(u, true)}>Yes, I checked it</button><button className="btn sm" onClick={() => setAsking(null)}>Cancel</button></>
+                    : <button className="btn sm" style={{ background: TONE.mint.bg, color: TONE.mint.dd }} onClick={() => setAsking(u.id)}>✓ Mark as verified</button>}
+                <a className="btn sm go" style={{ textDecoration: 'none' }} href={fileUrl(pid, u)} target="_blank" rel="noreferrer">Open</a>
+              </span>
             </div>
           ))}
         </div>
       )}
-      <div className="note">Files are checked by content and size only and are not virus scanned. Where the patient chose automatic reading, the text and any lab values found appear in the report list marked unverified; nothing in the twin uses them. Check against the original, like any outside document.</div>
+      <div className="note">Files are checked by content and size only and are not virus scanned. Where the patient chose automatic reading, the text and any lab values found appear in the report list marked unverified until you mark the upload verified; nothing in the twin uses them either way. Check against the original, like any outside document.</div>
     </section>
   )
 }

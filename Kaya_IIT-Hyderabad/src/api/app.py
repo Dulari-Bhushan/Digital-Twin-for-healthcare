@@ -27,6 +27,7 @@ sys.path.insert(0, str(ROOT / "src" / "models"))
 sys.path.insert(0, str(ROOT / "src" / "whatif"))
 
 from engine import Scenario, glucose_metrics, run as run_whatif  # noqa: E402
+import medicines as med  # noqa: E402
 from eye_risk import GRADES, progression_risk  # noqa: E402
 from kidney_dynamic import KidneyParams, projection  # noqa: E402
 import assistant as asst  # noqa: E402
@@ -187,11 +188,35 @@ def series(pid: int, days: float = Query(3, ge=0.25, le=14)):
             "alerts": [{**x, "time": _iso(x["t"])} for x in a["alerts"] if x["t"] >= start]}
 
 
+class CustomMedicine(BaseModel):
+    name: str = Field(..., min_length=1, max_length=40, description="a medicine the doctor adds by hand")
+    baseline_shift: float = Field(..., ge=-60, le=60, description="assumed change in mean glucose, mg/dL (negative lowers it)")
+    causes_lows: bool = False
+
+
 class WhatIf(BaseModel):
+    custom_medicines: list[CustomMedicine] = Field(default_factory=list, max_length=med.MAX_CUSTOM)
+    medicines: dict[str, str] = Field(default_factory=dict, description="per-medicine change: {medicine key: stop | dose_down | dose_up | add}")
     carb_scale: float = Field(1.0, ge=0.3, le=1.5, description="1.0 = unchanged; 0.75 = 25% fewer carbs")
     walk_after_meals: int = Field(0, ge=0, le=60, description="minutes of walking after meals")
     baseline_shift: float = Field(0.0, ge=-60, le=60, description="mg/dL shift of the glucose baseline (e.g. medication)")
     steps_delta: float = Field(0.0, ge=-5000, le=10000, description="change in daily steps")
+
+
+@app.get("/api/patients/{pid}/whatif/medicines")
+def whatif_medicines(pid: int):
+    """The patient's current medicines, what can be changed for each, and drugs that could be added, with the assumed effect of each."""
+    _get(pid)
+    meds = _record(pid)["record"]["medications"]
+    keys = {k for k in (med.key_of(m["name"]) for m in meds) if k}
+    out = med.options(keys)
+    dose = {m["name"]: m["dose"] for m in meds}
+    for c in out["current"]:
+        c["dose"] = dose.get(c["name"], "")
+    order = {m["name"]: i for i, m in enumerate(meds)}
+    out["current"].sort(key=lambda c: order.get(c["name"], 99))
+    out["assumptions"] = "Effect sizes are average, literature-informed assumptions, not this patient's own response. Simulation, not advice on prescribing."
+    return out
 
 
 @app.post("/api/patients/{pid}/whatif")
@@ -204,8 +229,21 @@ def _whatif_compute(a: dict, body: WhatIf):
     g = np.array(sr["glucose"], dtype=float)
     meals = np.array(sr["meal_carbs"], dtype=float)
     steps_day = float(np.sum(sr["steps"]) / (len(g) / 288))
-    sc = Scenario(name="what-if", carb_scale=body.carb_scale, walk_after_meals=body.walk_after_meals,
-                  baseline_shift=body.baseline_shift, steps_delta=body.steps_delta)
+    cur = {k for k in (med.key_of(m["name"]) for m in _record(pr["id"])["record"]["medications"]) if k}
+    try:
+        m_shift, m_low, m_carb, m_rows = med.combine(body.medicines, cur)
+    except ValueError as e:
+        raise HTTPException(422, str(e)) from e
+    for c in body.custom_medicines:
+        name = med.clean_name(c.name)
+        if not name:
+            raise HTTPException(422, "a medicine added by hand needs a name")
+        e = med.custom_effect(name, c.baseline_shift, c.causes_lows)
+        m_shift += e["baseline_shift"]
+        m_low *= e["low_scale"]
+        m_rows.append(e)
+    sc = Scenario(name="what-if", carb_scale=body.carb_scale * m_carb, walk_after_meals=body.walk_after_meals,
+                  baseline_shift=body.baseline_shift + m_shift, steps_delta=body.steps_delta, low_scale=m_low)
     res = run_whatif(g, meals, steps_day, sc)
     base_m = glucose_metrics(g, steps_day)
     new_m = res["metrics"]
@@ -223,6 +261,7 @@ def _whatif_compute(a: dict, body: WhatIf):
     last_day = slice(len(g) - 288, len(g))
     return {
         "scenario": sc.describe(),
+        "medicine_effects": m_rows,
         "metrics": {"before": base_m, "after": new_m},
         "glucose_last_day": {"t0": len(g) - 288, "start": _iso(len(g) - 288), "step_min": STEP_MIN,
                              "before": np.round(g[last_day], 1).tolist(), "after": np.round(res["glucose"][last_day], 1).tolist(),
@@ -495,7 +534,7 @@ def _assistant_inner(body: AssistantReq, request: Request):
 def uploads_list(pid: int):
     _get(pid)
     return {"items": upl.list_uploads(pid), "reading_available": VOICE.get("client") is not None, "max_mb": upl.MAX_BYTES // (1024 * 1024), "categories": list(upl.CATEGORIES),
-            "note": "Uploaded by the patient. Not read automatically and not verified by a clinician."}
+            "note": "Uploaded by the patient. Not read automatically; marked verified only when a clinician says so."}
 
 
 @app.post("/api/patients/{pid}/uploads")
@@ -575,6 +614,21 @@ def uploads_file(pid: int, uid: str):
     adm.TEL.audit("clinician or patient", "uploaded report opened", f"patient {pid}: {meta['ext']}")
     return FileResponse(f, media_type=meta["media"], headers={"X-Content-Type-Options": "nosniff", "Content-Disposition": f'inline; filename="report-{uid}.{meta["ext"]}"',
                                                                "Cache-Control": "private, max-age=300"})
+
+
+class VerifyReq(BaseModel):
+    verified: bool = True
+
+
+@app.post("/api/patients/{pid}/uploads/{uid}/verify")
+def uploads_verify(pid: int, uid: str, body: VerifyReq):
+    """The clinician confirms they checked an uploaded report against the original (or withdraws that)."""
+    _get(pid)
+    meta = upl.set_verified(pid, uid, body.verified, _today(pid))
+    if meta is None:
+        raise HTTPException(404, "file not found")
+    adm.TEL.audit("clinician", "uploaded report verified" if body.verified else "uploaded report verification withdrawn", f"patient {pid}")
+    return meta
 
 
 @app.delete("/api/patients/{pid}/uploads/{uid}")

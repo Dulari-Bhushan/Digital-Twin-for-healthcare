@@ -2,7 +2,7 @@
 
 Files are checked by their first bytes (the browser's claimed type is ignored), size-limited, stored under a random id
 (the original file name is kept only as a display label), and listed in the patient's record as "uploaded by the
-patient, not verified". Nothing is read or interpreted automatically. Stored in data/patient_uploads/ (git-ignored).
+patient, not verified" until a clinician marks them verified. Nothing is read or interpreted automatically. Stored in data/patient_uploads/ (git-ignored).
 """
 from __future__ import annotations
 
@@ -114,6 +114,20 @@ def set_ocr(pid: int, uid: str, **fields) -> None:
             if x["id"] == uid:
                 x["ocr"] = {**x.get("ocr", {}), **fields}
         _meta_path(pid).write_text(json.dumps(items), encoding="utf8")
+
+
+def set_verified(pid: int, uid: str, verified: bool, today: datetime) -> dict | None:
+    """A clinician confirms (or withdraws the confirmation) that this upload was checked against the original document.
+    Verification only changes how the file is labelled; nothing in the twin reads uploaded values either way."""
+    with LOCK:
+        items = _read(pid)
+        meta = next((x for x in items if x["id"] == uid), None)
+        if meta is None:
+            return None
+        meta["verified"] = bool(verified)
+        meta["verified_at"] = today.strftime("%Y-%m-%d %H:%M") if verified else None
+        _meta_path(pid).write_text(json.dumps(items), encoding="utf8")
+    return public(meta)
 
 
 def public(meta: dict) -> dict:
