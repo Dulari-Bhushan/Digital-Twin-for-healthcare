@@ -125,6 +125,8 @@ def load() -> None:
         for item in json.loads((CARDIO_DIR / "index.json").read_text())["patients"]:
             CARDIO["patients"][item["id"]] = json.loads((CARDIO_DIR / f"{item['id']}.json").read_text())
         CARDIO["evidence"] = json.loads((CARDIO_DIR / "evidence.json").read_text())
+    if os.environ.get("KAYA_KEEP_LOGS") != "1":
+        diary.reset_patient_logs()                       # a demo starts with nothing logged today; set KAYA_KEEP_LOGS=1 to keep entries
     key = load_key(ROOT)
     VOICE["client"] = SarvamClient(key) if key else None
     if (MODEL_DIR / "gru_numpy.npz").exists():
@@ -342,6 +344,8 @@ class MessageReq(BaseModel):
     title: str = Field("", max_length=80)
     body: str = Field(..., min_length=1, max_length=1000)
     action: str | None = Field(None, description="for urgent: come_to_clinic, go_to_er or call_clinic")
+    template: str | None = Field(None, description="id of an unedited quick-start text; the app already has it in every language")
+    translate: bool = Field(True, description="translate the text into Hindi, Telugu and Kannada with the voice service, in the background")
 
 
 class RxChange(BaseModel):
@@ -354,6 +358,26 @@ class RxChange(BaseModel):
 class RxReq(BaseModel):
     changes: list[RxChange] = Field(default_factory=list, max_length=msgs.MAX_CHANGES)
     note: str = Field("", max_length=1000)
+    translate: bool = True
+
+
+TRANSLATING: set[tuple[int, str]] = set()
+
+
+def _translate_in_background(pid: int, m: dict) -> None:
+    """Translate the doctor's words for the patient without delaying the message: the patient sees the original until it is ready."""
+    client = VOICE.get("client")
+    if client is None:
+        return
+
+    def work():
+        try:
+            tr = msgs.translate_message(client, m)
+            if tr:
+                msgs.set_translations(pid, m["id"], tr)
+        except Exception:  # noqa: BLE001
+            pass
+    threading.Thread(target=work, daemon=True).start()
 
 
 def _stamp(pid: int) -> str:
@@ -363,7 +387,12 @@ def _stamp(pid: int) -> str:
 @app.get("/api/patients/{pid}/messages")
 def messages_list(pid: int):
     _get(pid)
+    msgs.adopt_templates(pid)                              # older messages that match a quick-start text get its translations
     items = msgs.list_messages(pid)
+    for m in items:                                        # older free-text messages are translated once, in the background
+        if msgs.needs_translation(m) and (pid, m["id"]) not in TRANSLATING:
+            TRANSLATING.add((pid, m["id"]))
+            _translate_in_background(pid, m)
     return {"items": items, "unread": sum(not m["read"] for m in items)}
 
 
@@ -372,9 +401,11 @@ def messages_send(pid: int, body: MessageReq):
     """The doctor sends the patient an urgent message or advice. It appears in the patient app within seconds."""
     _get(pid)
     try:
-        m = msgs.send(pid, body.kind, body.title, body.body, body.action, _stamp(pid))
+        m = msgs.send(pid, body.kind, body.title, body.body, body.action, _stamp(pid), body.template)
     except ValueError as e:
         raise HTTPException(422, str(e)) from e
+    if body.translate and not m["template"]:
+        _translate_in_background(pid, m)
     adm.TEL.audit("clinician", f"{m['kind']} message sent to patient", f"patient {pid}")
     return m
 
@@ -387,6 +418,8 @@ def prescriptions_send(pid: int, body: RxReq):
         m = msgs.prescribe(pid, [c.model_dump() for c in body.changes], body.note, _stamp(pid))
     except ValueError as e:
         raise HTTPException(422, str(e)) from e
+    if body.translate:
+        _translate_in_background(pid, m)
     adm.TEL.audit("clinician", "prescription and consultation note sent", f"patient {pid}: {len(m['changes'])} medicine change(s)")
     return m
 
@@ -424,7 +457,7 @@ def _diary_summary(pid: int) -> dict:
 
 
 class LogEntry(BaseModel):
-    kind: str = Field(..., description="med | walk | feel | action")
+    kind: str = Field(..., description="med | med_off | walk | feel | action")
     value: str | int
     note: str = Field("", max_length=200)
 

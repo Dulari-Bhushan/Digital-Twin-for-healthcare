@@ -162,6 +162,48 @@ Object.assign(kn, {
   rx_start: 'ಪ್ರಾರಂಭಿಸಿ', rx_stop: 'ನಿಲ್ಲಿಸಿ', rx_dose: 'ಪ್ರಮಾಣ ಬದಲಿಸಿ', rx_ok: 'ಅರ್ಥವಾಯಿತು, ನನ್ನ ವರದಿಗಳನ್ನು ತೋರಿಸಿ',
 })
 
+// Quick-start messages, translated by hand (drafts for native-speaker review); free text is translated automatically on the server
+Object.assign(en, {
+  tpl_u_clinic_title: 'Please come to the clinic today', tpl_u_clinic_body: 'I have looked at your recent readings and I would like to see you at the clinic today. Please come as soon as you can and bring your medicines.',
+  tpl_u_er_title: 'Please go to the emergency room now', tpl_u_er_body: 'Your readings are a serious concern. Please go to the nearest emergency room now. If you feel very unwell, call 108 straight away.',
+  tpl_u_call_title: 'Please call the clinic', tpl_u_call_body: 'I would like to speak to you about your readings. Please call the clinic as soon as you see this message.',
+  tpl_a_walk_title: 'Please walk after meals', tpl_a_walk_body: 'Looking at your data, a 15 to 20 minute walk after dinner will help your sugar. Please try it every day this week.',
+  tpl_a_bed_title: 'Check your sugar before bed', tpl_a_bed_body: 'Your data shows dips at night. Please check your sugar before bed and have a small snack if it is below 110.',
+  tpl_a_portions_title: 'Try smaller portions of rice and roti', tpl_a_portions_body: 'Your sugar rises a lot after meals. Please try smaller portions of rice and roti, and add more vegetables and dal.',
+  tpl_a_meds_title: 'I want to review your medicines', tpl_a_meds_body: 'After looking at your data I would like to change your medicines. I will send you a new prescription shortly. Please do not change anything until then.',
+  msg_auto: 'Translated automatically', msg_orig: 'Shown as your doctor wrote it',
+})
+Object.assign(hi, {
+  tpl_u_clinic_title: 'कृपया आज क्लिनिक आएँ', tpl_u_clinic_body: 'मैंने आपकी हाल की रीडिंग देखी हैं और मैं आपको आज क्लिनिक में देखना चाहता हूँ। कृपया जल्द से जल्द आएँ और अपनी दवाइयाँ साथ लाएँ।',
+  tpl_u_er_title: 'कृपया अभी इमरजेंसी में जाएँ', tpl_u_er_body: 'आपकी रीडिंग गंभीर चिंता का विषय हैं। कृपया अभी नज़दीकी इमरजेंसी में जाएँ। अगर आपको बहुत तबीयत खराब लगे तो तुरंत 108 पर फ़ोन करें।',
+  tpl_u_call_title: 'कृपया क्लिनिक को फ़ोन करें', tpl_u_call_body: 'मैं आपकी रीडिंग के बारे में आपसे बात करना चाहता हूँ। यह संदेश देखते ही कृपया क्लिनिक को फ़ोन करें।',
+  tpl_a_walk_title: 'कृपया खाने के बाद टहलें', tpl_a_walk_body: 'आपके डेटा को देखकर लगता है कि रात के खाने के बाद 15 से 20 मिनट टहलने से आपकी शुगर में मदद मिलेगी। कृपया इस हफ़्ते रोज़ कोशिश करें।',
+  tpl_a_bed_title: 'सोने से पहले अपनी शुगर जाँचें', tpl_a_bed_body: 'आपके डेटा में रात को शुगर गिरती दिख रही है। कृपया सोने से पहले शुगर जाँचें और अगर वह 110 से कम हो तो थोड़ा नाश्ता कर लें।',
+  tpl_a_portions_title: 'चावल और रोटी की मात्रा कम करके देखें', tpl_a_portions_body: 'खाने के बाद आपकी शुगर बहुत बढ़ती है। कृपया चावल और रोटी कम खाएँ और सब्ज़ी व दाल ज़्यादा लें।',
+  tpl_a_meds_title: 'मैं आपकी दवाइयों की समीक्षा करना चाहता हूँ', tpl_a_meds_body: 'आपका डेटा देखने के बाद मैं आपकी दवाइयाँ बदलना चाहता हूँ। मैं जल्दी ही आपको नया पर्चा भेजूँगा। तब तक कृपया कुछ न बदलें।',
+  msg_auto: 'अपने-आप अनुवादित', msg_orig: 'जैसा आपके डॉक्टर ने लिखा',
+})
+Object.assign(te, {
+  tpl_u_clinic_title: 'దయచేసి ఈ రోజు క్లినిక్‌కు రండి', tpl_u_clinic_body: 'మీ ఇటీవలి రీడింగులను చూశాను, ఈ రోజు మిమ్మల్ని క్లినిక్‌లో చూడాలనుకుంటున్నాను. దయచేసి వీలైనంత త్వరగా రండి, మీ మందులను తీసుకురండి.',
+  tpl_u_er_title: 'దయచేసి వెంటనే అత్యవసర విభాగానికి వెళ్ళండి', tpl_u_er_body: 'మీ రీడింగులు తీవ్రమైన ఆందోళన కలిగిస్తున్నాయి. దయచేసి వెంటనే దగ్గరలోని అత్యవసర విభాగానికి వెళ్ళండి. చాలా అస్వస్థంగా అనిపిస్తే వెంటనే 108కి ఫోన్ చేయండి.',
+  tpl_u_call_title: 'దయచేసి క్లినిక్‌కు ఫోన్ చేయండి', tpl_u_call_body: 'మీ రీడింగుల గురించి మీతో మాట్లాడాలనుకుంటున్నాను. ఈ సందేశం చూడగానే దయచేసి క్లినిక్‌కు ఫోన్ చేయండి.',
+  tpl_a_walk_title: 'దయచేసి భోజనం తర్వాత నడవండి', tpl_a_walk_body: 'మీ డేటా చూస్తే, రాత్రి భోజనం తర్వాత 15 నుండి 20 నిమిషాలు నడిస్తే మీ షుగర్‌కు సహాయపడుతుంది. దయచేసి ఈ వారం ప్రతిరోజూ ప్రయత్నించండి.',
+  tpl_a_bed_title: 'పడుకునే ముందు మీ షుగర్ చూసుకోండి', tpl_a_bed_body: 'మీ డేటాలో రాత్రి షుగర్ తగ్గుతున్నట్లు కనిపిస్తోంది. దయచేసి పడుకునే ముందు షుగర్ చూసుకోండి, అది 110 కంటే తక్కువ ఉంటే కొద్దిగా తినండి.',
+  tpl_a_portions_title: 'అన్నం, రొట్టె తక్కువగా తిని చూడండి', tpl_a_portions_body: 'భోజనం తర్వాత మీ షుగర్ చాలా పెరుగుతోంది. దయచేసి అన్నం, రొట్టె తక్కువగా తినండి, కూరగాయలు, పప్పు ఎక్కువగా తీసుకోండి.',
+  tpl_a_meds_title: 'మీ మందులను సమీక్షించాలనుకుంటున్నాను', tpl_a_meds_body: 'మీ డేటా చూసిన తర్వాత మీ మందులను మార్చాలనుకుంటున్నాను. త్వరలో కొత్త ప్రిస్క్రిప్షన్ పంపుతాను. అప్పటి వరకు దయచేసి ఏమీ మార్చకండి.',
+  msg_auto: 'ఆటోమేటిక్‌గా అనువదించబడింది', msg_orig: 'మీ డాక్టర్ రాసినట్లుగానే',
+})
+Object.assign(kn, {
+  tpl_u_clinic_title: 'ದಯವಿಟ್ಟು ಇಂದು ಕ್ಲಿನಿಕ್‌ಗೆ ಬನ್ನಿ', tpl_u_clinic_body: 'ನಿಮ್ಮ ಇತ್ತೀಚಿನ ರೀಡಿಂಗ್‌ಗಳನ್ನು ನೋಡಿದ್ದೇನೆ, ಇಂದು ನಿಮ್ಮನ್ನು ಕ್ಲಿನಿಕ್‌ನಲ್ಲಿ ನೋಡಲು ಬಯಸುತ್ತೇನೆ. ದಯವಿಟ್ಟು ಆದಷ್ಟು ಬೇಗ ಬನ್ನಿ ಮತ್ತು ನಿಮ್ಮ ಔಷಧಿಗಳನ್ನು ತನ್ನಿ.',
+  tpl_u_er_title: 'ದಯವಿಟ್ಟು ಈಗಲೇ ತುರ್ತು ವಿಭಾಗಕ್ಕೆ ಹೋಗಿ', tpl_u_er_body: 'ನಿಮ್ಮ ರೀಡಿಂಗ್‌ಗಳು ಗಂಭೀರ ಕಳವಳ ಮೂಡಿಸುತ್ತಿವೆ. ದಯವಿಟ್ಟು ಈಗಲೇ ಹತ್ತಿರದ ತುರ್ತು ವಿಭಾಗಕ್ಕೆ ಹೋಗಿ. ತುಂಬಾ ಅಸ್ವಸ್ಥರಾಗಿದ್ದರೆ ತಕ್ಷಣ 108ಕ್ಕೆ ಕರೆ ಮಾಡಿ.',
+  tpl_u_call_title: 'ದಯವಿಟ್ಟು ಕ್ಲಿನಿಕ್‌ಗೆ ಕರೆ ಮಾಡಿ', tpl_u_call_body: 'ನಿಮ್ಮ ರೀಡಿಂಗ್‌ಗಳ ಬಗ್ಗೆ ನಿಮ್ಮೊಂದಿಗೆ ಮಾತನಾಡಲು ಬಯಸುತ್ತೇನೆ. ಈ ಸಂದೇಶ ನೋಡಿದ ತಕ್ಷಣ ದಯವಿಟ್ಟು ಕ್ಲಿನಿಕ್‌ಗೆ ಕರೆ ಮಾಡಿ.',
+  tpl_a_walk_title: 'ದಯವಿಟ್ಟು ಊಟದ ನಂತರ ನಡೆಯಿರಿ', tpl_a_walk_body: 'ನಿಮ್ಮ ಡೇಟಾ ನೋಡಿದರೆ, ರಾತ್ರಿ ಊಟದ ನಂತರ 15 ರಿಂದ 20 ನಿಮಿಷ ನಡೆದರೆ ನಿಮ್ಮ ಸಕ್ಕರೆಗೆ ಸಹಾಯವಾಗುತ್ತದೆ. ದಯವಿಟ್ಟು ಈ ವಾರ ಪ್ರತಿದಿನ ಪ್ರಯತ್ನಿಸಿ.',
+  tpl_a_bed_title: 'ಮಲಗುವ ಮೊದಲು ನಿಮ್ಮ ಸಕ್ಕರೆ ಪರೀಕ್ಷಿಸಿ', tpl_a_bed_body: 'ನಿಮ್ಮ ಡೇಟಾದಲ್ಲಿ ರಾತ್ರಿ ಸಕ್ಕರೆ ಇಳಿಯುತ್ತಿರುವುದು ಕಾಣುತ್ತಿದೆ. ದಯವಿಟ್ಟು ಮಲಗುವ ಮೊದಲು ಸಕ್ಕರೆ ಪರೀಕ್ಷಿಸಿ, ಅದು 110ಕ್ಕಿಂತ ಕಡಿಮೆ ಇದ್ದರೆ ಸ್ವಲ್ಪ ತಿಂಡಿ ತಿನ್ನಿ.',
+  tpl_a_portions_title: 'ಅನ್ನ, ರೊಟ್ಟಿ ಕಡಿಮೆ ತಿಂದು ನೋಡಿ', tpl_a_portions_body: 'ಊಟದ ನಂತರ ನಿಮ್ಮ ಸಕ್ಕರೆ ತುಂಬಾ ಏರುತ್ತದೆ. ದಯವಿಟ್ಟು ಅನ್ನ, ರೊಟ್ಟಿ ಕಡಿಮೆ ತಿನ್ನಿ ಮತ್ತು ತರಕಾರಿ, ಬೇಳೆ ಹೆಚ್ಚು ಸೇರಿಸಿ.',
+  tpl_a_meds_title: 'ನಿಮ್ಮ ಔಷಧಿಗಳನ್ನು ಪರಿಶೀಲಿಸಬೇಕು', tpl_a_meds_body: 'ನಿಮ್ಮ ಡೇಟಾ ನೋಡಿದ ನಂತರ ನಿಮ್ಮ ಔಷಧಿಗಳನ್ನು ಬದಲಾಯಿಸಲು ಬಯಸುತ್ತೇನೆ. ಶೀಘ್ರದಲ್ಲೇ ಹೊಸ ಪ್ರಿಸ್ಕ್ರಿಪ್ಷನ್ ಕಳುಹಿಸುತ್ತೇನೆ. ಅಲ್ಲಿಯವರೆಗೆ ದಯವಿಟ್ಟು ಏನನ್ನೂ ಬದಲಾಯಿಸಬೇಡಿ.',
+  msg_auto: 'ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಅನುವಾದಿಸಲಾಗಿದೆ', msg_orig: 'ನಿಮ್ಮ ವೈದ್ಯರು ಬರೆದಂತೆಯೇ',
+})
+
 const DICT = { en, hi, te, kn }
 
 export function makeT(lang) {

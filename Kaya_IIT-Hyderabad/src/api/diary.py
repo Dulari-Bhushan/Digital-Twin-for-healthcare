@@ -81,12 +81,35 @@ def _load_patient(pid: int) -> list[dict]:
         return []
 
 
+def effective(items: list[dict]) -> list[dict]:
+    """Apply "not taken" markers: a med_off entry cancels every earlier medicine entry for the same day and slot (including the
+    pre-filled history), and is then dropped. Everything downstream (the app, the doctor's grid, the summaries) sees the result."""
+    out: list[dict] = []
+    for x in items:
+        if x["kind"] == "med_off":
+            out = [y for y in out if not (y["kind"] == "med" and y["date"] == x["date"] and y["value"] == x["value"])]
+        else:
+            out.append(x)
+    return out
+
+
 def entries(a: dict, today: datetime) -> list[dict]:
-    return seed(a, today) + _load_patient(a["profile"]["id"])
+    return effective(seed(a, today) + _load_patient(a["profile"]["id"]))
+
+
+def reset_patient_logs() -> int:
+    """Forget everything patients entered in the app (the pre-filled history is regenerated), so a demo starts from zero."""
+    n = 0
+    with LOCK:
+        if LOG_DIR.exists():
+            for f in LOG_DIR.glob("*.json"):
+                f.unlink()
+                n += 1
+    return n
 
 
 def valid(kind: str, value) -> bool:
-    if kind == "med":
+    if kind in ("med", "med_off"):
         return value in MEDS
     if kind == "feel":
         return value in FEEL
@@ -104,7 +127,9 @@ def add(pid: int, today: datetime, kind: str, value, note: str = "") -> dict:
         LOG_DIR.mkdir(parents=True, exist_ok=True)
         cur = _load_patient(pid)
         # one medicine or feeling entry per slot per day: logging again replaces it
-        cur = [x for x in cur if not (x["date"] == e["date"] and x["kind"] == kind and kind in ("med", "feel") and (kind == "feel" or x["value"] == value))]
+        slot = kind in ("med", "med_off")
+        cur = [x for x in cur if not (x["date"] == e["date"] and ((slot and x["kind"] in ("med", "med_off") and x["value"] == value)
+                                                                  or (kind == "feel" and x["kind"] == "feel")))]
         cur.append(e)
         (LOG_DIR / f"{pid}.json").write_text(json.dumps(cur), encoding="utf8")
     return e

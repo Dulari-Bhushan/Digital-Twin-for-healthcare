@@ -68,3 +68,31 @@ def test_attention_flags_poor_adherence():
     assert any("Evening medicines" in m for m in msgs)
     a, today = _load(1636)
     assert diary.attention(diary.summary(diary.seed(a, today), today)) == []
+
+
+def test_a_medicine_can_be_unticked_even_when_it_was_pre_filled(tmp_path, monkeypatch):
+    monkeypatch.setattr(diary, "LOG_DIR", tmp_path)
+    items = [{"id": "s1", "date": "2026-01-14", "time": "08:10", "kind": "med", "value": "morning", "note": "", "source": "seed"}]
+    stored = {"id": "p1", "date": "2026-01-14", "time": "09:00", "kind": "med_off", "value": "morning", "note": "", "source": "patient"}
+    assert diary.effective(items + [stored]) == []                                  # the pre-filled morning dose is cancelled
+    again = {**stored, "id": "p2", "kind": "med"}
+    assert [x["id"] for x in diary.effective(items + [stored, again])] == ["p2"]    # ticking again brings it back
+    assert diary.valid("med_off", "evening") and not diary.valid("med_off", "noon")
+
+
+def test_logging_a_slot_again_replaces_the_marker(tmp_path, monkeypatch):
+    from datetime import datetime
+    monkeypatch.setattr(diary, "LOG_DIR", tmp_path)
+    today = datetime(2026, 1, 14, 21, 0)
+    diary.add(9, today, "med", "evening")
+    diary.add(9, today, "med_off", "evening")
+    assert [x["kind"] for x in diary._load_patient(9)] == ["med_off"]
+    diary.add(9, today, "med", "evening")
+    assert [x["kind"] for x in diary._load_patient(9)] == ["med"]
+
+
+def test_demo_reset_clears_patient_entries(tmp_path, monkeypatch):
+    from datetime import datetime
+    monkeypatch.setattr(diary, "LOG_DIR", tmp_path)
+    diary.add(9, datetime(2026, 1, 14, 21, 0), "walk", 30)
+    assert diary.reset_patient_logs() == 1 and diary._load_patient(9) == []

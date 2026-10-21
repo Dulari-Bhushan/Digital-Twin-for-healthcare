@@ -75,6 +75,10 @@ In the patient app, Reports tab, **Add a report** lets the patient choose a PDF 
 
 **Automatic reading, with a question first.** Upload `docs/sample/Rajesh_Sharma_lab_report.pdf` (a fictional lab report for Rajesh, dated 10 Jan 2026; regenerate with `python docs/make_sample_report.py`). The file is saved, and the app then asks **Should the AI read this report?** with a plain explanation that saying yes sends the file to Sarvam AI. Nothing leaves the server before the patient presses **Yes, read it for me**. After about 5 to 10 seconds a summary card appears: how many results were read, the ones outside the healthy range as chips, and **View the report**. The report is also in the list as an *Unverified* report with values, flags, the previous value from the last panel, the source text and a link to the original. **No, keep the file only** keeps the file; a **Read with AI** button on the file lets the patient change their mind later. A rule-based parser (`src/api/labparse.py`, not a language model) picks out only values it can trace to a line of the document, so a missing value is left out, never guessed. If reading fails, the file is kept. Values read this way are not used by the twin; the history charts and the changes card use the verified panels only. For the demo, upload it for Rajesh (`?view=patient&p=1688&tab=4`), then open the doctor view's Reports tab to show it there too.
 
+## Starting clean
+
+Everything a patient logs in the app (walks, medicines, how they feel) is cleared when the server starts, so each demo begins with 0 minutes walked and nothing newly logged. Start the server with `KAYA_KEEP_LOGS=1` to keep the entries between runs. In the quick log, tapping a ticked medicine again un-ticks it. Messages and uploads are kept between runs; delete `data/patient_messages/` or `data/patient_uploads/` to reset those.
+
 ## Messaging the patient and sending a prescription
 
 Open a patient's record and choose **✉ Message patient** (or the **Message patient** button at the top of the doctor page). Keep the patient app open in a second window (`?view=patient&p=1688`).

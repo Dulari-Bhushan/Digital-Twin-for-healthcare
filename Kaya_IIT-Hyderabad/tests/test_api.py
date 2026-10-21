@@ -10,6 +10,12 @@ fastapi_testclient = pytest.importorskip("fastapi.testclient")
 import app as kaya  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _fresh_rate_limits():
+    kaya.HITS.clear()                      # the app limits requests per client; each test starts with a clean count
+    yield
+
+
 @pytest.fixture(scope="module")
 def client():
     with fastapi_testclient.TestClient(kaya.app) as c:
@@ -270,7 +276,7 @@ def test_doctor_message_prescription_flow(client, tmp_path, monkeypatch):
     assert client.get(f"/api/patients/{pid}/messages").json() == {"items": [], "unread": 0}
     # urgent message needs an action
     assert client.post(f"/api/patients/{pid}/messages", json={"kind": "urgent", "body": "Come in"}).status_code == 422
-    u = client.post(f"/api/patients/{pid}/messages", json={"kind": "urgent", "body": "Come to the clinic today", "action": "come_to_clinic"}).json()
+    u = client.post(f"/api/patients/{pid}/messages", json={"kind": "urgent", "body": "Come to the clinic today", "action": "come_to_clinic", "translate": False}).json()
     assert client.get(f"/api/patients/{pid}/messages").json()["unread"] == 1
     assert client.post(f"/api/patients/{pid}/messages/{u['id']}/read").json()["read"] is True
     assert client.post(f"/api/patients/{pid}/messages/zzz/read").status_code == 404
@@ -278,10 +284,50 @@ def test_doctor_message_prescription_flow(client, tmp_path, monkeypatch):
     before = client.get(f"/api/patients/{pid}/reports").json()
     first = before["medications"][0]["name"]
     rx = client.post(f"/api/patients/{pid}/prescriptions", json={"changes": [
-        {"medicine": first, "action": "stop"}, {"medicine": "Sitagliptin", "action": "start", "dose": "100 mg once a day"}], "note": "Reviewed your data"}).json()
+        {"medicine": first, "action": "stop"}, {"medicine": "Sitagliptin", "action": "start", "dose": "100 mg once a day"}], "note": "Reviewed your data", "translate": False}).json()
     assert rx["kind"] == "prescription"
     after = client.get(f"/api/patients/{pid}/reports").json()
     names = [m["name"] for m in after["medications"]]
     assert first not in names and "Sitagliptin" in names
     assert any(r["code"] == "RX" and r["days_ago"] == 0 for r in after["reports"])
     assert client.post(f"/api/patients/{pid}/prescriptions", json={"changes": [{"medicine": "X", "action": "start"}]}).status_code == 422
+
+
+def test_free_text_is_translated_in_the_background(client, tmp_path, monkeypatch):
+    import time
+
+    import messages
+
+    class Fake:
+        def chat(self, msgs, max_tokens=260):
+            import json
+            d = json.loads(msgs[1]["content"])
+            return json.dumps({"title": "T:" + d["title"], "body": "T:" + d["body"], "instructions": d["instructions"]})
+
+    monkeypatch.setattr(messages, "MSG_DIR", tmp_path)
+    monkeypatch.setitem(kaya.VOICE, "client", Fake())
+    pid = client.get("/api/patients").json()[0]["id"]
+    m = client.post(f"/api/patients/{pid}/messages", json={"kind": "advice", "title": "Rest", "body": "Rest tomorrow"}).json()
+    assert "translations" not in m                                         # sending does not wait for the translation
+    for _ in range(40):
+        got = client.get(f"/api/patients/{pid}/messages").json()["items"][0]
+        if got.get("translations"):
+            break
+        time.sleep(0.05)
+    assert set(got["translations"]) == {"hi", "te", "kn"} and got["translations"]["hi"]["body"] == "T:Rest tomorrow"
+    t = client.post(f"/api/patients/{pid}/messages", json={"kind": "advice", "body": "x", "template": "a_walk", "translate": False}).json()
+    time.sleep(0.2)
+    assert "translations" not in next(i for i in client.get(f"/api/patients/{pid}/messages").json()["items"] if i["id"] == t["id"])
+
+
+def test_patient_can_untick_a_medicine_through_the_api(client):
+    pid = 1636
+    before = client.get(f"/api/patients/{pid}/log").json()["today"]
+    on = client.post(f"/api/patients/{pid}/log", json={"kind": "med", "value": "morning"}).json()["today"]
+    assert on["med_morning"] is True
+    off = client.post(f"/api/patients/{pid}/log", json={"kind": "med_off", "value": "morning"}).json()["today"]
+    assert off["med_morning"] is False                                            # even if the history pre-filled it
+    assert client.get(f"/api/patients/{pid}/log").json()["today"]["med_morning"] is False
+    # put the demo back as it was
+    if before["med_morning"]:
+        client.post(f"/api/patients/{pid}/log", json={"kind": "med", "value": "morning"})

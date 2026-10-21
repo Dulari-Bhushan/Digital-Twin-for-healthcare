@@ -64,7 +64,7 @@ export function QuickLog({ t, log, logIt }) {
         <span className="lbl">💊 {t('log_meds')}</span>
         <span className="opts">
           {[['morning', td.med_morning], ['evening', td.med_evening]].map(([k, on]) => (
-            <button key={k} className={`opt ${on ? 'on' : ''}`} onClick={() => !on && logIt('med', k)} aria-pressed={on}>{on ? '✓ ' : ''}{t(k)}</button>
+            <button key={k} className={`opt ${on ? 'on' : ''}`} onClick={() => logIt(on ? 'med_off' : 'med', k)} aria-pressed={on}>{on ? '✓ ' : ''}{t(k)}</button>
           ))}
         </span>
       </div>

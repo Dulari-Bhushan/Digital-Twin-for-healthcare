@@ -49,7 +49,7 @@ def list_messages(pid: int) -> list[dict]:
     return sorted(_read(pid), key=lambda m: m["created"], reverse=True)
 
 
-def send(pid: int, kind: str, title: str, body: str, action: str | None, created: str) -> dict:
+def send(pid: int, kind: str, title: str, body: str, action: str | None, created: str, template: str | None = None) -> dict:
     if kind not in KINDS:
         raise ValueError("kind must be urgent or advice")
     title, body = clean(title, 80), clean(body, 1000)
@@ -58,7 +58,8 @@ def send(pid: int, kind: str, title: str, body: str, action: str | None, created
     if kind == "urgent" and action not in URGENT_ACTIONS:
         raise ValueError("an urgent message needs an action: come to the clinic, go to the emergency room, or call the clinic")
     msg = {"id": uuid.uuid4().hex[:12], "kind": kind, "title": title or ("Urgent message" if kind == "urgent" else "Message from your doctor"),
-           "body": body, "action": action if kind == "urgent" else None, "created": created, "read": False}
+           "body": body, "action": action if kind == "urgent" else None, "created": created, "read": False,
+           "template": template if template in TEMPLATES else None}
     with LOCK:
         items = _read(pid)
         if len(items) >= MAX_MESSAGES:
@@ -143,3 +144,85 @@ def report_for(pid: int, rx: dict, days_ago: int) -> dict:
         "plain": " ".join(lines) + (f" Your doctor wrote: {rx['body']}" if rx.get("body") else ""),
         "recommendations": lines + ["Take medicines as written and call the clinic if you feel unwell."],
     }
+
+
+# ---------------------------------------------------------------- automatic translation of the doctor's own words
+LANG_NAME = {"hi": "Hindi", "te": "Telugu", "kn": "Kannada"}
+TEMPLATES = ("u_clinic", "u_er", "u_call", "a_walk", "a_bed", "a_portions", "a_meds")    # quick-start texts, translated by hand in the app
+
+
+def _json_object(text: str) -> dict | None:
+    """The first JSON object in a model reply, or None."""
+    i, j = (text or "").find("{"), (text or "").rfind("}")
+    if i < 0 or j <= i:
+        return None
+    try:
+        d = json.loads(text[i:j + 1])
+    except ValueError:
+        return None
+    return d if isinstance(d, dict) else None
+
+
+def translate_message(client, msg: dict, langs=("hi", "te", "kn")) -> dict:
+    """Translate title, body and prescription instructions into each language with the voice service's chat model.
+    Returns {lang: {"title", "body", "instructions": [...]}} for the languages that worked; any failure leaves that language out,
+    and the patient then sees the doctor's original words."""
+    instr = [c.get("instructions", "") for c in msg.get("changes", [])]
+    payload = {"title": msg["title"] if msg["kind"] != "prescription" else "", "body": msg.get("body", ""), "instructions": instr}
+    if not any([payload["title"], payload["body"], *instr]):
+        return {}
+    out = {}
+    for lang in langs:
+        system = (f"You translate a short message from a doctor to a patient in India into {LANG_NAME[lang]}. Use simple, polite everyday words. "
+                  "Keep numbers, units, medicine names and doses exactly as written. Do not add or remove advice. "
+                  "Reply with one JSON object only, with the same keys as the input: title, body, instructions (a list of the same length). Empty strings stay empty.")
+        try:
+            reply = client.chat([{"role": "system", "content": system}, {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}], max_tokens=700)
+        except Exception:  # noqa: BLE001  (a failed translation must never break a message)
+            continue
+        d = _json_object(reply)
+        if not d or not isinstance(d.get("instructions", []), list) or len(d.get("instructions", [])) != len(instr):
+            continue
+        out[lang] = {"title": clean(str(d.get("title", "")), 160), "body": clean(str(d.get("body", "")), 2000),
+                     "instructions": [clean(str(x), 400) if src else "" for x, src in zip(d.get("instructions", []), instr)]}
+    return out
+
+
+def set_translations(pid: int, mid: str, translations: dict) -> None:
+    with LOCK:
+        items = _read(pid)
+        for m in items:
+            if m["id"] == mid:
+                m["translations"] = translations
+        _write(pid, items)
+
+
+TEMPLATE_TEXT = {
+    "u_clinic": ("Please come to the clinic today", "I have looked at your recent readings and I would like to see you at the clinic today. Please come as soon as you can and bring your medicines."),
+    "u_er": ("Please go to the emergency room now", "Your readings are a serious concern. Please go to the nearest emergency room now. If you feel very unwell, call 108 straight away."),
+    "u_call": ("Please call the clinic", "I would like to speak to you about your readings. Please call the clinic as soon as you see this message."),
+    "a_walk": ("Please walk after meals", "Looking at your data, a 15 to 20 minute walk after dinner will help your sugar. Please try it every day this week."),
+    "a_bed": ("Check your sugar before bed", "Your data shows dips at night. Please check your sugar before bed and have a small snack if it is below 110."),
+    "a_portions": ("Try smaller portions of rice and roti", "Your sugar rises a lot after meals. Please try smaller portions of rice and roti, and add more vegetables and dal."),
+    "a_meds": ("I want to review your medicines", "After looking at your data I would like to change your medicines. I will send you a new prescription shortly. Please do not change anything until then."),
+}
+_TEXT_TO_TEMPLATE = {v: k for k, v in TEMPLATE_TEXT.items()}
+
+
+def adopt_templates(pid: int) -> None:
+    """Messages sent before templates existed: if the text is exactly a quick-start text, mark it so the app shows the hand translation."""
+    with LOCK:
+        items = _read(pid)
+        changed = False
+        for m in items:
+            if m["kind"] in KINDS and not m.get("template"):
+                t = _TEXT_TO_TEMPLATE.get((m["title"], m["body"]))
+                if t:
+                    m["template"] = t
+                    changed = True
+        if changed:
+            _write(pid, items)
+
+
+def needs_translation(m: dict) -> bool:
+    return not m.get("template") and not m.get("translations") and bool(m.get("body") or m.get("title") or m.get("changes"))

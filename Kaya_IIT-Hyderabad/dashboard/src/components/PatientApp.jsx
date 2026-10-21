@@ -284,7 +284,7 @@ export default function PatientApp({ d, at, pid, changes }) {
         </div>
         <div className="p-brand"><Logo size={26} /><b>Kaya</b></div>
         <div className="screen">
-          <InboxBanners t={t} inbox={inbox} showPast={tab === 0} />
+          <InboxBanners t={t} lang={lang} inbox={inbox} showPast={tab === 0} />
           {!series14 ? <div className="muted" style={{ padding: 30 }}>{t('loading')}</div> : (
             tab === 0 ? <Today t={t} name={d.profile.name || `Patient ${d.profile.id}`} series={series14} at={at} day={day} setDay={setDay} st={st} days={days} log={log} logIt={logIt} risky={!!d.profile.on_insulin_or_su} /> :
             tab === 1 ? <Insights t={t} series={series14} st={st} d={d} locale={locale} /> :
@@ -292,7 +292,7 @@ export default function PatientApp({ d, at, pid, changes }) {
           )}
           {lang !== 'en' && <p className="note" style={{ marginTop: 10 }}>{t('lang_note')}</p>}
         </div>
-        <RxModal t={t} inbox={inbox} onOpenReports={() => setTab(4)} />
+        <RxModal t={t} lang={lang} inbox={inbox} onOpenReports={() => setTab(4)} />
         {!askOpen && <button className="vbtn" onClick={() => setAskOpen(true)} aria-label={t('ask_title')} title={t('ask_title')}>🎙️</button>}
         {askOpen && <Assistant t={t} lang={lang} pid={pid} tab={tab} voice={voice} screenText={readout()} large={large} onToggleLarge={() => setLarge(!large)} onNavigate={setTab} onClose={() => setAskOpen(false)} />}
         <div className="tabs">

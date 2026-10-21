@@ -3,18 +3,18 @@ import { getMessages, getReports, sendMessage, sendPrescription } from '../api'
 import { TONE } from '../ui'
 
 const URGENT = [
-  { label: 'Come to the clinic today', action: 'come_to_clinic', title: 'Please come to the clinic today',
+  { id: 'u_clinic', label: 'Come to the clinic today', action: 'come_to_clinic', title: 'Please come to the clinic today',
     body: 'I have looked at your recent readings and I would like to see you at the clinic today. Please come as soon as you can and bring your medicines.' },
-  { label: 'Go to the emergency room now', action: 'go_to_er', title: 'Please go to the emergency room now',
+  { id: 'u_er', label: 'Go to the emergency room now', action: 'go_to_er', title: 'Please go to the emergency room now',
     body: 'Your readings are a serious concern. Please go to the nearest emergency room now. If you feel very unwell, call 108 straight away.' },
-  { label: 'Call the clinic', action: 'call_clinic', title: 'Please call the clinic',
+  { id: 'u_call', label: 'Call the clinic', action: 'call_clinic', title: 'Please call the clinic',
     body: 'I would like to speak to you about your readings. Please call the clinic as soon as you see this message.' },
 ]
 const ADVICE = [
-  { label: 'Walk after meals', title: 'Please walk after meals', body: 'Looking at your data, a 15 to 20 minute walk after dinner will help your sugar. Please try it every day this week.' },
-  { label: 'Check sugar before bed', title: 'Check your sugar before bed', body: 'Your data shows dips at night. Please check your sugar before bed and have a small snack if it is below 110.' },
-  { label: 'Smaller portions', title: 'Try smaller portions of rice and roti', body: 'Your sugar rises a lot after meals. Please try smaller portions of rice and roti, and add more vegetables and dal.' },
-  { label: 'I will change your medicines', title: 'I want to review your medicines', body: 'After looking at your data I would like to change your medicines. I will send you a new prescription shortly. Please do not change anything until then.' },
+  { id: 'a_walk', label: 'Walk after meals', title: 'Please walk after meals', body: 'Looking at your data, a 15 to 20 minute walk after dinner will help your sugar. Please try it every day this week.' },
+  { id: 'a_bed', label: 'Check sugar before bed', title: 'Check your sugar before bed', body: 'Your data shows dips at night. Please check your sugar before bed and have a small snack if it is below 110.' },
+  { id: 'a_portions', label: 'Smaller portions', title: 'Try smaller portions of rice and roti', body: 'Your sugar rises a lot after meals. Please try smaller portions of rice and roti, and add more vegetables and dal.' },
+  { id: 'a_meds', label: 'I will change your medicines', title: 'I want to review your medicines', body: 'After looking at your data I would like to change your medicines. I will send you a new prescription shortly. Please do not change anything until then.' },
 ]
 const ACTION_TEXT = { come_to_clinic: 'Come to the clinic', go_to_er: 'Go to the emergency room', call_clinic: 'Call the clinic' }
 const RX_TEXT = { start: 'Start', stop: 'Stop', change_dose: 'Change dose' }
@@ -25,16 +25,17 @@ function Segment({ value, onChange, options }) {
 
 function Compose({ pid, onSent }) {
   const [kind, setKind] = useState('urgent')
-  const [f, setF] = useState({ title: '', body: '', action: 'come_to_clinic' })
+  const [f, setF] = useState({ title: '', body: '', action: 'come_to_clinic', template: null })
+  const [translate, setTranslate] = useState(true)
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState(null)
   const templates = kind === 'urgent' ? URGENT : ADVICE
-  const apply = (t) => setF({ title: t.title, body: t.body, action: t.action || f.action })
-  useEffect(() => { setF({ title: '', body: '', action: 'come_to_clinic' }); setMsg(null) }, [kind, pid])
+  const apply = (t) => setF({ title: t.title, body: t.body, action: t.action || f.action, template: t.id })
+  useEffect(() => { setF({ title: '', body: '', action: 'come_to_clinic', template: null }); setMsg(null) }, [kind, pid])
   const send = () => {
     setBusy(true); setMsg(null)
-    sendMessage(pid, { kind, title: f.title, body: f.body, action: kind === 'urgent' ? f.action : null })
-      .then(() => { setMsg({ ok: true, text: kind === 'urgent' ? 'Urgent message sent. It shows at the top of the patient app.' : 'Message sent.' }); setF({ title: '', body: '', action: f.action }); onSent() })
+    sendMessage(pid, { kind, title: f.title, body: f.body, action: kind === 'urgent' ? f.action : null, template: f.template, translate })
+      .then(() => { setMsg({ ok: true, text: kind === 'urgent' ? 'Urgent message sent. It shows at the top of the patient app.' : 'Message sent.' }); setF({ title: '', body: '', action: f.action, template: null }); onSent() })
       .catch((e) => setMsg({ ok: false, text: e.message })).finally(() => setBusy(false))
   }
   return (
@@ -51,8 +52,12 @@ function Compose({ pid, onSent }) {
             <Segment value={f.action} onChange={(a) => setF({ ...f, action: a })} options={Object.entries(ACTION_TEXT)} />
           </label>
         )}
-        <label>Title<input type="text" value={f.title} maxLength={80} placeholder={kind === 'urgent' ? 'Urgent: please come to the clinic' : 'A short heading'} onChange={(e) => setF({ ...f, title: e.target.value })} /></label>
-        <label>Message<textarea rows={4} maxLength={1000} value={f.body} placeholder="Write in plain words the patient will understand" onChange={(e) => setF({ ...f, body: e.target.value })} /></label>
+        <label>Title<input type="text" value={f.title} maxLength={80} placeholder={kind === 'urgent' ? 'Urgent: please come to the clinic' : 'A short heading'} onChange={(e) => setF({ ...f, title: e.target.value, template: null })} /></label>
+        <label>Message<textarea rows={4} maxLength={1000} value={f.body} placeholder="Write in plain words the patient will understand" onChange={(e) => setF({ ...f, body: e.target.value, template: null })} /></label>
+        <label className="chk">
+          <input type="checkbox" checked={translate} onChange={(e) => setTranslate(e.target.checked)} />
+          {f.template ? 'This quick-start text is already available in Hindi, Telugu and Kannada.' : 'Translate for the patient into Hindi, Telugu and Kannada (sent to Sarvam AI; leave out names and other identifying details)'}
+        </label>
         <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
           <button className="btn go" disabled={busy || !f.body.trim()} onClick={send}>{kind === 'urgent' ? '🚨 Send urgent message' : 'Send message'}</button>
           {msg && <span style={{ fontWeight: 700, color: msg.ok ? 'var(--mint-dd)' : 'var(--rose-dd)' }}>{msg.text}</span>}
