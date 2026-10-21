@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getChanges, getPatient, getPatients, getSeries } from './api'
-import { AlertsCard, GlucoseCard, Hero, Organs, ProbCard, RangeCard, Sidebar, WhatIfStudio } from './components/Doctor'
+import { AlertsCard, GlucoseCard, Hero, Organs, ProbCard, RangeCard, WhatIfStudio } from './components/Doctor'
+import { Sidebar } from './components/Triage'
 import PatientApp from './components/PatientApp'
 import Record from './components/Record'
 import Admin from './components/Admin'

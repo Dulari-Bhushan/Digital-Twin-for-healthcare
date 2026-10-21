@@ -39,26 +39,6 @@ const guard = (fn) => (e) => { if (e.target.closest('button, a, input, select, l
 
 export const initialsOf = (name) => (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('')
 
-export function Sidebar({ patients, selected, onSelect }) {
-  return (
-    <aside className="side">
-      <h2>Today's priorities</h2>
-      <div className="muted" style={{ fontSize: 13, padding: '0 6px 4px' }}>{patients.length} patients · sorted by who needs you most</div>
-      {patients.map((p) => {
-        const t = TONE[tierTone(p.tier)]
-        return (
-          <button key={p.id} className={`pt ${selected === p.id ? 'on' : ''}`} onClick={() => onSelect(p.id)}>
-            <span className="av" style={{ background: t.bg, color: t.dd, fontSize: 16 }}>{initialsOf(p.name)}</span>
-            <span><b>{p.name}</b><small>Age {p.age} · {p.sex === 'F' ? 'Female' : 'Male'} · HbA1c {p.hba1c}</small></span>
-            <span className="chip" style={{ background: t.bg, color: t.dd }}>{p.tier}</span>
-            <span className="why">{p.reasons.length ? p.reasons.join(' · ') : 'Stable, no flags'}</span>
-          </button>
-        )
-      })}
-    </aside>
-  )
-}
-
 export function Hero({ d, onOpen }) {
   const p = d.profile
   const t = TONE[tierTone(d.summary.tier)]

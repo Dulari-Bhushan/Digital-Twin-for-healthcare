@@ -79,6 +79,59 @@ def _tier(score: float) -> str:
     return "high" if score >= 0.6 else "medium" if score >= 0.35 else "low"
 
 
+def _triage(pid: int, m: dict, recent: list, liver12: float, fib12: float, egfr: float, score: float) -> dict:
+    """Who needs the doctor today: hard rules for the critical cases, 'what changed' for the rest.
+    The visit history is simulated (seeded by patient id) because the cohort has a single snapshot per patient."""
+    rng = np.random.default_rng(7000 + pid)
+    jump = float(rng.choice([rng.uniform(-4, 4), rng.uniform(9, 24)], p=[0.82, 0.18]))     # change in worst organ risk since the last visit, points
+    no_log_days = int(rng.choice([rng.integers(0, 3), rng.integers(4, 10)], p=[0.8, 0.2]))
+    unread = bool(rng.random() < 0.12)
+    review_days = int(rng.integers(1, 45))
+    trig: list[dict] = []
+
+    def add(key, text, level, event, hours=None):
+        trig.append({"key": key, "text": text, "level": level, "event": event, "hours_ago": hours})
+
+    hypo = [x for x in recent if x["type"] == "hypo"]
+    if hypo:
+        add("hypo", f"{len(hypo)} low-glucose alert(s) in 24 h", "critical", True, int(rng.integers(1, 20)))
+    elif m["tbr"] > 0.04:
+        add("tbr", f"Time below range {m['tbr'] * 100:.1f}%", "critical", False)
+    if jump >= 15:
+        add("jump", f"Organ risk up {jump:.0f} pts since last visit", "critical", True, int(rng.integers(6, 72)))
+    elif jump >= 8:
+        add("jump", f"Organ risk up {jump:.0f} pts since last visit", "warn", True, int(rng.integers(24, 200)))
+    if fib12 >= 0.7:
+        add("fib", f"Advanced fibrosis risk {fib12 * 100:.0f}%", "critical", False)
+    elif fib12 >= 0.1:
+        add("fib", f"Advanced fibrosis risk {fib12 * 100:.0f}%", "warn", False)
+    if egfr < 45:
+        add("egfr", f"eGFR {egfr:.0f}, kidney function low", "critical", False)
+    elif egfr < 60:
+        add("egfr", f"eGFR {egfr:.0f}", "warn", False)
+    if unread:
+        add("msg", "Unanswered patient message", "warn", True, int(rng.integers(2, 48)))
+    if no_log_days >= 4:
+        add("nolog", f"No readings or logs for {no_log_days} days", "warn", True, no_log_days * 24)
+    if m["tir"] < 0.5:
+        add("tir", f"Time in range {m['tir'] * 100:.0f}%", "warn", False)
+    if score >= 0.35 and not trig:
+        add("risk", "Elevated overall risk", "warn", False)
+
+    bucket = "today" if any(t["level"] == "critical" for t in trig) else "week" if trig else "stable"
+    escalated = False
+    if bucket != "today" and review_days >= (30 if bucket == "stable" else 40):          # staleness: not opened for too long moves up a level
+        bucket, escalated = ("week" if bucket == "stable" else "today"), True
+        add("stale", f"Not reviewed for {review_days} days", "warn", False)
+    if bucket != "today" and _tier(score) == "high" and review_days >= 21:                 # high-risk patients never stay out of sight for long
+        bucket, escalated = "today", True
+        add("overdue", f"High risk, not reviewed for {review_days} days", "critical", False)
+    ev = [t["hours_ago"] for t in trig if t["event"] and t["level"] == "critical" and t["hours_ago"] is not None]
+    return {"bucket": bucket, "triggers": trig, "event_hours": min(ev) if ev else None, "risk_jump": round(jump, 1),
+            "days_since_log": no_log_days, "unread_msgs": int(unread), "days_since_review": review_days, "escalated": escalated,
+            "trend": [round(max(0.0, score - jump / 100 * (3 - i) / 3 + float(rng.normal(0, 0.012))), 3) for i in range(4)][:-1] + [round(score, 3)]}
+
+
 def _summary(a: dict) -> dict:
     m, pr = a["metrics"], a["profile"]
     last_t = a["forecast"]["t"][-1]
@@ -108,7 +161,8 @@ def _summary(a: dict) -> dict:
     return {"id": pr["id"], "name": pr.get("name") or f"Patient {pr['id']}", "demo_tag": pr.get("demo_tag"), "age": pr["age"], "sex": pr["sex"], "hba1c": pr["hba1c"], "tir": m["tir"], "tbr": m["tbr"],
             "mean_glucose": m["mean"], "score": round(score, 3), "tier": _tier(score), "reasons": reasons[:3],
             "alerts_24h": len(recent), "steatosis_12m": liver12, "fibrosis_12m": fib12, "eye_progression_2y": eye, "kidney_ckd_risk": kid,
-            "dr_grade": a["eye"]["grade"], "last_glucose": a["series"]["glucose"][-1]}
+            "dr_grade": a["eye"]["grade"], "last_glucose": a["series"]["glucose"][-1],
+            "triage": _triage(pr["id"], m, recent, liver12, fib12, egfr, score)}
 
 
 @app.on_event("startup")
