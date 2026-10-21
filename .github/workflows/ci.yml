@@ -19,7 +19,8 @@ jobs:
           cache: pip
           cache-dependency-path: Kaya_IIT-Hyderabad/requirements-api.txt
       - name: Install
-        run: pip install -r requirements-api.txt pytest httpx pyarrow
+        # lightgbm and scikit-learn let the cardiovascular tests run instead of being skipped
+        run: pip install -r requirements-api.txt pytest httpx pyarrow lightgbm==4.5.0 scikit-learn==1.5.1
       - name: Test
         run: python -m pytest -q tests
 
@@ -38,3 +39,26 @@ jobs:
           cache-dependency-path: Kaya_IIT-Hyderabad/dashboard/package-lock.json
       - run: npm ci --no-audit --no-fund
       - run: npm run build
+
+  docker:
+    name: Docker image starts and serves
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Kaya_IIT-Hyderabad
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -t kaya .
+      - name: Start it and call the main endpoints
+        run: |
+          docker run -d --name kaya -p 8000:8000 kaya
+          for i in $(seq 1 30); do curl -sf http://localhost:8000/api/health && break; sleep 2; done
+          curl -sf http://localhost:8000/api/health
+          curl -sf http://localhost:8000/api/patients | head -c 200; echo
+          curl -sf http://localhost:8000/api/cardio/patients | head -c 200; echo
+          curl -sf http://localhost:8000/api/alerts/evidence | head -c 200; echo
+          curl -sf http://localhost:8000/ | head -c 200; echo
+      - name: Container log
+        if: always()
+        run: docker logs kaya | tail -30
