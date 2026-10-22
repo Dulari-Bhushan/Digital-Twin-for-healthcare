@@ -1,0 +1,322 @@
+{
+  "n_train_patients": 1500,
+  "n_test_patients": 500,
+  "n_test_mornings": 10019,
+  "min_nights": 4,
+  "glucose_lows_ablation": {
+    "everyone": {
+      "n_mornings": 10019,
+      "events": 452,
+      "auroc_with_lows": {
+        "auroc": 0.8407532900244294,
+        "ci95": [
+          0.8177306060226245,
+          0.8635588387636416
+        ]
+      },
+      "auroc_without_lows": {
+        "auroc": 0.8352395448587558,
+        "ci95": [
+          0.8120596409605993,
+          0.8583497598917866
+        ],
+        "fused_minus_this": {
+          "mean": 0.0054826539892288365,
+          "ci95": [
+            0.0012480513015615314,
+            0.009448917149232829
+          ]
+        }
+      }
+    },
+    "insulin_or_sulfonylurea": {
+      "n_mornings": 3099,
+      "events": 178,
+      "auroc_with_lows": {
+        "auroc": 0.8270159134358327,
+        "ci95": [
+          0.7937541663384138,
+          0.8603826997534558
+        ]
+      },
+      "auroc_without_lows": {
+        "auroc": 0.8139258911639464,
+        "ci95": [
+          0.7793963708447629,
+          0.850286893049212
+        ],
+        "fused_minus_this": {
+          "mean": 0.012992242107396815,
+          "ci95": [
+            0.005618980932866446,
+            0.021481319228535745
+          ]
+        }
+      }
+    },
+    "not_on_insulin_or_su": {
+      "n_mornings": 6920,
+      "events": 274,
+      "auroc_with_lows": {
+        "auroc": 0.8436801896096878,
+        "ci95": [
+          0.8105498135501714,
+          0.8724493224629092
+        ]
+      },
+      "auroc_without_lows": {
+        "auroc": 0.8426368091448453,
+        "ci95": [
+          0.8074098333178094,
+          0.8721533369832142
+        ],
+        "fused_minus_this": {
+          "mean": 0.0012335319538584943,
+          "ci95": [
+            -0.0019622048489330384,
+            0.004294720852079508
+          ]
+        }
+      }
+    }
+  },
+  "threshold": 0.11738703249071489,
+  "threshold_trained_with_gaps": 0.13032090516667116,
+  "wearable_gaps_and_noise": [
+    {
+      "gap": 0.0,
+      "noise": 0.0,
+      "mean_usable_nights": 7.0,
+      "share_scored": 1.0,
+      "share_events_in_unscored_mornings": 0.0,
+      "trained_clean": {
+        "auroc_all_mornings": 0.841,
+        "auroc_scored_mornings": 0.841,
+        "alerts_with_abstain": {
+          "sensitivity": 0.773,
+          "precision": 0.239,
+          "false_alerts_per_patient_month": 1.204,
+          "median_lead_h": 23.542
+        }
+      },
+      "trained_with_gaps": {
+        "auroc_all_mornings": 0.831,
+        "auroc_scored_mornings": 0.831,
+        "alerts_with_abstain": {
+          "sensitivity": 0.687,
+          "precision": 0.25,
+          "false_alerts_per_patient_month": 1.006,
+          "median_lead_h": 17.75
+        }
+      }
+    },
+    {
+      "gap": 0.1,
+      "noise": 0.0,
+      "mean_usable_nights": 6.37,
+      "share_scored": 0.998,
+      "share_events_in_unscored_mornings": 0.0,
+      "trained_clean": {
+        "auroc_all_mornings": 0.815,
+        "auroc_scored_mornings": 0.816,
+        "alerts_with_abstain": {
+          "sensitivity": 0.822,
+          "precision": 0.149,
+          "false_alerts_per_patient_month": 2.3,
+          "median_lead_h": 23.542
+        }
+      },
+      "trained_with_gaps": {
+        "auroc_all_mornings": 0.824,
+        "auroc_scored_mornings": 0.824,
+        "alerts_with_abstain": {
+          "sensitivity": 0.675,
+          "precision": 0.249,
+          "false_alerts_per_patient_month": 0.991,
+          "median_lead_h": 15.083
+        }
+      }
+    },
+    {
+      "gap": 0.2,
+      "noise": 0.0,
+      "mean_usable_nights": 5.72,
+      "share_scored": 0.975,
+      "share_events_in_unscored_mornings": 0.018,
+      "trained_clean": {
+        "auroc_all_mornings": 0.796,
+        "auroc_scored_mornings": 0.798,
+        "alerts_with_abstain": {
+          "sensitivity": 0.828,
+          "precision": 0.116,
+          "false_alerts_per_patient_month": 3.066,
+          "median_lead_h": 23.917
+        }
+      },
+      "trained_with_gaps": {
+        "auroc_all_mornings": 0.821,
+        "auroc_scored_mornings": 0.819,
+        "alerts_with_abstain": {
+          "sensitivity": 0.644,
+          "precision": 0.254,
+          "false_alerts_per_patient_month": 0.922,
+          "median_lead_h": 15.333
+        }
+      }
+    },
+    {
+      "gap": 0.3,
+      "noise": 0.0,
+      "mean_usable_nights": 5.04,
+      "share_scored": 0.898,
+      "share_events_in_unscored_mornings": 0.062,
+      "trained_clean": {
+        "auroc_all_mornings": 0.772,
+        "auroc_scored_mornings": 0.78,
+        "alerts_with_abstain": {
+          "sensitivity": 0.791,
+          "precision": 0.101,
+          "false_alerts_per_patient_month": 3.443,
+          "median_lead_h": 26.583
+        }
+      },
+      "trained_with_gaps": {
+        "auroc_all_mornings": 0.807,
+        "auroc_scored_mornings": 0.808,
+        "alerts_with_abstain": {
+          "sensitivity": 0.552,
+          "precision": 0.245,
+          "false_alerts_per_patient_month": 0.832,
+          "median_lead_h": 14.792
+        }
+      }
+    },
+    {
+      "gap": 0.5,
+      "noise": 0.0,
+      "mean_usable_nights": 3.7,
+      "share_scored": 0.562,
+      "share_events_in_unscored_mornings": 0.427,
+      "trained_clean": {
+        "auroc_all_mornings": 0.723,
+        "auroc_scored_mornings": 0.756,
+        "alerts_with_abstain": {
+          "sensitivity": 0.521,
+          "precision": 0.086,
+          "false_alerts_per_patient_month": 2.713,
+          "median_lead_h": 27.417
+        }
+      },
+      "trained_with_gaps": {
+        "auroc_all_mornings": 0.779,
+        "auroc_scored_mornings": 0.8,
+        "alerts_with_abstain": {
+          "sensitivity": 0.331,
+          "precision": 0.227,
+          "false_alerts_per_patient_month": 0.551,
+          "median_lead_h": 16.667
+        }
+      }
+    },
+    {
+      "gap": 0.0,
+      "noise": 1.0,
+      "mean_usable_nights": 7.0,
+      "share_scored": 1.0,
+      "share_events_in_unscored_mornings": 0.0,
+      "trained_clean": {
+        "auroc_all_mornings": 0.839,
+        "auroc_scored_mornings": 0.839,
+        "alerts_with_abstain": {
+          "sensitivity": 0.773,
+          "precision": 0.23,
+          "false_alerts_per_patient_month": 1.261,
+          "median_lead_h": 22.625
+        }
+      },
+      "trained_with_gaps": {
+        "auroc_all_mornings": 0.832,
+        "auroc_scored_mornings": 0.832,
+        "alerts_with_abstain": {
+          "sensitivity": 0.706,
+          "precision": 0.255,
+          "false_alerts_per_patient_month": 1.006,
+          "median_lead_h": 18.5
+        }
+      }
+    },
+    {
+      "gap": 0.0,
+      "noise": 2.0,
+      "mean_usable_nights": 7.0,
+      "share_scored": 1.0,
+      "share_events_in_unscored_mornings": 0.0,
+      "trained_clean": {
+        "auroc_all_mornings": 0.834,
+        "auroc_scored_mornings": 0.834,
+        "alerts_with_abstain": {
+          "sensitivity": 0.791,
+          "precision": 0.214,
+          "false_alerts_per_patient_month": 1.419,
+          "median_lead_h": 25.667
+        }
+      },
+      "trained_with_gaps": {
+        "auroc_all_mornings": 0.831,
+        "auroc_scored_mornings": 0.831,
+        "alerts_with_abstain": {
+          "sensitivity": 0.681,
+          "precision": 0.241,
+          "false_alerts_per_patient_month": 1.045,
+          "median_lead_h": 20.667
+        }
+      }
+    }
+  ],
+  "thin_record": [
+    {
+      "record_fields_missing": 0.0,
+      "fused_auroc": 0.841,
+      "wearable_only_auroc": 0.831,
+      "alerts": {
+        "sensitivity": 0.773,
+        "precision": 0.239,
+        "false_alerts_per_patient_month": 1.204,
+        "median_lead_h": 23.542
+      }
+    },
+    {
+      "record_fields_missing": 0.25,
+      "fused_auroc": 0.835,
+      "wearable_only_auroc": 0.831,
+      "alerts": {
+        "sensitivity": 0.779,
+        "precision": 0.248,
+        "false_alerts_per_patient_month": 1.153,
+        "median_lead_h": 22.833
+      }
+    },
+    {
+      "record_fields_missing": 0.5,
+      "fused_auroc": 0.833,
+      "wearable_only_auroc": 0.831,
+      "alerts": {
+        "sensitivity": 0.773,
+        "precision": 0.259,
+        "false_alerts_per_patient_month": 1.078,
+        "median_lead_h": 23.542
+      }
+    },
+    {
+      "record_fields_missing": 1.0,
+      "fused_auroc": 0.831,
+      "wearable_only_auroc": 0.831,
+      "alerts": {
+        "sensitivity": 0.755,
+        "precision": 0.278,
+        "false_alerts_per_patient_month": 0.955,
+        "median_lead_h": 21.667
+      }
+    }
+  ]
+}

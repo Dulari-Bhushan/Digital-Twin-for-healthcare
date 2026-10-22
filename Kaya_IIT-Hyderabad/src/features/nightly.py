@@ -8,6 +8,8 @@ All inputs are on the 5-minute grid. NaN is allowed and ignored.
 """
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 
 STEPS_PER_DAY = 288
@@ -18,7 +20,9 @@ METRICS = (
     "sleep_h", "sleep_eff", "deep_frac", "rem_frac", "bed_min", "wake_min",
     "rmssd_night", "rhr", "hr_night_p90", "rmssd_day", "hr_day", "steps24",
     "glu_mean", "glu_cv", "glu_tir", "glu_night",
+    "hypo_min", "hypo_deep_min", "glu_min",
 )
+MIN_SLEEP_STEPS = 24        # a night counts as "worn" when at least two hours of sleep were detected
 
 
 def cycle_table(glucose, hr, rmssd, steps, stage, days: int) -> np.ndarray:
@@ -35,7 +39,7 @@ def cycle_table(glucose, hr, rmssd, steps, stage, days: int) -> np.ndarray:
         sl = sg[j, night] > 0
         n_sl = int(sl.sum())
         row = np.full(len(METRICS), np.nan)
-        if n_sl >= 24:                                         # at least two hours of detected sleep
+        if n_sl >= MIN_SLEEP_STEPS:                            # at least two hours of detected sleep
             idx = np.flatnonzero(sl)
             span = idx[-1] - idx[0] + 1
             sgn = sg[j, night][sl]
@@ -52,14 +56,23 @@ def cycle_table(glucose, hr, rmssd, steps, stage, days: int) -> np.ndarray:
         awake_day = np.arange(0, NIGHT_START)
         row[9] = float(np.nanmean(r[j, awake_day])) if np.isfinite(r[j, awake_day]).any() else np.nan
         row[10] = float(np.nanmean(h[j, awake_day])) if np.isfinite(h[j, awake_day]).any() else np.nan
-        row[11] = float(np.nansum(st[j]))
+        row[11] = float(np.nansum(st[j])) if np.isfinite(st[j]).any() else np.nan
         gj = g[j][np.isfinite(g[j])]
         if len(gj) > 100:
             row[12] = gj.mean()
             row[13] = gj.std() / gj.mean() * 100
             row[14] = float(((gj >= 70) & (gj <= 180)).mean())
+            row[16] = float((gj < 70).sum() * 5)                   # minutes below 70 mg/dL in the 24 h cycle
+            row[17] = float((gj < 54).sum() * 5)                   # minutes below 54 mg/dL (level 2 hypoglycemia)
+            row[18] = float(gj.min())
         out[j + 1] = row
     return out
+
+
+def valid_nights(cycles: np.ndarray, k: int, width: int = 7) -> int:
+    """How many of the last `width` cycles ending at k have a usable night (watch worn, sleep detected)."""
+    w = cycles[k - width + 1:k + 1, METRICS.index("rmssd_night")]
+    return int(np.isfinite(w).sum())
 
 
 def week_features(cycles: np.ndarray, k: int, width: int = 7) -> tuple[np.ndarray, list[str]]:
@@ -67,9 +80,11 @@ def week_features(cycles: np.ndarray, k: int, width: int = 7) -> tuple[np.ndarra
     the recent trend (last 2 minus the 2 before), which tells a rising prodrome from a recovering one."""
     w = cycles[k - width + 1:k + 1]
     last = w[-1]
-    mean = np.nanmean(w, axis=0)
-    delta = np.nanmean(w[-3:], axis=0) - np.nanmean(w[:-3], axis=0)
-    trend = np.nanmean(w[-2:], axis=0) - np.nanmean(w[-4:-2], axis=0)
+    with warnings.catch_warnings():                            # all-NaN columns (watch not worn) stay NaN
+        warnings.simplefilter("ignore", RuntimeWarning)
+        mean = np.nanmean(w, axis=0)
+        delta = np.nanmean(w[-3:], axis=0) - np.nanmean(w[:-3], axis=0)
+        trend = np.nanmean(w[-2:], axis=0) - np.nanmean(w[-4:-2], axis=0)
     names = ([f"{m}_last" for m in METRICS] + [f"{m}_mean7" for m in METRICS] + [f"{m}_delta" for m in METRICS]
              + [f"{m}_trend" for m in METRICS])
     return np.concatenate([last, mean, delta, trend]), names

@@ -3,7 +3,8 @@
 Every morning at 10:00 the flag looks at the last seven wearable cycles (sleep length and efficiency, deep and REM
 share, night HRV, resting heart rate, steps, glucose control) and at the static EHR (age, blood pressure, HbA1c,
 duration, LDL, smoking, prior cardiovascular disease, kidney function), and returns the probability of a cardiovascular
-event within the next 48 hours, with the features that pushed the score up.
+event within the next 72 hours, with the features that pushed the score up. Glucose lows are an explicit input (minutes
+below 70 and below 54 mg/dL per 24 h), so a run of lows in someone on insulin or a sulfonylurea raises the score.
 
 Fusion is explicit. A wearable model says whether a prodrome (falling HRV, rising resting heart rate, shrinking sleep)
 is under way; a static-record model says how dangerous that is for this person; a small logistic stacker combines the
@@ -34,17 +35,22 @@ HORIZON_H = 72
 CARE_H = 72                                            # mornings in the 72 h after an event are excluded
 FIRST_K = 7                                            # first decision cycle: needs seven complete cycles
 STATIC = ["age", "male", "bmi", "sbp", "dbp", "hba1c", "diabetes_duration_yrs", "ldl", "hdl", "triglycerides",
-          "smoker", "prior_cvd", "egfr", "log_uacr"]
+          "smoker", "prior_cvd", "egfr", "log_uacr", "on_insulin_or_su"]
+GLUCOSE_METRICS = ("glu_mean", "glu_cv", "glu_tir", "glu_night", "hypo_min", "hypo_deep_min", "glu_min")
+HYPO_METRICS = ("hypo_min", "hypo_deep_min", "glu_min")
+MIN_NIGHTS = 4                                          # fewer worn nights than this in the last seven: the flag abstains
 HUMAN = {
     "sleep_h": "sleep duration", "sleep_eff": "sleep efficiency", "deep_frac": "deep-sleep share", "rem_frac": "REM share",
     "bed_min": "bedtime", "wake_min": "wake time", "rmssd_night": "night HRV (RMSSD)", "rhr": "resting heart rate",
     "hr_night_p90": "night heart rate (90th pct)", "rmssd_day": "daytime HRV", "hr_day": "daytime heart rate",
     "steps24": "daily steps", "glu_mean": "mean glucose", "glu_cv": "glucose variability", "glu_tir": "time in range",
-    "glu_night": "night glucose",
+    "glu_night": "night glucose", "hypo_min": "time below 70 mg/dL", "hypo_deep_min": "time below 54 mg/dL",
+    "glu_min": "lowest glucose",
     "age": "age", "male": "sex", "bmi": "BMI", "sbp": "systolic blood pressure", "dbp": "diastolic blood pressure",
     "hba1c": "HbA1c", "diabetes_duration_yrs": "diabetes duration", "ldl": "LDL cholesterol", "hdl": "HDL cholesterol",
     "triglycerides": "triglycerides", "smoker": "smoking", "prior_cvd": "prior cardiovascular disease", "egfr": "eGFR",
     "log_uacr": "urine albumin",
+    "on_insulin_or_su": "insulin or sulfonylurea use",
 }
 
 
@@ -70,9 +76,12 @@ def describe(feature: str) -> str:
 
 def build_dataset(root: Path, horizon_h: int = HORIZON_H) -> pd.DataFrame:
     """One row per patient-morning: week features, static record, label and (for analysis only) the episode kind."""
-    pat = pd.read_parquet(root / "patients.parquet")
-    ts = pd.read_parquet(root / "timeseries.parquet")
-    eps = pd.read_parquet(root / "episodes.parquet")
+    return dataset_from(pd.read_parquet(root / "patients.parquet"), pd.read_parquet(root / "timeseries.parquet"),
+                        pd.read_parquet(root / "episodes.parquet"), horizon_h)
+
+
+def dataset_from(pat: pd.DataFrame, ts: pd.DataFrame, eps: pd.DataFrame, horizon_h: int = HORIZON_H) -> pd.DataFrame:
+    """`build_dataset` on tables already in memory, so a degraded copy of the wearable data can be scored the same way."""
     stat = static_frame(pat).set_index("patient_id")
     rows, names = [], []
     h_steps, care_steps = horizon_h * 12, CARE_H * 12
@@ -90,10 +99,40 @@ def build_dataset(root: Path, horizon_h: int = HORIZON_H) -> pd.DataFrame:
             nxt = ev_steps[(ev_steps > t_dec) & (ev_steps <= t_dec + h_steps)]
             win = e[(e.event_step > t_dec) & (e.event_step <= t_dec + h_steps) & e.warned]
             kind = "none" if win.empty else ("event" if (win.kind == "event").any() else "benign")
-            rows.append([pid, k, t_dec, int(len(nxt) > 0), (nxt[0] - t_dec) * 5 / 60.0 if len(nxt) else np.nan, kind, *f])
-    cols = ["patient_id", "k", "t_dec", "y", "hours_to_event", "episode_kind"] + names
+            rows.append([pid, k, t_dec, int(len(nxt) > 0), (nxt[0] - t_dec) * 5 / 60.0 if len(nxt) else np.nan, kind,
+                         N.valid_nights(cyc, k), *f])
+    cols = ["patient_id", "k", "t_dec", "y", "hours_to_event", "episode_kind", "n_nights"] + names
     df = pd.DataFrame(rows, columns=cols)
     return pd.concat([df, stat.loc[df.patient_id].reset_index(drop=True)[STATIC]], axis=1)
+
+
+WEARABLE_CH = ("heart_rate", "rmssd", "steps", "sleep_stage")
+AUGMENT = ((0.15, 0.0), (0.30, 1.0))                   # (share of days with the watch off, extra noise) for the extra training copies
+
+
+def degrade(ts: pd.DataFrame, gap: float, noise: float, seed: int) -> pd.DataFrame:
+    """Blank whole days of the wrist-wearable channels with probability `gap` and add sensor noise (units of 4 bpm and
+    5 ms of HRV). The glucose sensor is kept. Rows must be consecutive 288-step days per patient."""
+    rng = np.random.default_rng(seed)
+    out = ts.copy()
+    for c in WEARABLE_CH:
+        out[c] = out[c].astype(np.float32)
+    n = len(out)
+    if noise > 0:
+        out["heart_rate"] += rng.normal(0, 4.0 * noise, n).astype(np.float32)
+        out["rmssd"] += rng.normal(0, 5.0 * noise, n).astype(np.float32)
+    if gap > 0:
+        block = np.arange(n) // STEPS_PER_DAY              # one block per patient-day
+        drop = rng.random(block.max() + 1) < gap
+        out.loc[drop[block], list(WEARABLE_CH)] = np.nan
+    return out
+
+
+def gap_augmented(pat: pd.DataFrame, ts: pd.DataFrame, eps: pd.DataFrame, clean: pd.DataFrame) -> pd.DataFrame:
+    """`clean` followed by copies of it computed from degraded wearable data, so the flag learns what a missing night
+    looks like. The clean rows come first, so out-of-fold scores of the first len(clean) rows line up with `clean`."""
+    parts = [clean] + [dataset_from(pat, degrade(ts, g, nz, 100 + i), eps) for i, (g, nz) in enumerate(AUGMENT)]
+    return pd.concat(parts, ignore_index=True)
 
 
 def wearable_columns(df: pd.DataFrame) -> list[str]:
@@ -127,12 +166,14 @@ def _logit(p):
 class CardioFlag:
     """Late-fusion cardiovascular flag: wearable GBM + static logistic + logistic stacker."""
 
-    def __init__(self, seed: int = 0):
+    def __init__(self, seed: int = 0, wear: list[str] | None = None):
         self.seed = seed
+        self._wear = wear                                   # restrict the wearable inputs (used by the ablations)
 
     def fit(self, df: pd.DataFrame, inner_folds: int = 4) -> "CardioFlag":
         """Fit both base models on all of `df` and the stacker on out-of-fold scores, so it sees every training patient."""
-        self.wear = wearable_columns(df)
+        self.wear = list(self._wear) if self._wear else wearable_columns(df)
+        self.static_med = df[STATIC].median()
         ids = np.array(sorted(df.patient_id.unique()))
         np.random.default_rng(self.seed).shuffle(ids)
         oof, iters = np.zeros((len(df), 2)), []
@@ -144,21 +185,24 @@ class CardioFlag:
             g = fit_gbm(a[~stop][self.wear], a[~stop].y, a[stop][self.wear], a[stop].y, self.seed)
             iters.append(g.best_iteration_)
             sc, lr = self._static_fit(a)
-            oof[test] = np.column_stack([_logit(g.predict_proba(b[self.wear])[:, 1]), lr.decision_function(sc.transform(b[STATIC]))])
+            oof[test] = np.column_stack([_logit(g.predict_proba(b[self.wear])[:, 1]), lr.decision_function(sc.transform(self._record(b)))])
         self.stack = LogisticRegression(C=100.0, max_iter=1000).fit(oof, df.y)
         self.oof_ = self.stack.predict_proba(oof)[:, 1]
         self.scaler, self.static_lr = self._static_fit(df)
         self.gbm = fit_gbm(df[self.wear], df.y, seed=self.seed, n_estimators=max(int(np.median(iters) * 1.15), 50))
         return self
 
-    @staticmethod
-    def _static_fit(d: pd.DataFrame):
+    def _record(self, d: pd.DataFrame) -> pd.DataFrame:
+        """Static inputs with any missing field filled by the training median (a thin record gets an average one)."""
+        return d[STATIC].fillna(self.static_med)
+
+    def _static_fit(self, d: pd.DataFrame):
         sc = StandardScaler().fit(d[STATIC])
         return sc, LogisticRegression(C=0.5, max_iter=2000).fit(sc.transform(d[STATIC]), d.y)
 
     def _parts(self, df: pd.DataFrame) -> np.ndarray:
         wear = _logit(self.gbm.predict_proba(df[self.wear])[:, 1])
-        static = self.static_lr.decision_function(self.scaler.transform(df[STATIC]))
+        static = self.static_lr.decision_function(self.scaler.transform(self._record(df)))
         return np.column_stack([wear, static])
 
     def scores(self, df: pd.DataFrame) -> dict[str, np.ndarray]:
@@ -173,18 +217,26 @@ class CardioFlag:
         """Features that pushed each score up, in log-odds, from both streams on one scale."""
         a, b = self.stack.coef_[0]
         wear = a * self.gbm.booster_.predict(df[self.wear], pred_contrib=True)[:, :-1]
-        z = self.scaler.transform(df[STATIC])
+        z = self.scaler.transform(self._record(df))
         stat = b * z * self.static_lr.coef_[0]
         names = self.wear + STATIC
-        raw = np.concatenate([df[self.wear].to_numpy(), df[STATIC].to_numpy()], 1)
+        raw = np.concatenate([df[self.wear].to_numpy(), self._record(df).to_numpy()], 1)
         push = np.concatenate([wear, stat], 1)
         out = []
         for i in range(len(df)):
             order = np.argsort(-push[i])[:top]
             out.append([{"feature": names[j], "label": describe(names[j]), "value": float(raw[i, j]),
-                         "push": float(push[i, j]), "stream": "wearable" if j < len(self.wear) else "record"}
+                         "push": float(push[i, j]), "stream": stream_of(names[j], j < len(self.wear))}
                         for j in order if push[i, j] > 0])
         return out
+
+
+def stream_of(feature: str, is_wearable: bool) -> str:
+    """Which stream a feature belongs to: the record, the glucose sensor (CGM) or the wrist wearable."""
+    if not is_wearable:
+        return "record"
+    base = feature.rsplit("_", 1)[0] if feature.endswith(("_last", "_delta", "_trend")) else feature[: -len("_mean7")]
+    return "glucose" if base in GLUCOSE_METRICS else "wearable"
 
 
 def save_flag(flag: CardioFlag, threshold: float, path: Path) -> None:
@@ -284,7 +336,7 @@ def bootstrap_auc(y, scores: dict, pid, reps=300, seed=0) -> dict:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--root", type=Path, default=Path("data/synthetic_v2"))
+    ap.add_argument("--root", type=Path, default=Path("data/synthetic_v2h"))
     ap.add_argument("--out", type=Path, default=Path("results"))
     ap.add_argument("--models", type=Path, default=Path("models"))
     ap.add_argument("--budget", type=float, default=1.0, help="false alerts per patient-month for the operating point")
@@ -293,7 +345,10 @@ def main():
     a.out.mkdir(exist_ok=True, parents=True)
     a.models.mkdir(exist_ok=True, parents=True)
 
-    df = build_dataset(a.root)
+    pat_t, ts_t, eps_t = (pd.read_parquet(a.root / f"{n}.parquet") for n in ("patients", "timeseries", "episodes"))
+    df = dataset_from(pat_t, ts_t, eps_t)
+    aug = gap_augmented(pat_t, ts_t, eps_t, df)                      # clean rows, then copies with wearable gaps and noise
+    aug_pid = aug.patient_id.to_numpy()
     print(f"{len(df):,} patient-mornings, {df.patient_id.nunique()} patients, positive rate {df.y.mean():.3f}", flush=True)
     wear = wearable_columns(df)
     names = ("static_logistic", "static", "rule", "wearable", "fused_early", "fused")
@@ -308,8 +363,10 @@ def main():
         tr, va, te = (df[df.patient_id.isin(i)] for i in (tr_ids, va_ids, te_ids))
         te_ix = np.flatnonzero(df.patient_id.isin(te_ids))
         trva = pd.concat([tr, va])
-        flag = CardioFlag(seed=f).fit(trva)                         # base models and stacker use every training patient
-        thr_fused = operating_point(trva, flag.oof_, a.budget)["threshold"]   # from out-of-fold scores of the training patients
+        fit_df = aug.iloc[np.flatnonzero(np.isin(aug_pid, np.concatenate([tr_ids, va_ids])))].reset_index(drop=True)
+        n_clean = int(df.patient_id.isin(np.concatenate([tr_ids, va_ids])).sum())    # the clean rows come first
+        flag = CardioFlag(seed=f).fit(fit_df)                        # trained on clean and gap-degraded copies
+        thr_fused = operating_point(fit_df.iloc[:n_clean], flag.oof_[:n_clean], a.budget)["threshold"]   # out-of-fold, clean rows
         fold_flags.append((flag, thr_fused))
         fold_of.update({int(i): f for i in te_ids})                 # the model that never saw these patients
         sv, st = {}, flag.scores(te)
@@ -341,10 +398,10 @@ def main():
                            **{n: pooled_replay(p) for n, p in replay_parts.items()}}
 
     # final model on all patients, saved for the API
-    flag = CardioFlag().fit(df)
-    thr = operating_point(df, flag.oof_, a.budget)["threshold"]       # out-of-fold scores, so the threshold is not optimistic
+    flag = CardioFlag().fit(aug)
+    thr = operating_point(df, flag.oof_[:len(df)], a.budget)["threshold"]       # out-of-fold scores of the clean rows, so the threshold is not optimistic
     pos = df[df.y == 1].copy()
-    pos["p"] = flag.oof_[df.y.to_numpy() == 1]
+    pos["p"] = flag.oof_[:len(df)][df.y.to_numpy() == 1]
     pos = pos.sort_values("p", ascending=False).head(3)
     res["example_explanations"] = [
         {"patient_id": int(r.patient_id), "morning": int(r.k), "probability": float(r.p),

@@ -34,7 +34,7 @@ def test_patient_artifact_is_consistent(client):
     assert ks == sorted(set(ks))                        # one morning per day, in order (mornings after an event are not scored)
     assert all(0 <= x["p"] <= 1 and 0 <= x["p_wearable"] <= 1 and 0 <= x["record_pct"] <= 1 for x in m)
     assert all(x["p"] >= a["threshold"] for x in m if x["alert"])                       # an alert never fires below the threshold
-    assert all(d["push"] > 0 and d["stream"] in ("wearable", "record") for x in m for d in x["drivers"])
+    assert all(d["push"] > 0 and d["stream"] in ("wearable", "record", "glucose") for x in m for d in x["drivers"])
     for series in a["nights"].values():
         assert len(series) == a["days"]
 
@@ -60,3 +60,32 @@ def test_evidence_has_every_input_and_confidence_intervals(client):
 
 def test_unknown_patient_is_404(client):
     assert client.get("/api/cardio/999999").status_code == 404
+
+
+def _all(client):
+    return [client.get(f"/api/cardio/{r['id']}").json() for r in client.get("/api/cardio/patients").json()]
+
+
+def test_abstaining_mornings_never_alert(client):
+    for a in _all(client):
+        assert a["min_nights"] >= 1
+        for x in a["mornings"]:
+            assert x["abstain"] == (x["n_nights"] < a["min_nights"])
+            assert not (x["abstain"] and x["alert"])
+
+
+def test_demo_includes_the_messy_data_patients(client):
+    by_story = {a["profile"]["story"]: a for a in _all(client)}
+    patchy, new = by_story.get("patchy_data"), by_story.get("new_patient")
+    assert patchy and any(x["abstain"] for x in patchy["mornings"])         # the watch was off long enough to withhold a score
+    assert new and new["profile"]["record_missing"] > 0 and new["profile"]["hba1c"] is None
+    assert all(a["profile"]["record_missing"] == 0 for a in _all(client) if a["profile"]["story"] != "new_patient")
+
+
+def test_evidence_reports_the_stress_tests(client):
+    r = client.get("/api/cardio/evidence").json().get("robustness")
+    assert r, "stress-test results missing: run src/models/cardio_robust.py then build_cardio_artifacts.py"
+    gaps = {(x["gap"], x["noise"]): x for x in r["wearable_gaps_and_noise"]}
+    assert gaps[(0.5, 0.0)]["trained_with_gaps"]["auroc_all_mornings"] > gaps[(0.5, 0.0)]["trained_clean"]["auroc_all_mornings"]
+    thin = {x["record_fields_missing"]: x for x in r["thin_record"]}
+    assert thin[1.0]["fused_auroc"] > 0.5                                    # with no record the wearable still carries signal

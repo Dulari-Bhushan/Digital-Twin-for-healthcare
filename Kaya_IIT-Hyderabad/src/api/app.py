@@ -965,7 +965,8 @@ def cardio_patients():
     for pid, a in CARDIO["patients"].items():
         pr, m = a["profile"], a["mornings"]
         out.append({"id": pid, "name": pr["name"], "age": pr["age"], "sex": pr["sex"], "prior_cvd": pr["prior_cvd"],
-                    "smoker": pr["smoker"], "sbp": pr["sbp"], "alerts": sum(x["alert"] for x in m),
+                    "smoker": pr["smoker"], "sbp": pr["sbp"], "story": pr.get("story"), "record_missing": pr.get("record_missing", 0),
+                    "alerts": sum(x["alert"] for x in m),
                     "peak_p": max(x["p"] for x in m), "record_pct": round(sum(x["record_pct"] for x in m) / len(m), 3)})
     return sorted(out, key=lambda r: -r["peak_p"])
 

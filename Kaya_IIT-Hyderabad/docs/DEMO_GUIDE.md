@@ -93,21 +93,23 @@ Messages are stored in `data/patient_messages/` (not committed); delete the fold
 
 Open **Admin** in the header (or `?view=admin`). It shows service health and uptime, request counts with p50 and p95 latency, the model and data inventory, integrations (voice, FHIR, live feed), assistant safety counters, an audit trail of recent actions (diary entries, PDF downloads, assistant outcomes, live sessions) and a hardening checklist. Press **Run self-test** (or open `?view=admin&selftest=1`) to run the main code paths once: artifacts, triage, what-if, the live model, record history, PDF rendering and storage. Start the server with `KAYA_ADMIN_TOKEN=...` to require a token. Counters and the audit trail are in memory and reset when the server restarts; no patient data or keys are shown.
 
-## Heart watch: a second adverse event from a week of sleep and heart-rate data
+## Heart watch: a second adverse event from a week of sleep, heart-rate and glucose data
 
-Open **Heart watch** in the header (or `http://localhost:8000/?view=heart`). Six synthetic patients from the coupled cohort are listed; every score comes from a model that never saw that patient, so misses and false alarms are shown too.
+Heart watch sits inside the **Doctor** view, next to **Glucose twin** (or open `http://localhost:8000/?view=heart`). Eight synthetic patients from the coupled cohort are listed; every score comes from a model that never saw that patient, so misses and false alarms are shown too.
 
 | Patient | What it shows |
 |---|---|
-| Abdul Rahman, Harish Menon | An event the flag warned about 1.5 to 3 days ahead (37 and 66 hours). Press **Replay the month**, watch night HRV fall and resting heart rate rise, then the alert, then the event marker at the end |
-| Venkat Rao | A missed event: no alert, and the screen says so |
-| Sarla Iyer | A benign scare the record calmed: the wearable pattern is unusual (amber verdict, "Watching") but her record risk is low, so no alert |
-| Dinesh Patel | A false alarm on a benign episode |
-| Sudhir Kulkarni | A high-risk record with a quiet wearable week: no alert |
+| Sarla Iyer, Harish Menon | An event the flag warned about ahead of time. Press **Replay the month**, watch night HRV fall and resting heart rate rise, then the "Review suggested" alert, then the event marker at the end |
+| Abdul Rahman | A missed event: no alert, and the screen says so |
+| Fatima Sheikh | A benign scare the record calmed: the wearable pattern is unusual (amber "Watching") but her record risk is low, so no alert |
+| Venkat Rao | A false alarm on a benign episode, in someone on insulin or a sulfonylurea |
+| Kavita Reddy | A high-risk record with a quiet wearable week: no alert |
+| Dinesh Patel | **The watch is often off.** On the mornings with fewer than 4 usable nights the card says "Not enough data", shows no score and raises no alert; the charts show gaps. On insulin, so the **Medicine check** banner appears on the days with lows. His event on day 26 is missed, and the screen says so |
+| Sudhir Kulkarni | **No record on file** (only age, sex, BMI). The record dial reads "n/a", the confidence chip says "lower", and the alert on day 19 rests on the wearable and glucose sensor alone |
 
-Direct links: `?view=heart&hp=1878&day=17` opens Harish Menon on his alert morning; `hp` is the patient id (726, 1878, 21, 1643, 1405, 1691) and `day` the morning (7 to 27).
+Direct links: `?view=heart&hp=1860&day=18` opens Harish Menon on his alert morning; `hp` is the patient id (1647, 1860, 1643, 538, 21, 1315, 1359, 789) and `day` the morning (7 to 27).
 
-The two dials show the two streams (wearable pattern and record-risk percentile) and the combined 72-hour risk. **Why this score** lists the factors that pushed it up, tagged wearable or record. The table at the bottom is the measured performance on 2,000 held-out patients: use it, not the six examples, when asked how well it works. Say plainly that the cohort is synthetic and that cardiovascular events are far more frequent in it than in real life.
+The dials show the wearable-and-glucose pattern, the record-risk percentile and the combined 72-hour risk. **Why this score** lists the factors that pushed it up, tagged wearable, glucose sensor or record. The wording is deliberate: "Review suggested" is a prompt to look at a patient, not a diagnosis. Two tables at the bottom give the measured behaviour on held-out patients: **How well does it work?** (use it, not the eight examples, when asked about accuracy) and **When the data is thin or messy** (glucose lows, the watch off for days, no record). Say plainly that the cohort is synthetic, that cardiovascular events are far more frequent in it than in real life, and that the link between severe lows and heart episodes is an assumption of the simulator.
 
 ## Suggested flow (about 6 minutes)
 
@@ -119,7 +121,7 @@ The two dials show the two streams (wearable pattern and record-risk percentile)
 6. **Assistant.** Tap the small microphone icon, ask a question in Hindi or Kannada, and try "how much insulin should I take" to show the safety rule.
 7. **Reports.** In the doctor view show the changes card, then open Reports and a retinal report; in the patient app tap the Reports tab.
 8. **Go live** in the doctor view and the **clinical summary** button, if time allows.
-9. **Heart watch.** Pick Harish Menon, replay the month, stop on the alert morning and show the two dials and the drivers. Then Sarla Iyer, to show the record calming a wearable scare. End on the evidence table.
+9. **Heart watch** (the second tab inside the Doctor view). Pick Harish Menon, replay the month, stop on the alert morning and show the dials and the drivers. Then Fatima Sheikh, to show the record calming a wearable scare, and Dinesh Patel, to show "Not enough data" and the medicine check. End on the two evidence tables.
 
 ## How the stories were made
 

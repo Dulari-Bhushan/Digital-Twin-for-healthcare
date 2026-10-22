@@ -15,6 +15,12 @@ Mechanisms (all sizes are modest, literature-informed assumptions, not fitted cl
   risk: age, blood pressure, HbA1c, duration, LDL, smoking, prior cardiovascular disease, sex). Others are benign (illness,
   stress, bad week) and look similar on the wearable but resolve. A few events arrive with no warning at all.
 
+* Optional **hypoglycemia link** (`hypo_link=True`): in insulin or sulfonylurea users, a level-2 low (below 54 mg/dL for
+  15 minutes or more) can start a short, fast prodrome (1 to 2 days) that ends in a cardiovascular event or resolves.
+  This encodes the reported association between severe hypoglycemia and arrhythmia or cardiovascular events as an
+  assumption, so the study can measure whether a model that sees glucose lows uses it. It is off by default, which keeps
+  every other result on this cohort reproducible.
+
 So a wearable-only model cannot tell a benign episode from a dangerous one, and a static-only model cannot tell when
 risk is turning into an event. Only fusing both gives the full answer; the training script measures exactly that.
 
@@ -43,6 +49,9 @@ TARGET_EVENT_SHARE = 0.35      # average chance that a prodromal episode ends in
 EPISODES_PER_28D = 1.1         # prodromal episodes (event or benign) per patient per 28 days
 UNHERALDED_PER_28D = 0.04      # events with no wearable warning
 SLEEP_REF_H = 7.5
+HYPO_DEEP_MGDL = 54.0          # level 2 hypoglycemia
+HYPO_MIN_STEPS = 3             # for at least 15 minutes
+HYPO_EVENT_SHIFT = -0.6        # log-odds shift of the event chance after a level-2 low, relative to an ordinary prodrome (assumption)
 
 
 def _sigmoid(x):
@@ -113,7 +122,43 @@ def strain_curve(eps: list[dict], n_steps: int) -> np.ndarray:
     return s
 
 
-def simulate_patient_v2(p: pd.Series, cfg: CohortConfig, rng: np.random.Generator) -> tuple[pd.DataFrame, list[dict]]:
+def hypo_runs(glucose: np.ndarray) -> list[int]:
+    """Start steps of level-2 lows (below 54 mg/dL for at least 15 minutes), at most one per 12 hours."""
+    low = glucose < HYPO_DEEP_MGDL
+    starts, i, n = [], 0, len(low)
+    while i < n:
+        if low[i]:
+            j = i
+            while j < n and low[j]:
+                j += 1
+            if j - i >= HYPO_MIN_STEPS and (not starts or i - starts[-1] >= 144):
+                starts.append(i)
+            i = j
+        else:
+            i += 1
+    return starts
+
+
+def hypo_episodes(starts: list[int], eps: list[dict], cv_logit: float, n_steps: int, rng: np.random.Generator) -> list[dict]:
+    """A short prodrome (1 to 2 days) after some level-2 lows; ends in an event with a risk-dependent chance."""
+    out: list[dict] = []
+    for st in starts:
+        ramp = int(rng.integers(1, 3)) * STEPS_PER_DAY
+        end = st + ramp
+        if end >= n_steps - 1 or any(abs(end - e["end_step"]) < 4 * STEPS_PER_DAY for e in eps + out):
+            continue
+        if rng.random() > 0.5:                                # not every low upsets the heart
+            continue
+        p_ev = float(_sigmoid(cv_logit + HYPO_EVENT_SHIFT))
+        is_event = bool(rng.random() < p_ev)
+        peak = float(rng.uniform(0.85, 1.15) if is_event else rng.uniform(0.45, 0.95))
+        out.append({"kind": "event" if is_event else "benign", "start_step": st, "end_step": end, "peak": peak,
+                    "p_event": p_ev, "warned": True, "trigger": "hypo"})
+    return out
+
+
+def simulate_patient_v2(p: pd.Series, cfg: CohortConfig, rng: np.random.Generator,
+                        hypo_link: bool = False) -> tuple[pd.DataFrame, list[dict]]:
     n_steps = cfg.days * STEPS_PER_DAY
     t = np.arange(n_steps) * STEP_MIN
     hour = (t % (24 * 60)) / 60.0
@@ -202,6 +247,13 @@ def simulate_patient_v2(p: pd.Series, cfg: CohortConfig, rng: np.random.Generato
     glucose = glucose + ((28.7 * p.hba1c - 46.7) - glucose.mean())
     glucose = np.clip(glucose, 40, 400)
 
+    if hypo_link and p.on_insulin_or_su:                      # level-2 lows start short prodromes that add to the strain
+        hrng = np.random.default_rng(int(p.patient_id) * 7919 + cfg.seed)
+        extra = hypo_episodes(hypo_runs(glucose), eps, float(p._cv_logit), n_steps, hrng)
+        if extra:
+            eps = sorted(eps + extra, key=lambda e: e["end_step"])
+            aut = aut + strain_curve(extra, n_steps)
+
     awake = ~asleep
     steps += awake * rng.gamma(1.2, 20.0, n_steps) * rng.binomial(1, 0.5, n_steps)
     steps *= 1.0 - 0.30 * np.clip(aut, 0.0, 1.2)
@@ -231,17 +283,17 @@ def simulate_patient_v2(p: pd.Series, cfg: CohortConfig, rng: np.random.Generato
     })
     rows = [{"patient_id": int(p.patient_id), "kind": e["kind"], "warned": e["warned"], "start_step": e["start_step"],
              "event_step": e["end_step"], "event_ts": ts0 + pd.Timedelta(minutes=e["end_step"] * STEP_MIN),
-             "peak_strain": e["peak"], "p_event": e["p_event"]} for e in eps]
+             "peak_strain": e["peak"], "p_event": e["p_event"], "trigger": e.get("trigger", "prodrome")} for e in eps]
     return df, rows
 
 
-def build_cohort_v2(cfg: CohortConfig, out_dir: Path) -> None:
+def build_cohort_v2(cfg: CohortConfig, out_dir: Path, hypo_link: bool = False) -> None:
     rng = np.random.default_rng(cfg.seed)
     patients = add_cardio_static(make_patients(cfg, rng), cfg.seed)
     series, metric_rows, episode_rows = [], [], []
     for _, p in patients.iterrows():
         prng = np.random.default_rng(rng.integers(0, 2**32 - 1))
-        s, rows = simulate_patient_v2(p, cfg, prng)
+        s, rows = simulate_patient_v2(p, cfg, prng, hypo_link)
         series.append(s)
         episode_rows.extend(rows)
         metric_rows.append({"patient_id": int(p.patient_id), **cgm_metrics(s["glucose"].to_numpy())})
@@ -249,7 +301,7 @@ def build_cohort_v2(cfg: CohortConfig, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     full.to_parquet(out_dir / "patients.parquet", index=False)
     pd.concat(series, ignore_index=True).to_parquet(out_dir / "timeseries.parquet", index=False)
-    cols = ["patient_id", "kind", "warned", "start_step", "event_step", "event_ts", "peak_strain", "p_event"]
+    cols = ["patient_id", "kind", "warned", "start_step", "event_step", "event_ts", "peak_strain", "p_event", "trigger"]
     pd.DataFrame(episode_rows, columns=cols).to_parquet(out_dir / "episodes.parquet", index=False)
     ev = sum(r["kind"] == "event" for r in episode_rows)
     print(f"wrote {len(full)} patients, {sum(len(s) for s in series):,} rows, "
@@ -262,5 +314,6 @@ if __name__ == "__main__":
     ap.add_argument("--days", type=int, default=28)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--out", type=Path, default=Path("data/synthetic_v2"))
+    ap.add_argument("--hypo-link", action="store_true", help="level-2 lows in insulin or sulfonylurea users can start a cardiac prodrome")
     a = ap.parse_args()
-    build_cohort_v2(CohortConfig(a.n, a.days, a.seed), a.out)
+    build_cohort_v2(CohortConfig(a.n, a.days, a.seed), a.out, a.hypo_link)

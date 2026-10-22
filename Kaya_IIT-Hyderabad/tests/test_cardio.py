@@ -70,7 +70,7 @@ def test_explanations_name_both_streams(dataset):
     pos = dataset[(dataset.y == 1) & dataset.patient_id.isin(ids[:40])].head(20)
     ex = flag.explain(pos, top=5)
     assert len(ex) == len(pos)
-    assert all(d["push"] > 0 and d["label"] and d["stream"] in ("wearable", "record") for e in ex for d in e)
+    assert all(d["push"] > 0 and d["label"] and d["stream"] in ("wearable", "record", "glucose") for e in ex for d in e)
     assert any(d["stream"] == "wearable" for e in ex for d in e)
 
 
@@ -100,3 +100,52 @@ def test_describe_is_plain_language():
 def describe_ok(name: str) -> bool:
     text = C.describe(name)
     return bool(text) and "_" not in text
+
+
+def test_stream_of_names_the_glucose_sensor():
+    assert C.stream_of("hypo_min_last", True) == "glucose" and C.stream_of("glu_cv_mean7", True) == "glucose"
+    assert C.stream_of("rmssd_night_delta", True) == "wearable" and C.stream_of("age", False) == "record"
+
+
+def test_hypoglycemia_features_and_usable_nights(dataset):
+    assert {"hypo_min_last", "hypo_deep_min_mean7", "glu_min_delta", "n_nights"} <= set(dataset.columns)
+    assert (dataset.n_nights == 7).all()                         # a clean cohort has every night
+    assert (dataset.hypo_deep_min_last.fillna(0) <= dataset.hypo_min_last.fillna(0)).all()   # below 54 is inside below 70
+
+
+def test_degrade_blanks_days_and_keeps_the_glucose_sensor(cohort):
+    import pandas as pd
+    ts = pd.read_parquet(cohort / "timeseries.parquet")
+    ts = ts[ts.patient_id.isin(ts.patient_id.unique()[:20])]
+    d = C.degrade(ts, 0.4, 0.0, seed=1)
+    assert d.glucose.notna().all() and d.heart_rate.isna().mean() > 0.2
+    assert len(d) == len(ts)
+    pat = pd.read_parquet(cohort / "patients.parquet")
+    eps = pd.read_parquet(cohort / "episodes.parquet")
+    ds = C.dataset_from(pat, d, eps)
+    assert ds.n_nights.min() < 7 and ds.n_nights.max() <= 7      # the dataset still builds, with fewer usable nights
+
+
+def test_thin_record_is_filled_with_the_average_patient(dataset):
+    ids = np.array(sorted(dataset.patient_id.unique()))
+    flag = C.CardioFlag().fit(dataset[dataset.patient_id.isin(ids[40:])], inner_folds=3)
+    te = dataset[dataset.patient_id.isin(ids[:40])].copy()
+    blank = te.copy()
+    blank[C.STATIC] = np.nan
+    p = flag.predict(blank)
+    assert np.isfinite(p).all() and ((p > 0) & (p < 1)).all()
+    avg = te.copy()
+    avg[C.STATIC] = flag.static_med.to_numpy()
+    assert np.allclose(p, flag.predict(avg))                     # blank = the median patient, nothing more
+
+
+def test_gap_augmented_puts_clean_rows_first(cohort, dataset):
+    import pandas as pd
+    pat, eps = pd.read_parquet(cohort / "patients.parquet"), pd.read_parquet(cohort / "episodes.parquet")
+    ts = pd.read_parquet(cohort / "timeseries.parquet")
+    ts = ts[ts.patient_id.isin(sorted(ts.patient_id.unique())[:15])]
+    clean = C.dataset_from(pat, ts, eps)
+    aug = C.gap_augmented(pat, ts, eps, clean)
+    assert len(aug) == len(clean) * (1 + len(C.AUGMENT))
+    assert (aug.iloc[:len(clean)].y.to_numpy() == clean.y.to_numpy()).all()
+    assert (aug.iloc[len(clean):].groupby("patient_id").n_nights.mean() < 7).any()

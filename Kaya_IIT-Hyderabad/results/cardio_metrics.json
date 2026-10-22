@@ -1,305 +1,305 @@
 {
-  "n_mornings": 40216,
+  "n_mornings": 40126,
   "n_patients": 2000,
-  "positive_rate": 0.041799283867117565,
+  "positive_rate": 0.04378707072720929,
   "horizon_h": 72,
   "folds": 5,
   "overall": {
     "static_logistic": {
-      "auroc": 0.6924413762931124,
-      "auprc": 0.07838597521449074,
-      "prevalence": 0.041799283867117565
+      "auroc": 0.6907368867685748,
+      "auprc": 0.08159241077700358,
+      "prevalence": 0.04378707072720929
     },
     "static": {
-      "auroc": 0.6628767917049999,
-      "auprc": 0.07188607554130866,
-      "prevalence": 0.041799283867117565
+      "auroc": 0.6518500969222673,
+      "auprc": 0.07243330454258962,
+      "prevalence": 0.04378707072720929
     },
     "rule": {
-      "auroc": 0.6946404556470253,
-      "auprc": 0.10727843684560545,
-      "prevalence": 0.041799283867117565
+      "auroc": 0.6805694346927679,
+      "auprc": 0.10423234667930611,
+      "prevalence": 0.04378707072720929
     },
     "wearable": {
-      "auroc": 0.8153604651997493,
-      "auprc": 0.26271006805352687,
-      "prevalence": 0.041799283867117565
+      "auroc": 0.8003289374679416,
+      "auprc": 0.2453954270155703,
+      "prevalence": 0.04378707072720929
     },
     "fused_early": {
-      "auroc": 0.8317812549713569,
-      "auprc": 0.30510569544634136,
-      "prevalence": 0.041799283867117565
+      "auroc": 0.821013314779811,
+      "auprc": 0.2953334590694975,
+      "prevalence": 0.04378707072720929
     },
     "fused": {
-      "auroc": 0.8308792419447327,
-      "auprc": 0.30607255414223966,
-      "prevalence": 0.041799283867117565,
-      "brier": 0.03387464411659264,
-      "ece": 0.0029057128510913584
+      "auroc": 0.8189003219834571,
+      "auprc": 0.2894381949896022,
+      "prevalence": 0.04378707072720929,
+      "brier": 0.035945400087912444,
+      "ece": 0.002267220147019428
     }
   },
   "auroc_with_ci": {
     "static_logistic": {
-      "auroc": 0.6924413762931124,
+      "auroc": 0.6907368867685748,
       "ci95": [
-        0.6719464977691205,
-        0.7086796137294916
+        0.6692193235044263,
+        0.7068049808190815
       ],
       "fused_minus_this": {
-        "mean": 0.13902013126346652,
+        "mean": 0.12826115919964007,
         "ci95": [
-          0.120687790208234,
-          0.15838104463616554
+          0.11072137635206478,
+          0.1475848230301985
         ]
       }
     },
     "static": {
-      "auroc": 0.6628767917049999,
+      "auroc": 0.6518500969222673,
       "ci95": [
-        0.6380470013935516,
-        0.6804599586834794
+        0.6284476383522151,
+        0.6711995413232892
       ],
       "fused_minus_this": {
-        "mean": 0.16887380721883638,
+        "mean": 0.16775725757534138,
         "ci95": [
-          0.14733860937051776,
-          0.18727924663038253
+          0.14782927912956603,
+          0.18729285443696356
         ]
       }
     },
     "rule": {
-      "auroc": 0.6946404556470253,
+      "auroc": 0.6805694346927679,
       "ci95": [
-        0.6762897150336602,
-        0.713457197355977
+        0.6635111193898556,
+        0.7001722799345104
       ],
       "fused_minus_this": {
-        "mean": 0.13473113933109532,
+        "mean": 0.1366813527519892,
         "ci95": [
-          0.12003678423093526,
-          0.15025096906718013
+          0.11959754980730462,
+          0.15257697623804417
         ]
       }
     },
     "wearable": {
-      "auroc": 0.8153604651997493,
+      "auroc": 0.8003289374679416,
       "ci95": [
-        0.799587457494486,
-        0.8297763042288304
+        0.7823948988675783,
+        0.8128371768748023
       ],
       "fused_minus_this": {
-        "mean": 0.015248397745552629,
+        "mean": 0.01839358787765926,
         "ci95": [
-          0.009550864293785167,
-          0.020865747786724204
+          0.01211858321644249,
+          0.024914862502812964
         ]
       }
     },
     "fused_early": {
-      "auroc": 0.8317812549713569,
+      "auroc": 0.821013314779811,
       "ci95": [
-        0.8158451744487083,
-        0.8453915528846248
+        0.8055577863048762,
+        0.835030441205826
       ],
       "fused_minus_this": {
-        "mean": -0.0010652695950522106,
+        "mean": -0.0025711748319007383,
         "ci95": [
-          -0.005800459083251638,
-          0.004158211060073024
+          -0.008898780013177524,
+          0.0026550432633829875
         ]
       }
     },
     "fused": {
-      "auroc": 0.8308792419447327,
+      "auroc": 0.8189003219834571,
       "ci95": [
-        0.8159810856772018,
-        0.8434097242780747
+        0.8027180649747754,
+        0.8311506823750603
       ]
     }
   },
   "prodrome_event_vs_benign": {
-    "n": 4391,
-    "events": 1557,
-    "static_logistic": 0.8029374477908178,
-    "static": 0.7562477648917698,
-    "rule": 0.5874740342179489,
-    "wearable": 0.6753727673280094,
-    "fused_early": 0.733879005687883,
-    "fused": 0.7391102354246014
+    "n": 4879,
+    "events": 1633,
+    "static_logistic": 0.7964827595054105,
+    "static": 0.7334798795182086,
+    "rule": 0.5957342948634505,
+    "wearable": 0.6852497152272579,
+    "fused_early": 0.7391781641656847,
+    "fused": 0.7503917393832307
   },
   "alert_replay": {
     "budget_false_alerts_per_patient_month": 1.0,
     "static_logistic": {
-      "threshold": 0.07774036659595066,
-      "events": 595,
-      "caught": 145,
-      "sensitivity": 0.24369747899159663,
-      "alerts": 1459,
-      "true_alerts": 145,
-      "precision": 0.0993831391363948,
-      "patient_days": 40216,
-      "false_alerts_per_patient_month": 0.9802068828327034,
-      "median_lead_h": 32.833333333333336,
-      "lead_h_p25": 14.5
+      "threshold": 0.08078235835856047,
+      "events": 622,
+      "caught": 154,
+      "sensitivity": 0.24758842443729903,
+      "alerts": 1522,
+      "true_alerts": 154,
+      "precision": 0.1011826544021025,
+      "patient_days": 40126,
+      "false_alerts_per_patient_month": 1.022778248517171,
+      "median_lead_h": 34.45833333333333,
+      "lead_h_p25": 14.958333333333334
     },
     "rule": {
-      "threshold": 3.972822680465697,
-      "events": 595,
-      "caught": 262,
-      "sensitivity": 0.4403361344537815,
-      "alerts": 1467,
-      "true_alerts": 262,
-      "precision": 0.17859577368779822,
-      "patient_days": 40216,
-      "false_alerts_per_patient_month": 0.8988959618062463,
-      "median_lead_h": 17.458333333333332,
-      "lead_h_p25": 7.1875
+      "threshold": 4.033156019179599,
+      "events": 622,
+      "caught": 255,
+      "sensitivity": 0.409967845659164,
+      "alerts": 1441,
+      "true_alerts": 255,
+      "precision": 0.17696044413601666,
+      "patient_days": 40126,
+      "false_alerts_per_patient_month": 0.8867068733489508,
+      "median_lead_h": 17.0,
+      "lead_h_p25": 7.0
     },
     "wearable": {
-      "threshold": 0.11272644733304597,
-      "events": 595,
-      "caught": 460,
-      "sensitivity": 0.773109243697479,
-      "alerts": 1875,
-      "true_alerts": 460,
-      "precision": 0.24533333333333332,
-      "patient_days": 40216,
-      "false_alerts_per_patient_month": 1.05555002983887,
-      "median_lead_h": 22.666666666666664,
-      "lead_h_p25": 9.145833333333332
+      "threshold": 0.1131162973128731,
+      "events": 622,
+      "caught": 450,
+      "sensitivity": 0.7234726688102894,
+      "alerts": 1831,
+      "true_alerts": 450,
+      "precision": 0.24576734025122884,
+      "patient_days": 40126,
+      "false_alerts_per_patient_month": 1.0324976324577582,
+      "median_lead_h": 21.666666666666664,
+      "lead_h_p25": 8.854166666666668
     },
     "fused_early": {
-      "threshold": 0.11237402047018648,
-      "events": 595,
-      "caught": 450,
-      "sensitivity": 0.7563025210084033,
-      "alerts": 1785,
-      "true_alerts": 450,
-      "precision": 0.25210084033613445,
-      "patient_days": 40216,
-      "false_alerts_per_patient_month": 0.9958722896359659,
-      "median_lead_h": 25.708333333333336,
-      "lead_h_p25": 10.1875
+      "threshold": 0.11983805403407162,
+      "events": 622,
+      "caught": 449,
+      "sensitivity": 0.7218649517684887,
+      "alerts": 1758,
+      "true_alerts": 449,
+      "precision": 0.2554038680318544,
+      "patient_days": 40126,
+      "false_alerts_per_patient_month": 0.9786671983252754,
+      "median_lead_h": 22.75,
+      "lead_h_p25": 8.916666666666666
     },
     "fused": {
-      "threshold": 0.11877354024542748,
-      "events": 595,
-      "caught": 454,
-      "sensitivity": 0.7630252100840336,
-      "alerts": 1926,
-      "true_alerts": 454,
-      "precision": 0.23572170301142265,
-      "patient_days": 40216,
-      "false_alerts_per_patient_month": 1.0980704197334394,
-      "median_lead_h": 23.0,
-      "lead_h_p25": 9.416666666666666
+      "threshold": 0.12791600890708885,
+      "events": 622,
+      "caught": 440,
+      "sensitivity": 0.707395498392283,
+      "alerts": 1772,
+      "true_alerts": 440,
+      "precision": 0.24830699774266365,
+      "patient_days": 40126,
+      "false_alerts_per_patient_month": 0.9958630314509296,
+      "median_lead_h": 22.0,
+      "lead_h_p25": 8.479166666666666
     }
   },
   "example_explanations": [
     {
       "patient_id": 553,
       "morning": 9,
-      "probability": 0.8327603129370218,
+      "probability": 0.8333128208709643,
       "hours_to_event": 6.833333333333333,
       "drivers": [
         {
           "feature": "rmssd_night_last",
           "label": "night HRV (RMSSD) (last night)",
           "value": 13.161722879660758,
-          "push": 2.437217486291219,
+          "push": 2.0207710136063657,
           "stream": "wearable"
         },
         {
           "feature": "age",
           "label": "age",
           "value": 75.38580633004175,
-          "push": 0.5922580533915062,
+          "push": 0.6171511562292683,
           "stream": "record"
         },
         {
-          "feature": "rhr_trend",
-          "label": "resting heart rate (last two days vs the two before)",
-          "value": 8.825156021118161,
-          "push": 0.5437724817712276,
-          "stream": "wearable"
+          "feature": "hba1c",
+          "label": "HbA1c",
+          "value": 11.126345255718686,
+          "push": 0.40208276571154217,
+          "stream": "record"
         }
       ]
     },
     {
-      "patient_id": 1108,
-      "morning": 24,
-      "probability": 0.8239600153740774,
-      "hours_to_event": 15.5,
+      "patient_id": 10,
+      "morning": 16,
+      "probability": 0.831433783671623,
+      "hours_to_event": 23.916666666666668,
       "drivers": [
         {
           "feature": "rmssd_night_last",
           "label": "night HRV (RMSSD) (last night)",
-          "value": 15.889022232504452,
-          "push": 2.4210742452514604,
+          "value": 17.867882177564834,
+          "push": 2.0370637084746375,
           "stream": "wearable"
         },
         {
-          "feature": "hr_night_p90_last",
-          "label": "night heart rate (90th pct) (last night)",
-          "value": 71.71213836669922,
-          "push": 0.48445395588072493,
-          "stream": "wearable"
-        },
-        {
-          "feature": "rhr_trend",
-          "label": "resting heart rate (last two days vs the two before)",
-          "value": 5.794572067260738,
-          "push": 0.4082977339672027,
-          "stream": "wearable"
-        }
-      ]
-    },
-    {
-      "patient_id": 1011,
-      "morning": 9,
-      "probability": 0.817621928102159,
-      "hours_to_event": 4.25,
-      "drivers": [
-        {
-          "feature": "rmssd_night_last",
-          "label": "night HRV (RMSSD) (last night)",
-          "value": 18.447653505537247,
-          "push": 2.3630769440036925,
-          "stream": "wearable"
-        },
-        {
-          "feature": "rhr_trend",
-          "label": "resting heart rate (last two days vs the two before)",
-          "value": 9.662191772460943,
-          "push": 0.4415208757689506,
+          "feature": "rhr_last",
+          "label": "resting heart rate (last night)",
+          "value": 65.64841766357422,
+          "push": 0.2819473834933355,
           "stream": "wearable"
         },
         {
           "feature": "age",
           "label": "age",
-          "value": 68.86535270304869,
-          "push": 0.4255976692876357,
+          "value": 62.673377723491114,
+          "push": 0.27875033569063956,
+          "stream": "record"
+        }
+      ]
+    },
+    {
+      "patient_id": 553,
+      "morning": 8,
+      "probability": 0.8145790568984513,
+      "hours_to_event": 30.833333333333332,
+      "drivers": [
+        {
+          "feature": "rmssd_night_last",
+          "label": "night HRV (RMSSD) (last night)",
+          "value": 18.475149401496438,
+          "push": 1.953113067862526,
+          "stream": "wearable"
+        },
+        {
+          "feature": "age",
+          "label": "age",
+          "value": 75.38580633004175,
+          "push": 0.6171511562292683,
+          "stream": "record"
+        },
+        {
+          "feature": "hba1c",
+          "label": "HbA1c",
+          "value": 11.126345255718686,
+          "push": 0.40208276571154217,
           "stream": "record"
         }
       ]
     }
   ],
   "stack_weights": {
-    "wearable_logit": 1.031261323034308,
-    "static_logit": 0.6780240855908198,
-    "intercept": 2.1948912372362117
+    "wearable_logit": 0.9612639116337409,
+    "static_logit": 0.6617049558675477,
+    "intercept": 1.9241157609589175
   },
   "top_wearable_features_gain": {
-    "night HRV (RMSSD) (last night)": 0.3825744369008531,
-    "resting heart rate (last two days vs the two before)": 0.08831828310798663,
-    "night heart rate (90th pct) (last night)": 0.0652284492794409,
-    "resting heart rate (last night)": 0.03979059625220979,
-    "night HRV (RMSSD) (7-day average)": 0.03482613695282785,
-    "night heart rate (90th pct) (last two days vs the two before)": 0.0345427128671564,
-    "night HRV (RMSSD) (last two days vs the two before)": 0.02465087316260162,
-    "deep-sleep share (last night)": 0.020080627559449983,
-    "glucose variability (7-day average)": 0.01918812687518009,
-    "daytime HRV (7-day average)": 0.017855925589176164
+    "night HRV (RMSSD) (last night)": 0.3706177618520804,
+    "resting heart rate (last two days vs the two before)": 0.060218226227506846,
+    "resting heart rate (last night)": 0.056308556538554225,
+    "night heart rate (90th pct) (last two days vs the two before)": 0.038736475685218694,
+    "deep-sleep share (last night)": 0.03136548202927937,
+    "night HRV (RMSSD) (last two days vs the two before)": 0.02688989624695362,
+    "glucose variability (7-day average)": 0.02439603434910712,
+    "daytime HRV (7-day average)": 0.023155044790513873,
+    "daytime HRV (last night)": 0.02136144566793027,
+    "night HRV (RMSSD) (7-day average)": 0.018740177180095612
   },
-  "final_operating_threshold": 0.12869910251612451
+  "final_operating_threshold": 0.13067873765694787
 }

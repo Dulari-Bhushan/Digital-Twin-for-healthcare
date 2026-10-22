@@ -75,3 +75,18 @@ def test_reproducible(tmp_path):
     for f in ("patients", "timeseries", "episodes"):
         pd.testing.assert_frame_equal(pd.read_parquet(tmp_path / "a" / f"{f}.parquet"),
                                       pd.read_parquet(tmp_path / "b" / f"{f}.parquet"))
+
+
+def test_hypo_link_is_off_by_default_and_adds_triggered_episodes_when_on(tmp_path):
+    import pandas as pd
+    base = tmp_path / "base"
+    build_cohort_v2(CohortConfig(n_patients=150, days=28, seed=9), base)
+    assert (pd.read_parquet(base / "episodes.parquet").trigger == "prodrome").all()
+    linked = tmp_path / "linked"
+    build_cohort_v2(CohortConfig(n_patients=150, days=28, seed=9), linked, hypo_link=True)
+    e = pd.read_parquet(linked / "episodes.parquet")
+    pat = pd.read_parquet(linked / "patients.parquet").set_index("patient_id")
+    hy = e[e.trigger == "hypo"]
+    assert len(hy) > 0
+    assert pat.loc[hy.patient_id, "on_insulin_or_su"].all()      # only treatment-related lows start a prodrome
+    assert ((hy.event_step - hy.start_step) // 288).between(1, 2).all()

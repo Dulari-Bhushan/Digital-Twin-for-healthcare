@@ -402,3 +402,13 @@ a.btn.go { color: #fff; }
 .pt2:hover .acts, .pt2.on .acts, .pt2:focus-within .acts { display: flex; }
 .mini { border: 0; background: rgba(15, 110, 104, .1); color: var(--mint-dd); border-radius: 999px; padding: 3px 9px; font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
 .showmore { justify-self: start; }
+
+/* views without the resize grip (Heart watch) */
+.layout.two-col { grid-template-columns: 330px minmax(0, 1fr); gap: 22px; }
+@media (max-width: 980px) { .layout.two-col { grid-template-columns: 1fr; } }
+
+/* sub-views of the doctor mode */
+.subnav { display: flex; gap: 6px; padding: 6px 28px 0; }
+.subnav button { border: 0; background: rgba(255, 255, 255, .6); padding: 7px 16px; border-radius: 999px; font-weight: 700; font-size: 13px; color: var(--muted); }
+.subnav button.on { background: #fff; color: var(--lav-dd); box-shadow: var(--shadow); }
+@media (max-width: 980px) { .subnav { padding: 6px 16px 0; } }

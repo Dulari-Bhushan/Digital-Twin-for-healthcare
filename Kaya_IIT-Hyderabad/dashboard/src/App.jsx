@@ -34,7 +34,8 @@ export default function App() {
   const params = new URLSearchParams(window.location.search)
   const [patients, setPatients] = useState([])
   const [sel, setSel] = useState(null)
-  const [mode, setMode] = useState(['patient', 'admin', 'heart'].includes(params.get('view')) ? params.get('view') : 'doctor')
+  const [mode, setMode] = useState(['patient', 'admin'].includes(params.get('view')) ? params.get('view') : 'doctor')
+  const [docView, setDocView] = useState(params.get('view') === 'heart' ? 'heart' : 'twin')
   const [d, setD] = useState(null)
   const [series, setSeries] = useState(null)
   const [changes, setChanges] = useState(null)
@@ -102,14 +103,19 @@ export default function App() {
         )}
         <div className="switch" role="tablist">
           <button className={mode === 'doctor' ? 'on' : ''} onClick={() => setMode('doctor')}>Doctor</button>
-          <button className={mode === 'heart' ? 'on' : ''} onClick={() => setMode('heart')}>Heart watch</button>
           <button className={mode === 'patient' ? 'on' : ''} onClick={() => setMode('patient')}>Patient</button>
           <button className={mode === 'admin' ? 'on' : ''} onClick={() => setMode('admin')}>Admin</button>
         </div>
       </header>
 
       {record && d && d.profile.id === sel && <Record d={d} pid={sel} tab={record.tab} setTab={(tab) => setRecord({ tab })} onClose={() => setRecord(null)} changes={changes} />}
-      {mode === 'admin' ? <Admin /> : mode === 'heart' ? <Heart /> : mode === 'patient' ? (
+      {mode === 'doctor' && (
+        <nav className="subnav" aria-label="Doctor views">
+          <button className={docView === 'twin' ? 'on' : ''} onClick={() => setDocView('twin')}>Glucose twin</button>
+          <button className={docView === 'heart' ? 'on' : ''} onClick={() => setDocView('heart')}>Heart watch</button>
+        </nav>
+      )}
+      {mode === 'admin' ? <Admin /> : mode === 'doctor' && docView === 'heart' ? <Heart /> : mode === 'patient' ? (
         ready ? <PatientApp d={d} at={at} pid={sel} changes={changes} /> : <div className="stage muted">Loading…</div>
       ) : (
         <div className="layout">
