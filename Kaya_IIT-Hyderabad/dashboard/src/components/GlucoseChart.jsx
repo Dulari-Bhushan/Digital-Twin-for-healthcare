@@ -53,7 +53,6 @@ export default function GlucoseChart({ series, cursor, height = 320 }) {
           </linearGradient>
         </defs>
         <rect x={pad.l} y={y(180)} width={iw} height={y(70) - y(180)} rx="14" fill="#dfeee2" opacity=".75" />
-        <text x={pad.l + 10} y={y(180) + 18} fontSize="11" fontWeight="700" fill="#2e5f45">healthy range 70–180</text>
         {yt.map((v) => (
           <g key={v}>
             <line x1={pad.l} x2={W - pad.r} y1={y(v)} y2={y(v)} stroke="rgba(28,52,50,.07)" strokeDasharray="3 5" />
@@ -69,6 +68,8 @@ export default function GlucoseChart({ series, cursor, height = 320 }) {
         {cursor < n - 1 && <path d={line(cursor, n - 1)} fill="none" stroke="#a9c4c0" strokeWidth="2" opacity=".55" strokeLinecap="round" />}
         <path d={area} fill="url(#gl-area)" />
         <path d={line(0, cursor)} fill="none" stroke="#0F6E68" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
+        <text x={W - pad.r - 8} y={y(70) - 8} textAnchor="end" fontSize="11" fontWeight="700" fill="#2e5f45" stroke="#e6f1e8" strokeWidth="4" strokeLinejoin="round"
+          style={{ paintOrder: 'stroke', pointerEvents: 'none' }}>healthy range 70–180</text>
         {fan && (
           <g>
             <polygon fill="#d9894a" opacity=".2"

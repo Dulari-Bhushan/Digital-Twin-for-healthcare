@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getMessages, getReports, sendMessage, sendPrescription } from '../api'
+import { getMessages, getReports, markHandled, sendMessage, sendPrescription } from '../api'
 import { TONE } from '../ui'
 
 const URGENT = [
@@ -17,10 +17,50 @@ const ADVICE = [
   { id: 'a_meds', label: 'I will change your medicines', title: 'I want to review your medicines', body: 'After looking at your data I would like to change your medicines. I will send you a new prescription shortly. Please do not change anything until then.' },
 ]
 const ACTION_TEXT = { come_to_clinic: 'Come to the clinic', go_to_er: 'Go to the emergency room', call_clinic: 'Call the clinic' }
+const CHECK_TEXT = { emergency: ['🚨 Possible emergency', 'rose'], doctor: ['Helper: needs a doctor', 'butter'], self_insisted: ['Sent after helper advice', 'sky'], unsure: ['Helper unavailable', 'sky'] }
 const RX_TEXT = { start: 'Start', stop: 'Stop', change_dose: 'Change dose' }
 
 function Segment({ value, onChange, options }) {
   return <div className="seg">{options.map(([k, label]) => <button key={k} type="button" className={value === k ? 'on' : ''} onClick={() => onChange(k)}>{label}</button>)}</div>
+}
+
+/** What the patient wrote to the doctor. Replying (or marking it handled) clears the flag on the patient list. */
+function FromPatient({ pid, items, onSent }) {
+  const [reply, setReply] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState(null)
+  const theirs = items.filter((m) => m.kind === 'patient')
+  const open = theirs.some((m) => !m.read)
+  useEffect(() => { setReply(''); setErr(null) }, [pid])
+  if (!theirs.length) return null
+  const done = (p) => p.then(onSent).catch((e) => setErr(e.message)).finally(() => setBusy(false))
+  const send = () => { setBusy(true); setErr(null); done(sendMessage(pid, { kind: 'advice', title: 'Reply from your doctor', body: reply, action: null, template: null, translate: true }).then(() => setReply(''))) }
+  return (
+    <section className="card soft rec-sec" style={{ boxShadow: 'none' }}>
+      <div className="card-h"><h2>From the patient</h2>{open ? <span className="chip rose">Needs a reply</span> : <span className="chip mint">Answered</span>}</div>
+      <div style={{ display: 'grid', gap: 8, marginBottom: 10 }}>
+        {theirs.slice(0, 5).map((m) => (
+          <div key={m.id} className="rep-row" style={{ cursor: 'default' }}>
+            <span style={{ minWidth: 0, flex: 1 }}><b style={{ fontWeight: 700 }}>{m.body}</b><small>{m.created.slice(0, 16)}</small></span>
+            <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              {CHECK_TEXT[m.check] && <span className="chip" style={{ background: TONE[CHECK_TEXT[m.check][1]].bg, color: TONE[CHECK_TEXT[m.check][1]].dd }}>{CHECK_TEXT[m.check][0]}</span>}
+              <span className="chip" style={m.read ? { background: TONE.mint.bg, color: TONE.mint.dd } : { background: TONE.rose.bg, color: TONE.rose.dd }}>{m.read ? '✓ Handled' : 'Unanswered'}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+      {open && (
+        <div className="medform" style={{ boxShadow: 'none', padding: 0, background: 'transparent' }}>
+          <label>Reply<textarea rows={3} maxLength={1000} value={reply} placeholder="Your reply goes to the patient app within seconds" onChange={(e) => setReply(e.target.value)} /></label>
+          <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
+            <button className="btn go" disabled={busy || !reply.trim()} onClick={send}>Send reply</button>
+            <button className="btn sm" disabled={busy} onClick={() => { setBusy(true); done(markHandled(pid)) }}>Mark as handled without replying</button>
+            {err && <span style={{ fontWeight: 700, color: 'var(--rose-dd)' }}>{err}</span>}
+          </div>
+        </div>
+      )}
+    </section>
+  )
 }
 
 function Compose({ pid, onSent }) {
@@ -127,7 +167,8 @@ function Prescribe({ pid, onSent }) {
   )
 }
 
-function Sent({ items }) {
+function Sent({ items: all }) {
+  const items = all.filter((m) => m.kind !== 'patient')
   return (
     <section className="card soft rec-sec" style={{ boxShadow: 'none' }}>
       <div className="card-h"><h2>Sent to this patient</h2><span className="chip">{items.length}</span></div>
@@ -156,11 +197,13 @@ function Sent({ items }) {
 export default function MessageTab({ pid }) {
   const [items, setItems] = useState([])
   const load = () => getMessages(pid).then((d) => setItems(d.items)).catch(() => {})
+  const changed = () => { load(); window.dispatchEvent(new Event('kaya:messages')) }     // the patient list refreshes its flags
   useEffect(() => { setItems([]); load(); const id = setInterval(load, 5000); return () => clearInterval(id) }, [pid])
   return (
     <>
-      <Compose pid={pid} onSent={load} />
-      <Prescribe pid={pid} onSent={load} />
+      <FromPatient pid={pid} items={items} onSent={changed} />
+      <Compose pid={pid} onSent={changed} />
+      <Prescribe pid={pid} onSent={changed} />
       <Sent items={items} />
     </>
   )

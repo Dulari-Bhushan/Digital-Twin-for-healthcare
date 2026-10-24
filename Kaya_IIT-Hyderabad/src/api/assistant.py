@@ -9,9 +9,14 @@ Order of play for every message:
 """
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 
-LANGS = ("en", "hi", "te", "kn")
+from voice import LANG_NAMES
+
+COVERED = ("en", "hi", "te", "kn")                  # languages whose emergency and medicine words are matched directly below
+LANGS = tuple(LANG_NAMES)
 
 EMERGENCY_RE = re.compile(
     r"chest pain|can'?t breathe|cannot breathe|short(ness)? of breath|faint|unconscious|passed out|seizure|convuls|stroke|"
@@ -82,7 +87,27 @@ GLOSSARY = (
     "The kidney number is the kidney filter score (eGFR); lower means the kidneys filter less. "
     "Estimates are guidance, not a diagnosis."
 )
-LANG_NAME = {"en": "English", "hi": "Hindi", "te": "Telugu", "kn": "Kannada"}
+LANG_NAME = LANG_NAMES
+
+# The other languages: machine-translated fixed messages (scripts/translate_ui.py). Anything missing falls back to English.
+_EXTRA_FILE = Path(__file__).with_name("lang_extra.json")
+for _code, _d in (json.loads(_EXTRA_FILE.read_text(encoding="utf-8")) if _EXTRA_FILE.exists() else {}).items():
+    if _d.get("emergency"):
+        EMERGENCY_MSG[_code] = _d["emergency"]
+    if _d.get("medicine"):
+        MEDICINE_MSG[_code] = _d["medicine"]
+    if _d.get("fallback"):
+        FALLBACK_MSG[_code] = _d["fallback"]
+    if _d.get("open"):
+        OPEN_MSG[_code] = _d["open"]
+    if _d.get("tabs") and all(_d["tabs"]):
+        TAB_LABEL[_code] = _d["tabs"]
+for _code in LANGS:
+    EMERGENCY_MSG.setdefault(_code, EMERGENCY_MSG["en"])
+    MEDICINE_MSG.setdefault(_code, MEDICINE_MSG["en"])
+    FALLBACK_MSG.setdefault(_code, FALLBACK_MSG["en"])
+    OPEN_MSG.setdefault(_code, OPEN_MSG["en"])
+    TAB_LABEL.setdefault(_code, TAB_LABEL["en"])
 
 
 def classify(message: str, lang: str) -> dict:
@@ -141,5 +166,21 @@ def system_prompt(lang: str, context: str) -> str:
         "Rules you must never break: never give medicine names, doses or changes; never diagnose; never promise outcomes; "
         "if the person describes a symptom or feels unwell, tell them to contact their doctor. "
         "If you do not know, say so and suggest asking the doctor. Use only the facts below; do not invent numbers.\n\n"
+        f"APP: {APP_GUIDE}\nGLOSSARY: {GLOSSARY}\nPATIENT FACTS: {context}"
+    )
+
+
+def contact_prompt(lang: str, context: str) -> str:
+    """The helper decides whether a patient's note is a small matter it can answer, or something the doctor should see."""
+    return (
+        "You are Kaya's friendly helper inside a diabetes app for older adults in India. A patient is about to send a message to their doctor. "
+        "Decide if the doctor really needs it. The doctor has very little time, so small matters should be answered here. "
+        "Reply with one JSON object only: {\"forward\": true or false, \"reply\": \"...\"}. "
+        "forward is true for: new or worsening symptoms (dizziness, shaking, sweating, blurred vision, swelling, pain, infection, vomiting, a foot wound), "
+        "readings that are repeatedly very high or very low, anything about changing medicines, and anything frightening, unclear or that you cannot answer safely. "
+        "forward is false for: what a number or screen means, how to use the app, food, walking and sleep habits, general questions about diabetes. "
+        f"When forward is false, reply with a helpful answer in at most three short sentences in {LANG_NAME.get(lang, 'English')}, plain words, no lists or markdown. "
+        f"When forward is true, reply with one short, kind sentence in {LANG_NAME.get(lang, 'English')} saying why the doctor should see this. "
+        "Never give medicine names, doses or changes and never diagnose. Use only the facts below; do not invent numbers.\n\n"
         f"APP: {APP_GUIDE}\nGLOSSARY: {GLOSSARY}\nPATIENT FACTS: {context}"
     )

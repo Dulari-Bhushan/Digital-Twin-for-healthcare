@@ -46,6 +46,20 @@ export default function App() {
   const [record, setRecord] = useState(params.get('record') ? { tab: params.get('record') } : null)
   const openRecord = (tab) => setRecord({ tab })
   const live = useLive(sel)
+  const [sideW, setSideW] = useState(() => { try { return Number(localStorage.getItem('kaya.sideW')) || 330 } catch { return 330 } })
+  const dragSide = (e) => {
+    e.preventDefault()
+    const x0 = e.clientX, w0 = sideW
+    let w = w0
+    const move = (ev) => { w = Math.min(640, Math.max(240, w0 + ev.clientX - x0)); setSideW(w) }
+    const up = () => {
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up)
+      document.body.classList.remove('resizing')
+      try { localStorage.setItem('kaya.sideW', String(w)) } catch { /* not persisted */ }
+    }
+    document.body.classList.add('resizing')
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
+  }
 
   useEffect(() => {
     getPatients().then((p) => {
@@ -53,6 +67,13 @@ export default function App() {
       const demo = p.find((x) => x.demo_tag) || [...p].sort((a, b) => b.alerts_24h - a.alerts_24h || b.score - a.score)[0]
       setSel(params.get('p') ? Number(params.get('p')) : demo.id)
     }).catch((e) => setErr(String(e)))
+  }, [])
+
+  useEffect(() => {                                   // flags change when a patient writes or the doctor replies
+    const refresh = () => getPatients().then(setPatients).catch(() => {})
+    const id = setInterval(refresh, 15000)
+    window.addEventListener('kaya:messages', refresh)
+    return () => { clearInterval(id); window.removeEventListener('kaya:messages', refresh) }
   }, [])
 
   useEffect(() => {
@@ -118,8 +139,10 @@ export default function App() {
       {mode === 'admin' ? <Admin /> : mode === 'doctor' && docView === 'heart' ? (sel == null ? <div className="stage muted">Loading…</div> : <Heart pid={sel} onPick={setSel} onOpenTwin={(id) => { setSel(id); setDocView('twin') }} />) : mode === 'patient' ? (
         ready ? <PatientApp d={d} at={at} pid={sel} changes={changes} /> : <div className="stage muted">Loading…</div>
       ) : (
-        <div className="layout">
+        <div className="layout" style={{ '--sidew': `${sideW}px` }}>
           <Sidebar patients={patients} selected={sel} onSelect={(id) => { setSel(id); setRecord({ tab: 'catchup' }) }} />
+          <div className="grip" role="separator" aria-orientation="vertical" aria-label="Drag to resize the patient list" title="Drag to resize · double-click to reset"
+            onPointerDown={dragSide} onDoubleClick={() => { setSideW(330); try { localStorage.setItem('kaya.sideW', '330') } catch { /* ignore */ } }} />
           <main className="bento">
             {!ready ? <div className="c12 muted">Loading the twin…</div> : (
               <>

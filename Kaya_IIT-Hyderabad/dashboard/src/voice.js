@@ -2,7 +2,11 @@
 // the Kaya API, so the key never reaches the browser. If voice is not configured we fall back to the browser's own
 // speech where it exists.
 
-const LOCALE = { en: 'en-IN', hi: 'hi-IN', te: 'te-IN', kn: 'kn-IN' }
+import { LANGS } from './i18n'
+
+const LOCALE = Object.fromEntries(LANGS.map((l) => [l.code, l.locale]))
+// the Sarvam voice speaks these; every other language is read by the browser's own voice if the device has one
+const TTS_LANGS = new Set(['en', 'hi', 'te', 'kn', 'bn', 'gu', 'ml', 'mr', 'od', 'pa', 'ta'])
 const cache = new Map()
 let current = null
 
@@ -23,7 +27,7 @@ export function stopSpeaking() {
 /** Read text aloud. Uses the Sarvam voice when available and the browser voice otherwise. Resolves when playback starts. */
 export async function speak(text, lang, enabled) {
   stopSpeaking()
-  if (enabled) {
+  if (enabled && TTS_LANGS.has(lang)) {
     try {
       const key = `${lang}|${text}`
       let url = cache.get(key)

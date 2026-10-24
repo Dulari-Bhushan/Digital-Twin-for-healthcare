@@ -10,8 +10,11 @@ import httpx
 BASE = "https://api.sarvam.ai"
 STT_MODEL, TTS_MODEL, CHAT_MODEL = "saaras:v4", "bulbul:v4-flash", "sarvam-105b-conversations"
 TTS_SPEAKER = "simran_en_customer"
-LANG_CODES = {"en": "en-IN", "hi": "hi-IN", "te": "te-IN", "kn": "kn-IN"}
-LANG_NAMES = {"en": "English", "hi": "Hindi", "te": "Telugu", "kn": "Kannada"}
+LANG_NAMES = {"en": "English", "hi": "Hindi", "te": "Telugu", "kn": "Kannada", "as": "Assamese", "bn": "Bengali", "brx": "Bodo", "doi": "Dogri",
+              "gu": "Gujarati", "ks": "Kashmiri", "kok": "Konkani", "mai": "Maithili", "ml": "Malayalam", "mni": "Manipuri", "mr": "Marathi",
+              "ne": "Nepali", "od": "Odia", "pa": "Punjabi", "sa": "Sanskrit", "sat": "Santali", "sd": "Sindhi", "ta": "Tamil", "ur": "Urdu"}
+LANG_CODES = {c: f"{c}-IN" for c in LANG_NAMES}                    # Sarvam language codes: en-IN, hi-IN, ta-IN, brx-IN ...
+TTS_LANGS = {"en", "hi", "te", "kn", "bn", "gu", "ml", "mr", "od", "pa", "ta"}     # the voice (text-to-speech) covers fewer languages than speech-to-text and translation
 
 
 class VoiceError(Exception):
@@ -69,6 +72,15 @@ class SarvamClient:
         r = self._post("/speech-to-text", data={"model": STT_MODEL, "mode": "transcribe"}, files={"file": (filename, audio, content_type)})
         j = r.json()
         return {"transcript": (j.get("transcript") or "").strip(), "language_code": j.get("language_code")}
+
+    def translate(self, text: str, src: str, tgt: str) -> str:
+        """Sarvam-Translate between two app language codes ('en', 'ta', ...). Raises VoiceError when the service fails."""
+        r = self._post("/translate", json={"input": text[:1800], "source_language_code": LANG_CODES[src], "target_language_code": LANG_CODES[tgt],
+                                           "model": "sarvam-translate:v1"})
+        out = (r.json().get("translated_text") or "").strip()
+        if not out:
+            raise VoiceError("empty translation")
+        return out
 
     def chat(self, messages: list[dict], max_tokens: int = 260) -> str:
         r = self._post("/v1/chat/completions", json={"model": CHAT_MODEL, "messages": messages, "max_tokens": max_tokens, "temperature": 0.3})

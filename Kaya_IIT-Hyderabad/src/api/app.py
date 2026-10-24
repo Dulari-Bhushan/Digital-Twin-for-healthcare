@@ -39,7 +39,7 @@ import messages as msgs  # noqa: E402
 import reports as rpt  # noqa: E402
 from live import Calibration, LiveTwin, NumpyGRU  # noqa: E402
 from names import DEMO_TAGS, name_of  # noqa: E402
-from voice import CHAT_MODEL, LANG_CODES, STT_MODEL, TTS_MODEL, SarvamClient, VoiceError, load_key  # noqa: E402
+from voice import CHAT_MODEL, LANG_CODES, STT_MODEL, TTS_LANGS, TTS_MODEL, SarvamClient, VoiceError, load_key  # noqa: E402
 from liver_dynamic import LiverParams, risk_timeline  # noqa: E402
 
 ART_DIR = Path(os.environ.get("KAYA_ARTIFACTS", ROOT / "artifacts" / "demo"))
@@ -79,57 +79,70 @@ def _tier(score: float) -> str:
     return "high" if score >= 0.6 else "medium" if score >= 0.35 else "low"
 
 
-def _triage(pid: int, m: dict, recent: list, liver12: float, fib12: float, egfr: float, score: float) -> dict:
+def _hours_since(pid: int, stamp: str) -> int:
+    """Whole hours between a message stamp and now, both on the patient's simulated calendar."""
+    try:
+        then = datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S")
+        now = datetime.strptime(_stamp(pid), "%Y-%m-%d %H:%M:%S")
+        return max(0, int((now - then).total_seconds() // 3600))
+    except ValueError:
+        return 0
+
+
+def _triage(pid: int, m: dict, recent: list, liver12: float, fib12: float, egfr: float, score: float, organ: str, organ_risk: float, pending: list) -> dict:
     """Who needs the doctor today: hard rules for the critical cases, 'what changed' for the rest.
     The visit history is simulated (seeded by patient id) because the cohort has a single snapshot per patient."""
     rng = np.random.default_rng(7000 + pid)
     jump = float(rng.choice([rng.uniform(-4, 4), rng.uniform(9, 24)], p=[0.82, 0.18]))     # change in worst organ risk since the last visit, points
+    jump = min(jump, organ_risk * 60)                                                       # a rise can never exceed 60% of where the risk stands now
     no_log_days = int(rng.choice([rng.integers(0, 3), rng.integers(4, 10)], p=[0.8, 0.2]))
-    unread = bool(rng.random() < 0.12)
     review_days = int(rng.integers(1, 45))
     trig: list[dict] = []
 
-    def add(key, text, level, event, hours=None):
-        trig.append({"key": key, "text": text, "level": level, "event": event, "hours_ago": hours})
+    def add(key, label, text, level, event, hours=None):
+        trig.append({"key": key, "label": label, "text": text, "level": level, "event": event, "hours_ago": hours})
 
     hypo = [x for x in recent if x["type"] == "hypo"]
     if hypo:
-        add("hypo", f"{len(hypo)} low-glucose alert(s) in 24 h", "critical", True, int(rng.integers(1, 20)))
+        add("hypo", "Low glucose", f"{len(hypo)} low-glucose alert(s) in 24 h", "critical", True, int(rng.integers(1, 20)))
     elif m["tbr"] > 0.04:
-        add("tbr", f"Time below range {m['tbr'] * 100:.1f}%", "critical", False)
+        add("tbr", "Low glucose", f"Time below range {m['tbr'] * 100:.1f}%", "critical", False)
     if jump >= 15:
-        add("jump", f"Organ risk up {jump:.0f} pts since last visit", "critical", True, int(rng.integers(6, 72)))
+        add("jump", f"{organ} risk rising", f"Organ risk up {jump:.0f} pts since last visit", "critical", True, int(rng.integers(6, 72)))
     elif jump >= 8:
-        add("jump", f"Organ risk up {jump:.0f} pts since last visit", "warn", True, int(rng.integers(24, 200)))
+        add("jump", f"{organ} risk rising", f"Organ risk up {jump:.0f} pts since last visit", "warn", True, int(rng.integers(24, 200)))
     if fib12 >= 0.7:
-        add("fib", f"Advanced fibrosis risk {fib12 * 100:.0f}%", "critical", False)
+        add("fib", "Liver fibrosis risk", f"Advanced fibrosis risk {fib12 * 100:.0f}%", "critical", False)
     elif fib12 >= 0.1:
-        add("fib", f"Advanced fibrosis risk {fib12 * 100:.0f}%", "warn", False)
+        add("fib", "Liver fibrosis risk", f"Advanced fibrosis risk {fib12 * 100:.0f}%", "warn", False)
     if egfr < 45:
-        add("egfr", f"eGFR {egfr:.0f}, kidney function low", "critical", False)
+        add("egfr", "Kidney function low", f"eGFR {egfr:.0f}, kidney function low", "critical", False)
     elif egfr < 60:
-        add("egfr", f"eGFR {egfr:.0f}", "warn", False)
-    if unread:
-        add("msg", "Unanswered patient message", "warn", True, int(rng.integers(2, 48)))
+        add("egfr", "Kidney function low", f"eGFR {egfr:.0f}", "warn", False)
+    if pending:
+        oldest = min(_hours_since(pid, x["created"]) for x in pending)
+        if any(x.get("check") == "emergency" for x in pending):
+            add("msg", "Urgent patient message", f"{len(pending)} unanswered patient message(s), one reports an urgent symptom", "critical", True, oldest)
+        else:
+            add("msg", "Unanswered message", f"{len(pending)} unanswered patient message(s)", "warn", True, oldest)
     if no_log_days >= 4:
-        add("nolog", f"No readings or logs for {no_log_days} days", "warn", True, no_log_days * 24)
+        add("nolog", "No data logged", f"No readings or logs for {no_log_days} days", "warn", True, no_log_days * 24)
     if m["tir"] < 0.5:
-        add("tir", f"Time in range {m['tir'] * 100:.0f}%", "warn", False)
+        add("tir", "Poor glucose control", f"Time in range {m['tir'] * 100:.0f}%", "warn", False)
     if score >= 0.35 and not trig:
-        add("risk", "Elevated overall risk", "warn", False)
+        add("risk", "Elevated risk", "Elevated overall risk", "warn", False)
 
     bucket = "today" if any(t["level"] == "critical" for t in trig) else "week" if trig else "stable"
     escalated = False
     if bucket != "today" and review_days >= (30 if bucket == "stable" else 40):          # staleness: not opened for too long moves up a level
         bucket, escalated = ("week" if bucket == "stable" else "today"), True
-        add("stale", f"Not reviewed for {review_days} days", "warn", False)
+        add("stale", "Review overdue", f"Not reviewed for {review_days} days", "warn", False)
     if bucket != "today" and _tier(score) == "high" and review_days >= 21:                 # high-risk patients never stay out of sight for long
         bucket, escalated = "today", True
-        add("overdue", f"High risk, not reviewed for {review_days} days", "critical", False)
+        add("overdue", "High risk, overdue", f"High risk, not reviewed for {review_days} days", "critical", False)
     ev = [t["hours_ago"] for t in trig if t["event"] and t["level"] == "critical" and t["hours_ago"] is not None]
     return {"bucket": bucket, "triggers": trig, "event_hours": min(ev) if ev else None, "risk_jump": round(jump, 1),
-            "days_since_log": no_log_days, "unread_msgs": int(unread), "days_since_review": review_days, "escalated": escalated,
-            "trend": [round(max(0.0, score - jump / 100 * (3 - i) / 3 + float(rng.normal(0, 0.012))), 3) for i in range(4)][:-1] + [round(score, 3)]}
+            "days_since_log": no_log_days, "unread_msgs": len(pending), "days_since_review": review_days, "escalated": escalated}
 
 
 def _summary(a: dict) -> dict:
@@ -162,7 +175,25 @@ def _summary(a: dict) -> dict:
             "mean_glucose": m["mean"], "score": round(score, 3), "tier": _tier(score), "reasons": reasons[:3],
             "alerts_24h": len(recent), "steatosis_12m": liver12, "fibrosis_12m": fib12, "eye_progression_2y": eye, "kidney_ckd_risk": kid,
             "dr_grade": a["eye"]["grade"], "last_glucose": a["series"]["glucose"][-1],
-            "triage": _triage(pr["id"], m, recent, liver12, fib12, egfr, score)}
+            "triage": _triage(pr["id"], m, recent, liver12, fib12, egfr, score, *max({"Liver": liver12, "Kidney": kid, "Eye": eye}.items(), key=lambda kv: kv[1]), msgs.pending_from_patient(pr["id"]))}
+
+
+DEMO_PATIENT_MESSAGES = {
+    "Brijmohan Yadav": (9, "Doctor, I felt dizzy and shaky this morning before breakfast. Should I change my tablets?", "doctor"),
+    "Arjun Malhotra": (50, "My sugar has been high after dinner all week. Can I eat chapati instead of rice?", "self_insisted"),
+    "Dilip Pandey": (52, "I am travelling next week for a wedding. Do I need to change my medicine timing?", "doctor"),
+}
+
+
+def _seed_patient_messages() -> None:
+    """A demo starts with a few unanswered patient messages so the doctor's list has something real to show."""
+    by_name = {p["profile"]["name"]: pid for pid, p in STORE.items()}
+    for name, (hours, text, check) in DEMO_PATIENT_MESSAGES.items():
+        pid = by_name.get(name)
+        if pid is None:
+            continue
+        at = datetime.combine(_today(pid), datetime.now().time()) - timedelta(hours=hours)
+        msgs.replace_seed(pid, text, at.strftime("%Y-%m-%d %H:%M:%S"), check)
 
 
 @app.on_event("startup")
@@ -181,6 +212,7 @@ def load() -> None:
         CARDIO["evidence"] = json.loads((CARDIO_DIR / "evidence.json").read_text())
     if os.environ.get("KAYA_KEEP_LOGS") != "1":
         diary.reset_patient_logs()                       # a demo starts with nothing logged today; set KAYA_KEEP_LOGS=1 to keep entries
+    _seed_patient_messages()
     key = load_key(ROOT)
     VOICE["client"] = SarvamClient(key) if key else None
     if (MODEL_DIR / "gru_numpy.npz").exists():
@@ -415,7 +447,7 @@ class RxReq(BaseModel):
     translate: bool = True
 
 
-TRANSLATING: set[tuple[int, str]] = set()
+TRANSLATING: set[tuple] = set()
 
 
 def _translate_in_background(pid: int, m: dict) -> None:
@@ -434,12 +466,27 @@ def _translate_in_background(pid: int, m: dict) -> None:
     threading.Thread(target=work, daemon=True).start()
 
 
+def _translate_one_language(pid: int, m: dict, lang: str) -> None:
+    client = VOICE.get("client")
+    if client is None:
+        return
+
+    def work():
+        try:
+            tr = msgs.translate_to(client, m, lang)
+            if tr:
+                msgs.add_translation(pid, m["id"], lang, tr)
+        except Exception:  # noqa: BLE001
+            pass
+    threading.Thread(target=work, daemon=True).start()
+
+
 def _stamp(pid: int) -> str:
     return f"{_today(pid).strftime('%Y-%m-%d')} {datetime.now().strftime('%H:%M:%S')}"
 
 
 @app.get("/api/patients/{pid}/messages")
-def messages_list(pid: int):
+def messages_list(pid: int, lang: str = Query("en")):
     _get(pid)
     msgs.adopt_templates(pid)                              # older messages that match a quick-start text get its translations
     items = msgs.list_messages(pid)
@@ -447,7 +494,12 @@ def messages_list(pid: int):
         if msgs.needs_translation(m) and (pid, m["id"]) not in TRANSLATING:
             TRANSLATING.add((pid, m["id"]))
             _translate_in_background(pid, m)
-    return {"items": items, "unread": sum(not m["read"] for m in items)}
+    if lang in LANG_CODES and lang not in ("en", "hi", "te", "kn"):         # the other languages are translated when a patient first asks for them
+        for m in items:
+            if msgs.needs_language(m, lang) and (pid, m["id"], lang) not in TRANSLATING:
+                TRANSLATING.add((pid, m["id"], lang))
+                _translate_one_language(pid, m, lang)
+    return {"items": items, "unread": sum(not m["read"] for m in items if m["kind"] != "patient")}
 
 
 @app.post("/api/patients/{pid}/messages")
@@ -460,6 +512,7 @@ def messages_send(pid: int, body: MessageReq):
         raise HTTPException(422, str(e)) from e
     if body.translate and not m["template"]:
         _translate_in_background(pid, m)
+    msgs.answer_patient(pid)                               # replying answers whatever the patient had written
     adm.TEL.audit("clinician", f"{m['kind']} message sent to patient", f"patient {pid}")
     return m
 
@@ -474,8 +527,76 @@ def prescriptions_send(pid: int, body: RxReq):
         raise HTTPException(422, str(e)) from e
     if body.translate:
         _translate_in_background(pid, m)
+    msgs.answer_patient(pid)
     adm.TEL.audit("clinician", "prescription and consultation note sent", f"patient {pid}: {len(m['changes'])} medicine change(s)")
     return m
+
+
+class PatientMessageReq(BaseModel):
+    body: str = Field(..., min_length=1, max_length=600)
+    check: str = Field("none", description="what the helper said first: none, doctor, self_insisted, emergency or unsure")
+
+
+class ContactCheckReq(BaseModel):
+    message: str = Field(..., min_length=1, max_length=600)
+    lang: str = "en"
+
+
+@app.post("/api/patients/{pid}/contact-check")
+def contact_check(pid: int, body: ContactCheckReq, request: Request):
+    """Before a patient writes to the doctor, the helper looks at the note. Small matters are answered here; the rest is passed on.
+    Emergencies and medicine questions are decided by fixed rules. If the helper is not available the patient can still write."""
+    _rate_limit(request, limit=20)
+    a = _get(pid)
+    lang = body.lang if body.lang in asst.LANGS else "en"
+    text = body.message.strip()
+    left = max(0, msgs.MAX_PER_DAY - msgs.sent_today(pid, _stamp(pid)[:10]))
+    safe = text if lang in asst.COVERED else _english_for_safety(text, lang)
+    if asst.EMERGENCY_RE.search(text) or asst.EMERGENCY_RE.search(safe):
+        out = {"verdict": "emergency", "reason": "emergency", "reply": asst.EMERGENCY_MSG[lang]}
+    elif asst.MEDICINE_RE.search(text) or asst.MEDICINE_RE.search(safe):
+        out = {"verdict": "doctor", "reason": "medicine", "reply": ""}
+    elif VOICE.get("client") is None:
+        out = {"verdict": "unsure", "reason": "unavailable", "reply": ""}
+    else:
+        out = {"verdict": "unsure", "reason": "unavailable", "reply": ""}
+        try:
+            raw = VOICE["client"].chat([{"role": "system", "content": asst.contact_prompt(lang, asst.patient_context(a, 0))},
+                                        {"role": "user", "content": text}], max_tokens=400)
+            d = msgs._json_object(raw)
+            if d and isinstance(d.get("forward"), bool):
+                reply, blocked = asst.clean_reply(str(d.get("reply", "")), lang)
+                if blocked:
+                    out = {"verdict": "doctor", "reason": "medicine", "reply": ""}
+                else:
+                    out = {"verdict": "doctor" if d["forward"] else "self", "reason": "ai", "reply": reply}
+        except Exception:  # noqa: BLE001  (the helper failing must never stop a patient from reaching the doctor)
+            pass
+    adm.TEL.audit("patient app", "contact check", f"{out['verdict']} ({out['reason']}), patient {pid}")
+    return {**out, "left_today": left}
+
+
+@app.post("/api/patients/{pid}/patient-messages")
+def patient_message_send(pid: int, body: PatientMessageReq):
+    """The patient writes to the doctor. It shows up as an unanswered message on the doctor's list."""
+    _get(pid)
+    if body.check != "emergency" and msgs.sent_today(pid, _stamp(pid)[:10]) >= msgs.MAX_PER_DAY:
+        raise HTTPException(429, "limit")
+    try:
+        m = msgs.from_patient(pid, body.body, _stamp(pid), check=body.check)
+    except ValueError as e:
+        raise HTTPException(422, str(e)) from e
+    adm.TEL.audit("patient app", "message sent to the doctor", f"patient {pid}")
+    return m
+
+
+@app.post("/api/patients/{pid}/messages/handled")
+def messages_handled(pid: int):
+    """The doctor marks the patient's messages as handled without writing back (for example after a phone call)."""
+    _get(pid)
+    n = msgs.answer_patient(pid)
+    adm.TEL.audit("clinician", "patient messages marked handled", f"patient {pid}: {n}")
+    return {"handled": n}
 
 
 @app.post("/api/patients/{pid}/messages/{mid}/read")
@@ -634,7 +755,7 @@ def _client() -> SarvamClient:
 
 @app.get("/api/voice/status")
 def voice_status():
-    return {"enabled": VOICE.get("client") is not None, "languages": list(LANG_CODES),
+    return {"enabled": VOICE.get("client") is not None, "languages": list(LANG_CODES), "tts_languages": sorted(TTS_LANGS),
             "stt": STT_MODEL, "tts": TTS_MODEL, "chat": CHAT_MODEL}
 
 
@@ -647,7 +768,7 @@ class TTSReq(BaseModel):
 def voice_tts(body: TTSReq, request: Request):
     _rate_limit(request)
     try:
-        wav = _client().tts(body.text, body.lang if body.lang in LANG_CODES else "en")
+        wav = _client().tts(body.text, body.lang if body.lang in TTS_LANGS else "en")
     except VoiceError as e:
         raise HTTPException(502, str(e)) from None
     return Response(wav, media_type="audio/wav", headers={"Cache-Control": "private, max-age=3600"})
@@ -682,12 +803,28 @@ def assistant(body: AssistantReq, request: Request):
     return out
 
 
+def _english_for_safety(text: str, lang: str) -> str:
+    """The emergency and medicine word lists cover English, Hindi, Telugu and Kannada. For every other language the note is also
+    translated to English first, so a chest-pain message in Tamil is caught by the same rules. If translation fails the text is used as is."""
+    client = VOICE.get("client")
+    if lang in asst.COVERED or client is None:
+        return text
+    try:
+        return client.translate(text, lang, "en")
+    except VoiceError:
+        return text
+
+
 def _assistant_inner(body: AssistantReq, request: Request):
     """Safety rules run first; only an ordinary question reaches the language model."""
     _rate_limit(request)
     a = _get(body.pid)
     lang = body.lang if body.lang in asst.LANGS else "en"
     cls = asst.classify(body.message, lang)
+    if cls["kind"] == "chat" and lang not in asst.COVERED:
+        c2 = asst.classify(_english_for_safety(body.message, lang), "en")
+        if c2["kind"] in ("emergency", "medicine"):
+            cls = {"kind": c2["kind"], "reply": (asst.EMERGENCY_MSG if c2["kind"] == "emergency" else asst.MEDICINE_MSG)[lang]}
     if cls["kind"] == "navigate":
         return {"kind": "navigate", "reply": cls["reply"], "action": {"type": "navigate", "tab": cls["tab"]}}
     if cls["kind"] in ("emergency", "medicine"):

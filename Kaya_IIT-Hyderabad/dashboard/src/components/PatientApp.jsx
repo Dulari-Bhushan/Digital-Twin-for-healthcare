@@ -1,8 +1,9 @@
 import { Logo } from '../ui'
 import { useEffect, useMemo, useState } from 'react'
 import { InboxBanners, RxModal, useInbox } from './Inbox'
+import ContactDoctor from './ContactDoctor'
 import { getLog, getSeries, postLog, postWhatIf } from '../api'
-import { LANGS, makeT } from '../i18n'
+import { LANGS, localeFor, makeT } from '../i18n'
 import { getVoiceStatus } from '../voice'
 import { dayStats, fmtHM } from '../utils'
 import Assistant from './Assistant'
@@ -248,9 +249,10 @@ export default function PatientApp({ d, at, pid, changes }) {
   const [voice, setVoice] = useState({ enabled: false })
   const [askOpen, setAskOpen] = useState(new URLSearchParams(window.location.search).get('ask') === '1')
   const [large, setLarge] = useState(false)
-  const inbox = useInbox(pid)
+  const [contactOpen, setContactOpen] = useState(false)
+  const inbox = useInbox(pid, lang)
   useEffect(() => { getVoiceStatus().then(setVoice) }, [])
-  const locale = LANGS.find((l) => l.code === lang).locale
+  const locale = localeFor(lang)
   const t = useMemo(() => makeT(lang), [lang])
   const pick = (code) => { setLang(code); try { window.localStorage.setItem('kaya-lang', code) } catch (e) { /* ignore */ } }
   useEffect(() => { setSeries14(null); setDay(Number(new URLSearchParams(window.location.search).get('day') || 0)); setLog(null); getLog(pid).then(setLog).catch(() => {}); getSeries(pid, 14).then(setSeries14) }, [pid])
@@ -275,11 +277,11 @@ export default function PatientApp({ d, at, pid, changes }) {
       <div className="blob" style={{ width: 340, height: 340, left: '8%', top: 60, background: 'var(--peach)' }} />
       <div className="blob" style={{ width: 280, height: 280, right: '9%', top: 140, background: 'var(--sky)' }} />
       <div className="blob" style={{ width: 220, height: 220, left: '20%', bottom: 30, background: 'var(--mint)' }} />
-      <div className={`phone ${large ? 'large' : ''}`}>
+      <div className={`phone ${large ? 'large' : ''}`} dir={LANGS.find((l) => l.code === lang)?.rtl ? 'rtl' : 'ltr'}>
         <div className="status">
           <span>9:41</span>
           <span className="langs" role="group" aria-label="Language">
-            {LANGS.map((l) => <button key={l.code} className={lang === l.code ? 'on' : ''} onClick={() => pick(l.code)} title={l.code}>{l.label}</button>)}
+            {LANGS.map((l) => <button key={l.code} className={lang === l.code ? 'on' : ''} onClick={() => pick(l.code)} title={l.name}>{l.short}</button>)}
           </span>
         </div>
         <div className="p-brand"><Logo size={26} /><b>Kaya</b></div>
@@ -288,12 +290,15 @@ export default function PatientApp({ d, at, pid, changes }) {
           {!series14 ? <div className="muted" style={{ padding: 30 }}>{t('loading')}</div> : (
             tab === 0 ? <Today t={t} name={d.profile.name || `Patient ${d.profile.id}`} series={series14} at={at} day={day} setDay={setDay} st={st} days={days} log={log} logIt={logIt} risky={!!d.profile.on_insulin_or_su} /> :
             tab === 1 ? <Insights t={t} series={series14} st={st} d={d} locale={locale} /> :
-            tab === 2 ? <Body t={t} d={d} /> : tab === 3 ? <Try t={t} pid={pid} /> : <PatientReports t={t} pid={pid} changes={changes} />
+            tab === 2 ? <Body t={t} d={d} /> : tab === 3 ? <Try t={t} pid={pid} /> : <PatientReports t={t} pid={pid} changes={changes} onContact={() => setContactOpen(true)} />
           )}
           {lang !== 'en' && <p className="note" style={{ marginTop: 10 }}>{t('lang_note')}</p>}
         </div>
         <RxModal t={t} lang={lang} inbox={inbox} onOpenReports={() => setTab(4)} />
-        {!askOpen && <button className="vbtn" onClick={() => setAskOpen(true)} aria-label={t('ask_title')} title={t('ask_title')}>🎙️</button>}
+        {contactOpen && <ContactDoctor t={t} lang={lang} pid={pid} inbox={inbox} onClose={() => setContactOpen(false)} />}
+        {!askOpen && <button className="vbtn ai" onClick={() => setAskOpen(true)} aria-label={t('ask_title')} title={t('ask_title')}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M10 2l1.9 5.6L17.5 9.5l-5.6 1.9L10 17l-1.9-5.6L2.5 9.5l5.6-1.9z" /><path d="M18.5 13l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z" /></svg>
+        </button>}
         {askOpen && <Assistant t={t} lang={lang} pid={pid} tab={tab} voice={voice} screenText={readout()} large={large} onToggleLarge={() => setLarge(!large)} onNavigate={setTab} onClose={() => setAskOpen(false)} />}
         <div className="tabs">
           {tabs.map(([e, k], i) => <button key={k} className={`tab ${tab === i ? 'on' : ''}`} onClick={() => setTab(i)}><span>{e}</span>{t(k)}</button>)}

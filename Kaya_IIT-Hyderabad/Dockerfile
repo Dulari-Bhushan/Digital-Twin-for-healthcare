@@ -16,4 +16,5 @@ COPY artifacts/ ./artifacts/
 COPY --from=web /web/dist ./dashboard/dist
 ENV KAYA_ARTIFACTS=/app/artifacts/demo
 EXPOSE 8000
-CMD ["uvicorn", "app:app", "--app-dir", "src/api", "--host", "0.0.0.0", "--port", "8000"]
+# Hosts such as Render choose the port and pass it as PORT; locally it stays 8000.
+CMD ["sh", "-c", "uvicorn app:app --app-dir src/api --host 0.0.0.0 --port ${PORT:-8000}"]

@@ -68,6 +68,58 @@ def send(pid: int, kind: str, title: str, body: str, action: str | None, created
     return msg
 
 
+CHECKS = ("none", "doctor", "self_insisted", "emergency", "unsure")     # what the helper said before the patient wrote
+MAX_PER_DAY = 3
+
+
+def sent_today(pid: int, day: str) -> int:
+    """How many messages the patient wrote on this day (demo seeds do not count)."""
+    return sum(1 for m in _read(pid) if m["kind"] == "patient" and not m.get("seed") and m["created"][:10] == day)
+
+
+def from_patient(pid: int, body: str, created: str, seed: bool = False, check: str = "none") -> dict:
+    """A message the patient writes to the doctor. It stays 'unanswered' (read False) until the doctor replies or marks it handled."""
+    body = clean(body, 600)
+    if not body:
+        raise ValueError("write a message first")
+    msg = {"id": uuid.uuid4().hex[:12], "kind": "patient", "title": "", "body": body, "action": None, "created": created, "read": False,
+           "check": check if check in CHECKS else "none"}
+    if seed:
+        msg["seed"] = True
+    with LOCK:
+        items = _read(pid)
+        if len(items) >= MAX_MESSAGES:
+            raise ValueError("too many messages for this patient")
+        _write(pid, items + [msg])
+    return msg
+
+
+def pending_from_patient(pid: int) -> list[dict]:
+    return [m for m in _read(pid) if m["kind"] == "patient" and not m["read"]]
+
+
+def answer_patient(pid: int) -> int:
+    """The doctor replied or marked the patient's messages as handled."""
+    with LOCK:
+        items = _read(pid)
+        n = 0
+        for m in items:
+            if m["kind"] == "patient" and not m["read"]:
+                m["read"] = True
+                n += 1
+        if n:
+            _write(pid, items)
+    return n
+
+
+def replace_seed(pid: int, body: str, created: str, check: str = "none") -> None:
+    """Demo data: a fresh unanswered patient message at every start, replacing the one seeded last time."""
+    with LOCK:
+        items = [m for m in _read(pid) if not m.get("seed")]
+        _write(pid, items)
+    from_patient(pid, body, created, seed=True, check=check)
+
+
 def prescribe(pid: int, changes: list[dict], note: str, created: str) -> dict:
     """A consultation note with medicine changes: [{medicine, action: start|stop|change_dose, dose, instructions}]."""
     rows = []
@@ -188,12 +240,38 @@ def translate_message(client, msg: dict, langs=("hi", "te", "kn")) -> dict:
     return out
 
 
+def needs_language(m: dict, lang: str) -> bool:
+    """A doctor's message with free text that has no translation into `lang` yet (quick-start texts are translated in the app)."""
+    return (m["kind"] != "patient" and not m.get("template") and lang not in (m.get("translations") or {})
+            and bool(m.get("body") or m.get("title") or m.get("changes")))
+
+
+def translate_to(client, msg: dict, lang: str) -> dict | None:
+    """Title, body and prescription instructions in one language with Sarvam-Translate. None if any piece fails (the patient then sees the original)."""
+    def one(text: str) -> str:
+        return clean(client.translate(text, "en", lang), 2000) if text else ""
+    try:
+        return {"title": one(msg["title"] if msg["kind"] != "prescription" else ""), "body": one(msg.get("body", "")),
+                "instructions": [one(c.get("instructions", "")) for c in msg.get("changes", [])]}
+    except Exception:  # noqa: BLE001  (a failed translation must never break a message)
+        return None
+
+
+def add_translation(pid: int, mid: str, lang: str, tr: dict) -> None:
+    with LOCK:
+        items = _read(pid)
+        for m in items:
+            if m["id"] == mid:
+                m.setdefault("translations", {})[lang] = tr
+        _write(pid, items)
+
+
 def set_translations(pid: int, mid: str, translations: dict) -> None:
     with LOCK:
         items = _read(pid)
         for m in items:
             if m["id"] == mid:
-                m["translations"] = translations
+                m.setdefault("translations", {}).update(translations)
         _write(pid, items)
 
 
@@ -225,4 +303,4 @@ def adopt_templates(pid: int) -> None:
 
 
 def needs_translation(m: dict) -> bool:
-    return not m.get("template") and not m.get("translations") and bool(m.get("body") or m.get("title") or m.get("changes"))
+    return m["kind"] != "patient" and not m.get("template") and not m.get("translations") and bool(m.get("body") or m.get("title") or m.get("changes"))

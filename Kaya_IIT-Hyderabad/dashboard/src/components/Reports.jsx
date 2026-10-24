@@ -272,7 +272,7 @@ export function ReportsTab({ pid, d }) {
 }
 
 /** Patient app: plain-language list, tap a report to read it. */
-export function PatientReports({ t, pid, changes }) {
+export function PatientReports({ t, pid, changes, onContact }) {
   const [data, reload] = useReports(pid)
   const [type, setType] = useState('all')
   const [open, setOpen] = useState(null)
@@ -293,6 +293,12 @@ export function PatientReports({ t, pid, changes }) {
   return (
     <>
       <div className="p-h">{t('rep_title1')}<br /><span style={{ color: 'var(--muted)', fontWeight: 600 }}>{t('rep_title2')}</span></div>
+      {onContact && (
+        <button className="cd-card" onClick={onContact}>
+          <span className="ico">✉</span>
+          <span><b>{t('cd_title')}</b><small>{t('cd_card_sub')}</small></span>
+        </button>
+      )}
       <div style={{ marginTop: 6 }}><PatientUploads t={t} pid={pid} today={data.today} onChange={reload} reports={data.reports} onOpenReport={setOpen} /></div>
       <div style={{ marginTop: 12 }}><ChangesCard ch={changes} audience="patient" /></div>
       <div className="sect"><span>{t('rep_trends')}</span></div>

@@ -1,12 +1,23 @@
-// Patient-app strings in English, Hindi, Telugu and Kannada.
+import EXTRA from './i18n_extra.json'
+
+// Patient-app strings in English, Hindi, Telugu and Kannada, plus machine-made drafts for the other Indian languages (i18n_extra.json).
 // Hindi, Telugu and Kannada are first drafts and should be reviewed by a native speaker before clinical use.
 
+// label: the language in its own script; name: in English, so a helper can find it too. rtl: written right to left.
 export const LANGS = [
-  { code: 'en', label: 'EN', locale: 'en-IN' },
-  { code: 'hi', label: 'हिं', locale: 'hi-IN' },
-  { code: 'te', label: 'తె', locale: 'te-IN' },
-  { code: 'kn', label: 'ಕ', locale: 'kn-IN' },
+  { code: 'en', short: 'EN', label: 'English', name: 'English', locale: 'en-IN' },
+  { code: 'hi', short: 'हिं', label: 'हिन्दी', name: 'Hindi', locale: 'hi-IN' },
+  { code: 'te', short: 'తె', label: 'తెలుగు', name: 'Telugu', locale: 'te-IN' },
+  { code: 'kn', short: 'ಕ', label: 'ಕನ್ನಡ', name: 'Kannada', locale: 'kn-IN' },
 ]
+// More languages (Tamil, Bengali, Marathi ... all 22) are prepared in the backend and in scripts/translate_ui.py; add an entry here once its
+// screen text is translated into i18n_extra.json and checked by a native speaker.
+
+/** The date locale for a language; languages the browser has no calendar for show dates the Indian-English way. */
+export const localeFor = (code) => {
+  const l = LANGS.find((x) => x.code === code) || LANGS[0]
+  try { return Intl.DateTimeFormat.supportedLocalesOf(l.locale).length ? l.locale : 'en-IN' } catch { return 'en-IN' }
+}
 
 const en = {
   tab_today: 'Today', tab_insights: 'Insights', tab_body: 'Body', tab_try: 'Try', ask_read_title: 'Should the AI read this report?', ask_saved: 'is saved.', ask_read_body: 'If you say yes, the file is sent to Sarvam AI, which reads the text. The results are added to your reports automatically and marked as not yet checked by a doctor. If you say no, nothing leaves this app.', ask_read_yes: 'Yes, read it for me', ask_read_no: 'No, keep the file only', sum_title: 'Added to your reports', sum_counts: '{n} results read · {k} outside the healthy range', sum_view: 'View the report', sum_note: 'Automatic reading can make mistakes. Check it against your paper copy and show it to your doctor.', up_readbtn: 'Read with AI', up_ocr: 'Read my report automatically', up_ocr_note: 'The file is sent to Sarvam AI to read the text. Untick to keep it private.', ocr_reading: 'Reading your report…', ocr_done: 'Added to your reports ({n} results)', ocr_text: 'Text added to your reports', ocr_failed: 'Could not read it. The file is saved.', ocr_notext: 'No text found. The file is saved.', up_title: 'Add a report', up_sub: 'Upload a PDF or a photo of a report from your hospital or lab. Your doctor can see it.', up_choose: 'Choose a PDF or photo', up_name: 'Name', up_type: 'Type', up_date: 'Date of the report', up_btn: 'Upload', up_busy: 'Uploading…', up_mine: 'Reports I uploaded', up_none: 'You have not uploaded any reports yet.', up_open: 'Open', up_remove: 'Remove', up_confirm: 'Remove this report?', up_note: 'Your doctor will look at your report themselves. Reading it automatically is optional.', up_big: 'That file is larger than 8 MB.', up_bad: 'Choose a PDF or a photo (PNG, JPEG or WebP).', cat_blood: 'Blood test', cat_scan: 'Scan or X-ray', cat_rx: 'Prescription', cat_discharge: 'Discharge summary', cat_eye: 'Eye report', cat_other: 'Other', now_title: 'WHAT TO DO NOW', also_today: 'Also today', all_done: 'All done for now. Well done!', a_meds_am: 'Take your morning medicines', a_meds_pm: 'Take your evening medicines', a_bed: 'Check your sugar before bed', a_walk: 'Take a 10-minute walk', r_low: 'Your sugar is {v} and may keep falling', r_high: 'Your sugar is forecast to reach about {v} in 2 hours', r_meds: 'Not marked as taken yet today', r_bed: 'Your medicines can cause a low during the night', r_walk: 'Only {n} steps so far today', log_title: 'Quick log', log_sub: 'Takes five seconds. Your doctor can see it.', log_meds: 'Medicines', morning: 'Morning', evening: 'Evening', log_walk: 'Walk', min: 'min', walked_today: '{n} min logged today', log_feel: 'How do I feel?', f_good: 'Good', f_ok: 'So-so', f_low: 'Unwell', tab_reports: 'Reports', rep_title1: 'My medical', rep_title2: 'reports', rep_trends: 'How my results are changing', rep_meds: 'My medicines', rep_all_title: 'All reports', rep_all: 'All', rep_back: 'Back to reports', rep_note: 'Reports are shown in English, as issued. The simple explanations are written for you, not by your doctor.', 
@@ -37,7 +48,7 @@ const en = {
   try_note: 'This is a simulation to help you decide, not a promise. Talk to your doctor before changing your treatment.',
   ask_title: 'Ask Kaya', ask_hello: 'Hello! Ask me anything about your sugar, the screens, or how to use the app. You can type or tap the microphone.', ask_error: 'I could not answer just now. Please try again.', ask_nothing: 'I did not hear anything. Please try again.', ask_mic_error: 'Could not understand the recording. Please try again or type.', ask_no_mic: 'Microphone is not available on this device. Please type your question.', ask_mic_denied: 'Please allow the microphone to speak to Kaya.', ask_thinking: 'Thinking…', ask_stop: 'Stop recording', ask_speak: 'Speak', ask_listening: 'Listening… tap ■ when done', ask_placeholder: 'Type or speak your question', send: 'Send', close: 'Close', read_aloud: 'Read aloud', ask_note: 'General guidance from your data, not medical advice.', ask_s1: 'What does time in range mean?', ask_s2: 'Why is my sugar high?', ask_s3: 'Show my kidneys', ask_s4: 'How do I change the language?',   hello: 'Hello, {name}', day_good: 'A good day', day_ok: 'An average day', day_tough: 'A tough day', day_sub: 'Your sugar stayed in the healthy range for {pct} of the day.', day_spike: 'Biggest spike: {v} at {time}, about {m} min after a {g} g meal.', day_spike_nomeal: 'Highest sugar: {v} at {time}.', day_low: 'Low sugar for {m} minutes', day_nolow: 'No low sugar', day_chart: 'Your sugar through the day', what_happened: 'What happened',
   read_screen: 'Read this screen aloud', ask_fab: 'Ask', large_text: 'Large text',
-  loading: 'Loading…', lang_note: 'Hindi, Telugu and Kannada are drafts pending native-speaker review.',
+  loading: 'Loading…', lang_note: 'Languages other than English are machine-made drafts pending native-speaker review.',
 }
 
 const hi = {
@@ -140,25 +151,25 @@ const kn = {
 Object.assign(en, {
   msg_urgent: 'Urgent message from your doctor', msg_advice: 'Message from your doctor', msg_seen: 'I have seen this',
   msg_act_clinic: 'Please come to the clinic today.', msg_act_er: 'Please go to the nearest emergency room now.', msg_act_call: 'Please call the clinic.',
-  msg_past: 'Earlier messages', rx_title: 'Your doctor changed your medicines', rx_note_title: "Doctor's note",
+  cd_card_sub: 'Kaya answers small questions first', cd_title: 'Message my doctor', cd_notice: 'Your doctor looks after many patients. Please write only about your health, and only if it cannot wait for your next visit. For small questions, Kaya helper will answer first.', cd_check: 'Check with Kaya helper first', cd_checking: 'Kaya helper is reading...', cd_self_h: 'Kaya helper says', cd_thanks: 'That helps, thank you', cd_more: 'I still need my doctor', cd_doc_h: 'This should go to your doctor', cd_doc_med: 'Questions about medicines need your doctor.', cd_unsure: 'Kaya helper is not available right now. You can send your message to your doctor.', cd_emerg_send: 'Also tell my doctor now', cd_limit: 'You have already sent 3 messages today. If it is urgent, please call the clinic.', ask_dr_title: 'Write to your doctor', ask_dr_ph: 'Write your question or how you feel', ask_dr_send: 'Send to my doctor', ask_dr_sent: 'Sent. Your doctor will reply here.', ask_dr_yours: 'You wrote', ask_dr_wait: 'Waiting for a reply', ask_dr_seen: 'Your doctor has seen this', msg_past: 'Earlier messages', rx_title: 'Your doctor changed your medicines', rx_note_title: "Doctor's note",
   rx_start: 'Start', rx_stop: 'Stop', rx_dose: 'Change dose', rx_ok: 'Got it, show me my reports',
 })
 Object.assign(hi, {
   msg_urgent: 'डॉक्टर का ज़रूरी संदेश', msg_advice: 'डॉक्टर का संदेश', msg_seen: 'मैंने देख लिया',
   msg_act_clinic: 'कृपया आज ही क्लिनिक आएँ।', msg_act_er: 'कृपया अभी नज़दीकी इमरजेंसी में जाएँ।', msg_act_call: 'कृपया क्लिनिक को फ़ोन करें।',
-  msg_past: 'पिछले संदेश', rx_title: 'आपके डॉक्टर ने आपकी दवाएँ बदली हैं', rx_note_title: 'डॉक्टर का नोट',
+  cd_card_sub: 'छोटे सवालों का जवाब पहले काया देगा', cd_title: 'डॉक्टर को संदेश', cd_notice: 'आपके डॉक्टर कई मरीज़ों को देखते हैं। कृपया सिर्फ़ अपनी सेहत के बारे में लिखें, और तभी जब बात अगली मुलाकात तक रुक न सके। छोटे सवालों का जवाब पहले काया सहायक देगा।', cd_check: 'पहले काया सहायक से पूछें', cd_checking: 'काया सहायक पढ़ रहा है...', cd_self_h: 'काया सहायक कहता है', cd_thanks: 'ठीक है, धन्यवाद', cd_more: 'मुझे फिर भी डॉक्टर से बात करनी है', cd_doc_h: 'यह आपके डॉक्टर तक जाना चाहिए', cd_doc_med: 'दवाओं के बारे में सवाल डॉक्टर से पूछने चाहिए।', cd_unsure: 'काया सहायक अभी उपलब्ध नहीं है। आप अपना संदेश डॉक्टर को भेज सकते हैं।', cd_emerg_send: 'डॉक्टर को अभी बताएँ', cd_limit: 'आज आप 3 संदेश भेज चुके हैं। अगर बात ज़रूरी है तो कृपया क्लिनिक को फ़ोन करें।', ask_dr_title: 'अपने डॉक्टर को लिखें', ask_dr_ph: 'अपना सवाल या अपनी तबीयत लिखें', ask_dr_send: 'डॉक्टर को भेजें', ask_dr_sent: 'भेज दिया। आपके डॉक्टर यहीं जवाब देंगे।', ask_dr_yours: 'आपने लिखा', ask_dr_wait: 'जवाब का इंतज़ार', ask_dr_seen: 'आपके डॉक्टर ने देख लिया', msg_past: 'पिछले संदेश', rx_title: 'आपके डॉक्टर ने आपकी दवाएँ बदली हैं', rx_note_title: 'डॉक्टर का नोट',
   rx_start: 'शुरू करें', rx_stop: 'बंद करें', rx_dose: 'खुराक बदलें', rx_ok: 'समझ गया, मेरी रिपोर्ट दिखाएँ',
 })
 Object.assign(te, {
   msg_urgent: 'డాక్టర్ నుండి అత్యవసర సందేశం', msg_advice: 'డాక్టర్ నుండి సందేశం', msg_seen: 'నేను చూశాను',
   msg_act_clinic: 'దయచేసి ఈ రోజే క్లినిక్‌కు రండి.', msg_act_er: 'దయచేసి వెంటనే దగ్గరలోని అత్యవసర విభాగానికి వెళ్ళండి.', msg_act_call: 'దయచేసి క్లినిక్‌కు ఫోన్ చేయండి.',
-  msg_past: 'ఇంతకు ముందు సందేశాలు', rx_title: 'మీ డాక్టర్ మీ మందులను మార్చారు', rx_note_title: 'డాక్టర్ గమనిక',
+  cd_card_sub: 'చిన్న ప్రశ్నలకు ముందు కాయ జవాబు ఇస్తుంది', cd_title: 'డాక్టర్‌కు సందేశం', cd_notice: 'మీ డాక్టర్ చాలా మంది రోగులను చూస్తారు. దయచేసి మీ ఆరోగ్యం గురించి మాత్రమే, మరియు తదుపరి సందర్శన వరకు ఆగలేనప్పుడు మాత్రమే రాయండి. చిన్న ప్రశ్నలకు ముందు కాయ సహాయకుడు జవాబు ఇస్తుంది.', cd_check: 'ముందు కాయ సహాయకుడిని అడగండి', cd_checking: 'కాయ సహాయకుడు చదువుతోంది...', cd_self_h: 'కాయ సహాయకుడు చెబుతోంది', cd_thanks: 'సరే, ధన్యవాదాలు', cd_more: 'నాకు ఇంకా డాక్టర్ కావాలి', cd_doc_h: 'ఇది మీ డాక్టర్‌కు వెళ్ళాలి', cd_doc_med: 'మందుల గురించిన ప్రశ్నలు డాక్టర్‌ను అడగాలి.', cd_unsure: 'కాయ సహాయకుడు ఇప్పుడు అందుబాటులో లేదు. మీరు మీ సందేశాన్ని డాక్టర్‌కు పంపవచ్చు.', cd_emerg_send: 'డాక్టర్‌కు ఇప్పుడే చెప్పండి', cd_limit: 'ఈ రోజు మీరు 3 సందేశాలు పంపారు. అత్యవసరమైతే దయచేసి క్లినిక్‌కు ఫోన్ చేయండి.', ask_dr_title: 'మీ డాక్టర్‌కు రాయండి', ask_dr_ph: 'మీ ప్రశ్న లేదా మీ ఆరోగ్య పరిస్థితి రాయండి', ask_dr_send: 'డాక్టర్‌కు పంపండి', ask_dr_sent: 'పంపబడింది. మీ డాక్టర్ ఇక్కడే జవాబు ఇస్తారు.', ask_dr_yours: 'మీరు రాసింది', ask_dr_wait: 'జవాబు కోసం ఎదురుచూస్తున్నారు', ask_dr_seen: 'మీ డాక్టర్ చూశారు', msg_past: 'ఇంతకు ముందు సందేశాలు', rx_title: 'మీ డాక్టర్ మీ మందులను మార్చారు', rx_note_title: 'డాక్టర్ గమనిక',
   rx_start: 'మొదలుపెట్టండి', rx_stop: 'ఆపండి', rx_dose: 'మోతాదు మార్చండి', rx_ok: 'అర్థమైంది, నా రిపోర్టులు చూపించు',
 })
 Object.assign(kn, {
   msg_urgent: 'ವೈದ್ಯರಿಂದ ತುರ್ತು ಸಂದೇಶ', msg_advice: 'ವೈದ್ಯರ ಸಂದೇಶ', msg_seen: 'ನಾನು ನೋಡಿದೆ',
   msg_act_clinic: 'ದಯವಿಟ್ಟು ಇಂದೇ ಕ್ಲಿನಿಕ್‌ಗೆ ಬನ್ನಿ.', msg_act_er: 'ದಯವಿಟ್ಟು ಈಗಲೇ ಹತ್ತಿರದ ತುರ್ತು ವಿಭಾಗಕ್ಕೆ ಹೋಗಿ.', msg_act_call: 'ದಯವಿಟ್ಟು ಕ್ಲಿನಿಕ್‌ಗೆ ಕರೆ ಮಾಡಿ.',
-  msg_past: 'ಹಿಂದಿನ ಸಂದೇಶಗಳು', rx_title: 'ನಿಮ್ಮ ವೈದ್ಯರು ನಿಮ್ಮ ಔಷಧಿಗಳನ್ನು ಬದಲಾಯಿಸಿದ್ದಾರೆ', rx_note_title: 'ವೈದ್ಯರ ಟಿಪ್ಪಣಿ',
+  cd_card_sub: 'ಸಣ್ಣ ಪ್ರಶ್ನೆಗಳಿಗೆ ಮೊದಲು ಕಾಯಾ ಉತ್ತರಿಸುತ್ತದೆ', cd_title: 'ವೈದ್ಯರಿಗೆ ಸಂದೇಶ', cd_notice: 'ನಿಮ್ಮ ವೈದ್ಯರು ಅನೇಕ ರೋಗಿಗಳನ್ನು ನೋಡುತ್ತಾರೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಆರೋಗ್ಯದ ಬಗ್ಗೆ ಮಾತ್ರ, ಮತ್ತು ಮುಂದಿನ ಭೇಟಿಯವರೆಗೆ ಕಾಯಲಾಗದಿದ್ದರೆ ಮಾತ್ರ ಬರೆಯಿರಿ. ಸಣ್ಣ ಪ್ರಶ್ನೆಗಳಿಗೆ ಮೊದಲು ಕಾಯಾ ಸಹಾಯಕ ಉತ್ತರಿಸುತ್ತದೆ.', cd_check: 'ಮೊದಲು ಕಾಯಾ ಸಹಾಯಕನನ್ನು ಕೇಳಿ', cd_checking: 'ಕಾಯಾ ಸಹಾಯಕ ಓದುತ್ತಿದೆ...', cd_self_h: 'ಕಾಯಾ ಸಹಾಯಕ ಹೇಳುತ್ತದೆ', cd_thanks: 'ಸರಿ, ಧನ್ಯವಾದಗಳು', cd_more: 'ನನಗೆ ಇನ್ನೂ ವೈದ್ಯರು ಬೇಕು', cd_doc_h: 'ಇದು ನಿಮ್ಮ ವೈದ್ಯರಿಗೆ ಹೋಗಬೇಕು', cd_doc_med: 'ಔಷಧಿಗಳ ಬಗ್ಗೆ ಪ್ರಶ್ನೆಗಳನ್ನು ವೈದ್ಯರನ್ನು ಕೇಳಬೇಕು.', cd_unsure: 'ಕಾಯಾ ಸಹಾಯಕ ಈಗ ಲಭ್ಯವಿಲ್ಲ. ನೀವು ನಿಮ್ಮ ಸಂದೇಶವನ್ನು ವೈದ್ಯರಿಗೆ ಕಳುಹಿಸಬಹುದು.', cd_emerg_send: 'ವೈದ್ಯರಿಗೆ ಈಗಲೇ ತಿಳಿಸಿ', cd_limit: 'ಇಂದು ನೀವು 3 ಸಂದೇಶಗಳನ್ನು ಕಳುಹಿಸಿದ್ದೀರಿ. ತುರ್ತಾಗಿದ್ದರೆ ದಯವಿಟ್ಟು ಕ್ಲಿನಿಕ್‌ಗೆ ಕರೆ ಮಾಡಿ.', ask_dr_title: 'ನಿಮ್ಮ ವೈದ್ಯರಿಗೆ ಬರೆಯಿರಿ', ask_dr_ph: 'ನಿಮ್ಮ ಪ್ರಶ್ನೆ ಅಥವಾ ನಿಮ್ಮ ಆರೋಗ್ಯದ ಬಗ್ಗೆ ಬರೆಯಿರಿ', ask_dr_send: 'ವೈದ್ಯರಿಗೆ ಕಳುಹಿಸಿ', ask_dr_sent: 'ಕಳುಹಿಸಲಾಗಿದೆ. ನಿಮ್ಮ ವೈದ್ಯರು ಇಲ್ಲೇ ಉತ್ತರಿಸುತ್ತಾರೆ.', ask_dr_yours: 'ನೀವು ಬರೆದದ್ದು', ask_dr_wait: 'ಉತ್ತರಕ್ಕಾಗಿ ಕಾಯುತ್ತಿದೆ', ask_dr_seen: 'ನಿಮ್ಮ ವೈದ್ಯರು ನೋಡಿದ್ದಾರೆ', msg_past: 'ಹಿಂದಿನ ಸಂದೇಶಗಳು', rx_title: 'ನಿಮ್ಮ ವೈದ್ಯರು ನಿಮ್ಮ ಔಷಧಿಗಳನ್ನು ಬದಲಾಯಿಸಿದ್ದಾರೆ', rx_note_title: 'ವೈದ್ಯರ ಟಿಪ್ಪಣಿ',
   rx_start: 'ಪ್ರಾರಂಭಿಸಿ', rx_stop: 'ನಿಲ್ಲಿಸಿ', rx_dose: 'ಪ್ರಮಾಣ ಬದಲಿಸಿ', rx_ok: 'ಅರ್ಥವಾಯಿತು, ನನ್ನ ವರದಿಗಳನ್ನು ತೋರಿಸಿ',
 })
 
@@ -204,7 +215,7 @@ Object.assign(kn, {
   msg_auto: 'ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಅನುವಾದಿಸಲಾಗಿದೆ', msg_orig: 'ನಿಮ್ಮ ವೈದ್ಯರು ಬರೆದಂತೆಯೇ',
 })
 
-const DICT = { en, hi, te, kn }
+const DICT = { en, hi, te, kn, ...EXTRA }
 
 export function makeT(lang) {
   return (key, vars = {}) => {

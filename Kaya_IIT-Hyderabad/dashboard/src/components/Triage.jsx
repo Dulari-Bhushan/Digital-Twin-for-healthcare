@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { TONE, tierTone } from '../ui'
 
 const STORE_KEY = 'kaya.triage.v1'
 const readStore = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {} } catch { return {} } }
@@ -14,7 +13,7 @@ const FILTERS = [
   ['new', 'New since last visit', (t) => t.event],
   ['msg', 'Messages', (t) => t.key === 'msg'],
 ]
-const SNOOZES = [['1 day', 1], ['3 days', 3], ['1 week', 7]]
+const SNOOZES = [['1d', 1], ['3d', 3], ['1w', 7]]
 const PAGE = 20
 
 const eventKeys = (p) => p.triage.triggers.filter((t) => t.event).map((t) => t.key)
@@ -27,14 +26,7 @@ const byUrgency = (a, b) => {
 }
 const agoText = (h) => (h < 24 ? `${h} h ago` : `${Math.round(h / 24)} d ago`)
 
-function Spark({ pts, color }) {
-  const lo = Math.min(...pts), hi = Math.max(...pts, lo + 0.04)
-  const d = pts.map((v, i) => `${(i / (pts.length - 1)) * 34 + 1},${16 - ((v - lo) / (hi - lo)) * 14}`).join(' ')
-  return <svg className="spark" width="36" height="18" viewBox="0 0 36 18" aria-hidden="true"><polyline points={d} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-}
-
 function Row({ p, selected, onSelect, actions }) {
-  const t = TONE[tierTone(p.tier)]
   const [first, ...rest] = topReasons(p)
   const title = first
     ? `${p.triage.triggers.map((x) => x.text).join('\n')}\n\nOverall risk ${Math.round(p.score * 100)}%`
@@ -42,12 +34,10 @@ function Row({ p, selected, onSelect, actions }) {
   return (
     <div className={`pt2 ${selected ? 'on' : ''}`} role="button" tabIndex={0} title={title}
       onClick={guard(() => onSelect(p.id))} onKeyDown={(e) => { if (e.key === 'Enter' && e.target === e.currentTarget) onSelect(p.id) }}>
-      <span className="dot" style={{ background: t.d }} />
       <span className="nm"><b>{p.name}</b><small>{p.age}{p.sex} · HbA1c {p.hba1c}</small></span>
-      <Spark pts={p.triage.trend} color={t.d} />
       <span className="rs">
         {first
-          ? <span className={`rchip ${first.level === 'critical' ? 'crit' : ''}`}>{first.text}{first.event && first.hours_ago != null ? ` · ${agoText(first.hours_ago)}` : ''}</span>
+          ? <span className={`rchip ${first.level === 'critical' ? 'crit' : ''}`}>{first.label}{first.event && first.hours_ago != null ? ` · ${agoText(first.hours_ago)}` : ''}</span>
           : <span className="rchip ok">Stable, no flags</span>}
         {rest.length > 0 && <span className="more">+{rest.length}</span>}
       </span>
@@ -113,11 +103,10 @@ export function Sidebar({ patients, selected, onSelect }) {
   }
   const doneActions = (p) => (
     <>
-      <button className="mini" title="Mark as reviewed. Comes back if something new happens." onClick={() => park(p, 0)}>✓ Reviewed</button>
-      <select className="mini" aria-label={`Snooze ${p.name}`} value="" onChange={(e) => e.target.value && park(p, Number(e.target.value))}>
-        <option value="">💤 Snooze</option>
-        {SNOOZES.map(([l, d]) => <option key={d} value={d}>{l}</option>)}
-      </select>
+      <button className="tact" title="Mark as reviewed. Comes back if something new happens." onClick={() => park(p, 0)}>✓ Reviewed</button>
+      <span className="snz">Snooze
+        {SNOOZES.map(([l, d]) => <button key={d} className="tact" title={`Snooze ${p.name} for ${l}`} onClick={() => park(p, d)}>{l}</button>)}
+      </span>
     </>
   )
 
@@ -127,7 +116,7 @@ export function Sidebar({ patients, selected, onSelect }) {
       <div className="strip" aria-label="Panel summary">
         <span><b>{buckets.today.length}</b>act today</span>
         <span><b>{nNew}</b>new changes</span>
-        <span><b>{nMsg}</b>unread</span>
+        <span><b>{nMsg}</b>to answer</span>
         <span><b>{nOver}</b>overdue</span>
       </div>
       <div className="muted" style={{ fontSize: 12, padding: '0 6px' }}>
@@ -141,7 +130,7 @@ export function Sidebar({ patients, selected, onSelect }) {
       {section('week', 'Review this week', 'flagged, not urgent', buckets.week, doneActions)}
       {section('stable', 'Stable', 'no flags', buckets.stable, doneActions)}
       {parked.length > 0 && section('parked', 'Reviewed / snoozed', 'returns on new change', parked, (p) => (
-        <button className="mini" onClick={() => unpark(p.id)}>{store[p.id].until ? `Snoozed until ${new Date(store[p.id].until).toLocaleDateString()} · Undo` : 'Reviewed · Undo'}</button>
+        <button className="tact" onClick={() => unpark(p.id)}>{store[p.id].until ? `Snoozed until ${new Date(store[p.id].until).toLocaleDateString()} · Undo` : 'Reviewed · Undo'}</button>
       ))}
     </aside>
   )

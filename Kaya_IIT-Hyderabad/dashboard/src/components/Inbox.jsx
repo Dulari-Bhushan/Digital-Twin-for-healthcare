@@ -15,19 +15,19 @@ function localize(m, lang, t) {
 const Note = ({ text }) => (text ? <small className="in-note">ⓘ {text}</small> : null)
 
 /** Messages from the doctor, checked every few seconds so an urgent message shows up while the patient is at home. */
-export function useInbox(pid) {
+export function useInbox(pid, lang) {
   const [items, setItems] = useState([])
-  const load = () => getMessages(pid).then((d) => setItems(d.items)).catch(() => {})
-  useEffect(() => { setItems([]); load(); const id = setInterval(load, 4000); return () => clearInterval(id) }, [pid])
+  const load = () => getMessages(pid, lang).then((d) => setItems(d.items)).catch(() => {})
+  useEffect(() => { setItems([]); load(); const id = setInterval(load, 4000); return () => clearInterval(id) }, [pid, lang])
   const ack = (m) => readMessage(pid, m.id).then(load).catch(() => {})
-  return { items, ack }
+  return { items, ack, reload: load }
 }
 
 export function InboxBanners({ t, lang, inbox, showPast }) {
   const unread = inbox.items.filter((m) => !m.read)
   const urgent = unread.filter((m) => m.kind === 'urgent')
   const advice = unread.filter((m) => m.kind === 'advice')
-  const past = inbox.items.filter((m) => m.read && m.kind !== 'prescription').slice(0, 3)
+  const past = inbox.items.filter((m) => m.read && m.kind !== 'prescription' && m.kind !== 'patient').slice(0, 3)
   return (
     <>
       {urgent.map((m) => { const x = localize(m, lang, t); return (

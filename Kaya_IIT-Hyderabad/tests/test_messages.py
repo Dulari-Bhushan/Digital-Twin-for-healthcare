@@ -125,3 +125,41 @@ def test_older_messages_matching_a_template_are_adopted():
     assert got["template"] == "u_clinic" and not messages.needs_translation(got)
     other = messages.send(7, "advice", "Rest", "Rest tomorrow", None, NOW)
     assert messages.needs_translation(other)
+
+
+def test_a_patient_message_stays_unanswered_until_the_doctor_replies():
+    assert messages.pending_from_patient(7) == []
+    m = messages.from_patient(7, "I felt dizzy this morning", NOW)
+    assert m["kind"] == "patient" and not m["read"]
+    assert [x["id"] for x in messages.pending_from_patient(7)] == [m["id"]]
+    assert messages.answer_patient(7) == 1
+    assert messages.pending_from_patient(7) == [] and messages.answer_patient(7) == 0
+    with pytest.raises(ValueError):
+        messages.from_patient(7, "   ", NOW)
+
+
+def test_patient_messages_are_never_sent_for_translation():
+    m = messages.from_patient(7, "Can I take my tablet after lunch?", NOW)
+    assert not messages.needs_translation(m)
+
+
+def test_demo_seed_is_replaced_not_duplicated_and_keeps_real_messages():
+    real = messages.from_patient(7, "a real question", NOW)
+    messages.replace_seed(7, "seeded one", NOW)
+    messages.replace_seed(7, "seeded two", NOW)
+    bodies = sorted(m["body"] for m in messages.list_messages(7))
+    assert bodies == ["a real question", "seeded two"] and real["id"] in {m["id"] for m in messages.list_messages(7)}
+
+
+def test_the_daily_limit_counts_real_messages_only():
+    messages.replace_seed(7, "seeded", "2026-01-14 08:00:00")
+    for i in range(3):
+        messages.from_patient(7, f"question {i}", f"2026-01-14 1{i}:00:00")
+    messages.from_patient(7, "yesterday", "2026-01-13 10:00:00")
+    assert messages.sent_today(7, "2026-01-14") == 3          # the seed and yesterday's message do not count
+    assert messages.sent_today(7, "2026-01-15") == 0
+
+
+def test_what_the_helper_said_is_kept_and_unknown_values_are_ignored():
+    assert messages.from_patient(7, "dizzy", NOW, check="emergency")["check"] == "emergency"
+    assert messages.from_patient(7, "hello", NOW, check="made-up")["check"] == "none"
