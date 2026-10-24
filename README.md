@@ -532,6 +532,8 @@ Kaya_IIT-Hyderabad/
 | Demo guide | [`DEMO_GUIDE.md`](Kaya_IIT-Hyderabad/docs/DEMO_GUIDE.md) |
 | Project plan and roadmap | [`PROJECT_PLAN.md`](Kaya_IIT-Hyderabad/docs/PROJECT_PLAN.md) |
 
+> **About the video.** It was recorded before the **Heart watch** (the cardiovascular flag), doctor messaging and prescriptions, the medicine-by-medicine what-if, report verification and the triage list were added. It shows the glucose twin, the liver, eye and kidney modules and the what-if studio as they were. The newer parts are described in [5. Product features](#5-product-features) and [6. AI/ML models and results](#6-aiml-models-and-results), shown in the [screenshots](#3-screenshots), and you can try them in the two-minute tour in [10. Run it](#10-run-it).
+
 ## 13. Limitations and roadmap
 
 **Limitations, stated plainly**
