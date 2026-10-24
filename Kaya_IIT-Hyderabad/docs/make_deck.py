@@ -269,7 +269,7 @@ ax.text(5, 4.2, "Synthetic cohort with assumed couplings and many more events th
 fig, ax = new("Heart watch: a week of nights, read with the record", "Each morning: wearable pattern + record risk = one 72-hour risk, with the reasons")
 path = DOCS / "img/heart_watch.png"
 if path.exists():
-    im = mpimg.imread(path)[75:1075, 380:1440]
+    im = mpimg.imread(path)[115:1245, 380:1440]
     w_ = 36.5 * im.shape[1] / im.shape[0]
     ax.imshow(im, extent=[4, 4 + w_, 6.5, 43], aspect="auto", zorder=2)
     ax.add_patch(plt.Rectangle((4, 6.5), w_, 36.5, fc="none", ec=LINE, lw=1.2, zorder=3))
