@@ -89,3 +89,19 @@ def test_evidence_reports_the_stress_tests(client):
     assert gaps[(0.5, 0.0)]["trained_with_gaps"]["auroc_all_mornings"] > gaps[(0.5, 0.0)]["trained_clean"]["auroc_all_mornings"]
     thin = {x["record_fields_missing"]: x for x in r["thin_record"]}
     assert thin[1.0]["fused_auroc"] > 0.5                                    # with no record the wearable still carries signal
+
+
+def test_heart_watch_covers_the_same_people_as_the_glucose_twin(client):
+    """Doctors see one patient across both views: same ids, names and record values."""
+    demo_dir = ROOT / "artifacts" / "demo"
+    if not (demo_dir / "index.json").exists():
+        pytest.skip("glucose twin artifacts not built")
+    import json
+    twin = {p["id"]: json.loads((demo_dir / f"{p['id']}.json").read_text())["profile"] for p in json.loads((demo_dir / "index.json").read_text())["patients"]}
+    rows = {r["id"]: r for r in client.get("/api/cardio/patients").json()}
+    assert set(twin) == {i for i, r in rows.items() if r["group"] == "demo"}
+    for pid, t in twin.items():
+        h = client.get(f"/api/cardio/{pid}").json()["profile"]
+        assert h["name"] == t["name"] and h["age"] == round(t["age"]) and h["sex"] == t["sex"]
+        assert h["hba1c"] == round(t["hba1c"], 1) and h["on_insulin_or_su"] == t["on_insulin_or_su"] and h["egfr"] == round(t["labs"]["egfr"])
+    assert all(r["id"] >= 100000 for r in rows.values() if r["group"] == "edge")

@@ -1,74 +1,262 @@
 {
  "patients": [
   {
-   "id": 1647,
-   "name": "Sarla Iyer",
-   "age": 66,
-   "sex": "F",
-   "story": "caught",
-   "n_alerts": 1,
-   "has_event": true
-  },
-  {
-   "id": 1860,
-   "name": "Harish Menon",
-   "age": 60,
-   "sex": "M",
-   "story": "caught",
-   "n_alerts": 1,
-   "has_event": true
-  },
-  {
-   "id": 1643,
-   "name": "Abdul Rahman",
-   "age": 60,
-   "sex": "M",
-   "story": "missed",
-   "n_alerts": 0,
-   "has_event": true
-  },
-  {
-   "id": 538,
-   "name": "Fatima Sheikh",
-   "age": 27,
-   "sex": "F",
-   "story": "reassured",
-   "n_alerts": 0,
-   "has_event": false
-  },
-  {
-   "id": 21,
-   "name": "Venkat Rao",
-   "age": 46,
-   "sex": "M",
-   "story": "false_alarm",
-   "n_alerts": 1,
-   "has_event": false
-  },
-  {
-   "id": 1315,
-   "name": "Kavita Reddy",
-   "age": 73,
-   "sex": "F",
-   "story": "quiet_high_risk",
-   "n_alerts": 0,
-   "has_event": false
-  },
-  {
-   "id": 1359,
-   "name": "Dinesh Patel",
+   "id": 7,
+   "name": "Sanjay Gupta",
    "age": 50,
    "sex": "M",
-   "story": "patchy_data",
+   "story": "missed",
+   "group": "demo",
    "n_alerts": 0,
    "has_event": true
   },
   {
-   "id": 789,
-   "name": "Sudhir Kulkarni",
+   "id": 62,
+   "name": "Harpreet Singh",
+   "age": 55,
+   "sex": "M",
+   "story": "caught",
+   "group": "demo",
+   "n_alerts": 3,
+   "has_event": true
+  },
+  {
+   "id": 302,
+   "name": "Brijmohan Yadav",
+   "age": 63,
+   "sex": "M",
+   "story": "false_alarm",
+   "group": "demo",
+   "n_alerts": 2,
+   "has_event": false
+  },
+  {
+   "id": 308,
+   "name": "Prakash Joshi",
+   "age": 59,
+   "sex": "M",
+   "story": "false_alarm",
+   "group": "demo",
+   "n_alerts": 2,
+   "has_event": false
+  },
+  {
+   "id": 430,
+   "name": "Anjali Mehra",
+   "age": 42,
+   "sex": "F",
+   "story": "quiet",
+   "group": "demo",
+   "n_alerts": 0,
+   "has_event": false
+  },
+  {
+   "id": 496,
+   "name": "Neha Chauhan",
+   "age": 33,
+   "sex": "F",
+   "story": "benign_quiet",
+   "group": "demo",
+   "n_alerts": 0,
+   "has_event": false
+  },
+  {
+   "id": 507,
+   "name": "Surendra Pratap Singh",
+   "age": 58,
+   "sex": "M",
+   "story": "missed",
+   "group": "demo",
+   "n_alerts": 1,
+   "has_event": true
+  },
+  {
+   "id": 750,
+   "name": "Gopal Chaudhary",
+   "age": 53,
+   "sex": "M",
+   "story": "benign_quiet",
+   "group": "demo",
+   "n_alerts": 0,
+   "has_event": false
+  },
+  {
+   "id": 800,
+   "name": "Arjun Malhotra",
+   "age": 44,
+   "sex": "M",
+   "story": "false_alarm",
+   "group": "demo",
+   "n_alerts": 2,
+   "has_event": false
+  },
+  {
+   "id": 814,
+   "name": "Dilip Pandey",
+   "age": 46,
+   "sex": "M",
+   "story": "benign_quiet",
+   "group": "demo",
+   "n_alerts": 0,
+   "has_event": false
+  },
+  {
+   "id": 1008,
+   "name": "Ramprasad Mishra",
+   "age": 61,
+   "sex": "M",
+   "story": "caught",
+   "group": "demo",
+   "n_alerts": 3,
+   "has_event": true
+  },
+  {
+   "id": 1091,
+   "name": "Anil Saxena",
+   "age": 53,
+   "sex": "M",
+   "story": "caught",
+   "group": "demo",
+   "n_alerts": 1,
+   "has_event": true
+  },
+  {
+   "id": 1102,
+   "name": "Mohammed Rafiq",
+   "age": 60,
+   "sex": "M",
+   "story": "false_alarm",
+   "group": "demo",
+   "n_alerts": 2,
+   "has_event": false
+  },
+  {
+   "id": 1128,
+   "name": "Manoj Dubey",
+   "age": 50,
+   "sex": "M",
+   "story": "benign_quiet",
+   "group": "demo",
+   "n_alerts": 0,
+   "has_event": false
+  },
+  {
+   "id": 1132,
+   "name": "Sunita Agarwal",
+   "age": 45,
+   "sex": "F",
+   "story": "benign_quiet",
+   "group": "demo",
+   "n_alerts": 0,
+   "has_event": false
+  },
+  {
+   "id": 1217,
+   "name": "Pooja Verma",
+   "age": 28,
+   "sex": "F",
+   "story": "quiet",
+   "group": "demo",
+   "n_alerts": 0,
+   "has_event": false
+  },
+  {
+   "id": 1357,
+   "name": "Rakesh Bhatt",
+   "age": 47,
+   "sex": "M",
+   "story": "reassured",
+   "group": "demo",
+   "n_alerts": 0,
+   "has_event": false
+  },
+  {
+   "id": 1520,
+   "name": "Vikram Rathore",
+   "age": 39,
+   "sex": "M",
+   "story": "false_alarm",
+   "group": "demo",
+   "n_alerts": 1,
+   "has_event": false
+  },
+  {
+   "id": 1527,
+   "name": "Meena Tiwari",
+   "age": 51,
+   "sex": "F",
+   "story": "benign_quiet",
+   "group": "demo",
+   "n_alerts": 0,
+   "has_event": false
+  },
+  {
+   "id": 1636,
+   "name": "Priya Kashyap",
+   "age": 34,
+   "sex": "F",
+   "story": "missed",
+   "group": "demo",
+   "n_alerts": 0,
+   "has_event": true
+  },
+  {
+   "id": 1688,
+   "name": "Rajesh Sharma",
    "age": 51,
    "sex": "M",
+   "story": "quiet_high_risk",
+   "group": "demo",
+   "n_alerts": 0,
+   "has_event": false
+  },
+  {
+   "id": 1705,
+   "name": "Savitri Devi",
+   "age": 74,
+   "sex": "F",
+   "story": "caught",
+   "group": "demo",
+   "n_alerts": 2,
+   "has_event": true
+  },
+  {
+   "id": 1789,
+   "name": "Kamla Devi",
+   "age": 64,
+   "sex": "F",
+   "story": "quiet_high_risk",
+   "group": "demo",
+   "n_alerts": 0,
+   "has_event": false
+  },
+  {
+   "id": 1974,
+   "name": "Imran Qureshi",
+   "age": 38,
+   "sex": "M",
+   "story": "quiet",
+   "group": "demo",
+   "n_alerts": 0,
+   "has_event": false
+  },
+  {
+   "id": 100443,
+   "name": "Radha Nair",
+   "age": 68,
+   "sex": "F",
+   "story": "patchy_data",
+   "group": "edge",
+   "n_alerts": 3,
+   "has_event": true
+  },
+  {
+   "id": 100393,
+   "name": "Geeta Pillai",
+   "age": 58,
+   "sex": "F",
    "story": "new_patient",
+   "group": "edge",
    "n_alerts": 1,
    "has_event": true
   }

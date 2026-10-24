@@ -150,7 +150,8 @@ function Robustness({ r }) {
   )
 }
 
-export default function Heart() {
+/** `pid` is the patient chosen in the glucose twin (the same people appear here); `onPick` reports a change back, and `onOpenTwin` jumps there. */
+export default function Heart({ pid = null, onPick = () => {}, onOpenTwin = () => {} }) {
   const [list, setList] = useState([])
   const [sel, setSel] = useState(null)
   const [art, setArt] = useState(null)
@@ -161,8 +162,8 @@ export default function Heart() {
   const timer = useRef(null)
 
   useEffect(() => {
-    const want = Number(new URLSearchParams(window.location.search).get('hp'))
-    get('/api/cardio/patients').then((p) => { setList(p); setSel(p.find((x) => x.id === want)?.id ?? p[0]?.id ?? null) }).catch((e) => setErr(String(e)))
+    const want = Number(new URLSearchParams(window.location.search).get('hp')) || pid
+    get('/api/cardio/patients').then((p) => { setList(p); setSel(p.find((x) => x.id === want)?.id ?? p.find((x) => x.group === 'demo')?.id ?? p[0]?.id ?? null) }).catch((e) => setErr(String(e)))
     get('/api/cardio/evidence').then(setEv).catch(() => {})
   }, [])
   useEffect(() => {
@@ -203,12 +204,17 @@ export default function Heart() {
       <aside className="side">
         <h2>Heart watch</h2>
         <div className="muted" style={{ fontSize: 13, padding: '0 6px 4px' }}>A week of sleep, heart rate, HRV and glucose lows, read together with the record. Scores come from models that never saw these patients.</div>
-        {list.map((p) => (
-          <button key={p.id} className={`pt ${sel === p.id ? 'on' : ''}`} onClick={() => setSel(p.id)}>
-            <span className="av" style={{ background: TONE.sky.bg, color: TONE.sky.dd, fontSize: 16 }}>{initialsOf(p.name)}</span>
-            <span><b>{p.name}</b><small>Age {p.age} · {p.sex === 'F' ? 'Female' : 'Male'}{p.prior_cvd ? ' · prior CVD' : ''}{p.story === 'patchy_data' ? ' · watch often off' : ''}{p.record_missing ? ' · no record' : ''}</small></span>
-            <span className="chip" style={{ background: p.alerts ? TONE.rose.bg : TONE.mint.bg, color: p.alerts ? TONE.rose.dd : TONE.mint.dd }}>{p.alerts ? `${p.alerts} alert${p.alerts > 1 ? 's' : ''}` : 'quiet'}</span>
-          </button>
+        {[['demo', 'The glucose twin patients'], ['edge', 'Edge cases: messy data']].map(([grp, title]) => (
+          <div key={grp}>
+            <div className="muted" style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', padding: '10px 6px 2px' }}>{title}</div>
+            {list.filter((p) => p.group === grp).map((p) => (
+              <button key={p.id} className={`pt ${sel === p.id ? 'on' : ''}`} onClick={() => { setSel(p.id); if (p.group === 'demo') onPick(p.id) }}>
+                <span className="av" style={{ background: TONE.sky.bg, color: TONE.sky.dd, fontSize: 16 }}>{initialsOf(p.name)}</span>
+                <span><b>{p.name}</b><small>Age {p.age} · {p.sex === 'F' ? 'Female' : 'Male'}{p.prior_cvd ? ' · prior CVD' : ''}{p.story === 'patchy_data' ? ' · watch often off' : ''}{p.record_missing ? ' · no record' : ''}</small></span>
+                <span className="chip" style={{ background: p.alerts ? TONE.rose.bg : TONE.mint.bg, color: p.alerts ? TONE.rose.dd : TONE.mint.dd }}>{p.alerts ? `${p.alerts} alert${p.alerts > 1 ? 's' : ''}` : 'quiet'}</span>
+              </button>
+            ))}
+          </div>
         ))}
       </aside>
       <main className="bento">
@@ -219,6 +225,7 @@ export default function Heart() {
               <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-.03em' }}>{pr.name}</h1>
               <div className="muted" style={{ fontWeight: 600 }}>{pr.age} y · {pr.sex === 'F' ? 'Female' : 'Male'} · BMI {pr.bmi}{pr.egfr != null ? ` · eGFR ${pr.egfr}` : ''}</div>
               <div className="row wrap" style={{ gap: 6, marginTop: 8 }}>{chips.map(([t, label]) => <span key={label} className={`chip ${t}`}>{label}</span>)}</div>
+              {pr.group === 'demo' && <button className="btn sm" style={{ marginTop: 10 }} onClick={() => onOpenTwin(pr.id)}>Open this patient's glucose twin</button>}
             </div>
             <div style={{ minWidth: 260, flex: 1 }}>
               <div className="row" style={{ gap: 10 }}>

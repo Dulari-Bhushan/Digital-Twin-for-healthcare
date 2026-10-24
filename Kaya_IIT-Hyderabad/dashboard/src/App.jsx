@@ -115,7 +115,7 @@ export default function App() {
           <button className={docView === 'heart' ? 'on' : ''} onClick={() => setDocView('heart')}>Heart watch</button>
         </nav>
       )}
-      {mode === 'admin' ? <Admin /> : mode === 'doctor' && docView === 'heart' ? <Heart /> : mode === 'patient' ? (
+      {mode === 'admin' ? <Admin /> : mode === 'doctor' && docView === 'heart' ? (sel == null ? <div className="stage muted">Loading…</div> : <Heart pid={sel} onPick={setSel} onOpenTwin={(id) => { setSel(id); setDocView('twin') }} />) : mode === 'patient' ? (
         ready ? <PatientApp d={d} at={at} pid={sel} changes={changes} /> : <div className="stage muted">Loading…</div>
       ) : (
         <div className="layout">

@@ -68,18 +68,29 @@ def add_cardio_static(pat: pd.DataFrame, seed: int) -> pd.DataFrame:
     pat["ldl"] = np.clip(rng.normal(104, 30, n) + 0.8 * (pat.diabetes_duration_yrs.to_numpy() - 8), 40, 260)
     prior_logit = -4.0 + 0.05 * (pat.age.to_numpy() - 50) + 0.03 * pat.diabetes_duration_yrs.to_numpy() + 0.5 * male
     pat["prior_cvd"] = rng.random(n) < _sigmoid(prior_logit)
-    z = (0.050 * (pat.age.to_numpy() - 53) + 0.014 * (pat.sbp.to_numpy() - 130) + 0.28 * (pat.hba1c.to_numpy() - 8.3)
-         + 0.035 * (pat.diabetes_duration_yrs.to_numpy() - 8) + 0.008 * (pat.ldl.to_numpy() - 104)
-         + 0.55 * pat.smoker.to_numpy() + 0.9 * pat.prior_cvd.to_numpy() + 0.35 * male)
-    lo, hi = -6.0, 6.0                              # shift so the average episode ends in an event TARGET_EVENT_SHARE of the time
+    z = risk_z(pat)
+    pat["_cv_logit"] = RISK_SCALE * z + cv_offset(z)
+    return pat
+
+
+def risk_z(pat: pd.DataFrame) -> np.ndarray:
+    """Weighted record risk of one patient (needs ldl, smoker and prior_cvd, so after the static draws)."""
+    male = (pat.sex == "M").astype(float).to_numpy()
+    return (0.050 * (pat.age.to_numpy() - 53) + 0.014 * (pat.sbp.to_numpy() - 130) + 0.28 * (pat.hba1c.to_numpy() - 8.3)
+            + 0.035 * (pat.diabetes_duration_yrs.to_numpy() - 8) + 0.008 * (pat.ldl.to_numpy() - 104)
+            + 0.55 * pat.smoker.to_numpy() + 0.9 * pat.prior_cvd.to_numpy() + 0.35 * male)
+
+
+def cv_offset(z: np.ndarray) -> float:
+    """Intercept that makes the average episode end in an event TARGET_EVENT_SHARE of the time over the cohort `z`."""
+    lo, hi = -6.0, 6.0
     for _ in range(40):
         mid = (lo + hi) / 2
         if _sigmoid(RISK_SCALE * z + mid).mean() > TARGET_EVENT_SHARE:
             hi = mid
         else:
             lo = mid
-    pat["_cv_logit"] = RISK_SCALE * z + (lo + hi) / 2
-    return pat
+    return (lo + hi) / 2
 
 
 def draw_episodes(cv_logit: float, days: int, rng: np.random.Generator) -> list[dict]:
