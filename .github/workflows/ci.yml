@@ -22,7 +22,15 @@ jobs:
         # lightgbm and scikit-learn let the cardiovascular tests run instead of being skipped
         run: pip install -r requirements-api.txt pytest httpx pyarrow lightgbm==4.5.0 scikit-learn==1.5.1
       - name: Test
-        run: python -m pytest -q tests
+        # On failure, the last lines of the pytest output are also published as one annotation, which is readable without signing in
+        run: |
+          set +e
+          python -m pytest -q -ra --tb=short tests 2>&1 | tee pytest_out.txt
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            echo "::error title=pytest failed::$(tail -n 60 pytest_out.txt | sed ':a;N;$!ba;s/%/%25/g;s/\r//g;s/\n/%0A/g')"
+          fi
+          exit $status
 
   dashboard:
     name: Dashboard build
