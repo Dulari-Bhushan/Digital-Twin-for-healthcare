@@ -210,7 +210,7 @@ The full diagrams are in [`architecture_2page.pdf`](Kaya_IIT-Hyderabad/docs/arch
 |---|---|
 | **Live mode** | The glucose model runs on every incoming 5-minute reading (about 1 ms, pure numpy, no GPU) and the dashboard updates in real time. Press **Go live** in the doctor view, or POST readings to `/api/live/{id}/reading`. A WebSocket feed (`/ws/live/{id}`) simulates a wearable. |
 | **Full patient record** | 14-day glucose history, daily time in range, a typical-day profile, meal responses, wearable trends, liver, eye and kidney projections with their drivers, labs with reference flags, and every alert with its reason. |
-| **Heart watch** | Replays a patient's month morning by morning. Each morning at 10:00 a cardiovascular flag reads the last seven nights (sleep, HRV, resting heart rate, steps, glucose control) with the static record, shows the wearable pattern and the record risk as two dials that combine into one 72-hour risk, raises an alert above a threshold set for about one false alert per patient-month, and lists the factors that pushed the score up. Six held-out patients show a caught event, a missed event, a benign scare the record calmed, a false alarm and a quiet high-risk patient. |
+| **Heart watch** | Replays a patient's month morning by morning. Each morning at 10:00 a cardiovascular flag reads the last seven nights (sleep, HRV, resting heart rate, steps, glucose control) with the static record, shows the wearable pattern and the record risk as two dials that combine into one 72-hour risk, raises an alert above a threshold set for about one false alert per patient-month, and lists the factors that pushed the score up. It shows the 24 patients of the glucose twin, scored by models that never saw them, plus two edge cases (the watch is often off; no record on file), so the demo month has misses and false alarms as well as catches. |
 | **Message the patient** | In the doctor's record, a **Message patient** tab sends an urgent message (come to the clinic, go to the emergency room, call the clinic) or plain advice, with quick templates. It shows at the top of the patient app within seconds, and the doctor sees when it has been seen. The same tab writes a **consultation note and prescription**: stop, start or change the dose of medicines, with a note. It updates the medicine list, adds a "Teleconsultation note and prescription" report to the Reports tab, and pops up in the patient app until the patient acknowledges it. Demonstration only; no real prescribing. |
 | **What-if studio** | Meal size, walking after meals, sleep and medicine presets (or medicine by medicine: stop, change the dose, or add a drug), with the change shown in the glucose curve and in one-year organ risk. |
 | **Medical reports** | Lab panels, retinal and liver scans, chest X-ray, ECG, foot exam, clinic notes and the wearable summary, each with reference ranges, flags, the previous value, a PDF and trends. The patient sees a plain-language version and a medicine list. All reports are synthetic. |
@@ -261,24 +261,25 @@ The brief asks for a record and a wearable stream to be fused. We therefore meas
 - **Medicines** matter most for lows: with insulin or sulfonylurea use in the record, low-glucose AUROC rises from 0.85 to 0.95 in every seed. In the cohort only these patients can have a treatment-related low, which is also the clinical pattern; the size of the jump is the simulator's. Genetics add nothing measurable.
 - **HRV and sleep** add little for glucose: removing them costs about 0.3 mg/dL at two hours (positive in all three seeds, +0.09 to +0.52) and changes event AUROC by less than 0.003. We report it as small.
 
-**Cardiovascular flag** ([`cardio.py`](Kaya_IIT-Hyderabad/src/models/cardio.py), 5-fold cross-validation grouped by patient, 2,000 patients, 40,216 patient-mornings, 595 events, prediction target: an event in the next 72 hours; intervals from resampling patients):
+**Cardiovascular flag** ([`cardio.py`](Kaya_IIT-Hyderabad/src/models/cardio.py), 5-fold cross-validation grouped by patient, 2,000 patients, 40,126 patient-mornings, 622 events, prediction target: an event in the next 72 hours; intervals from resampling patients):
 
-| Input | AUROC (95% CI) | AUPRC (prevalence 0.042) | Events caught | False alerts per patient-month | Median warning |
+| Input | AUROC (95% CI) | AUPRC (prevalence 0.044) | Events caught | False alerts per patient-month | Median warning |
 |---|---|---|---|---|---|
-| Record only (logistic risk score) | 0.69 (0.67 to 0.71) | 0.08 | 24% | 1.0 | 33 h |
-| Simple clinical rule (HRV falling, resting heart rate rising, sleep shrinking) | 0.69 (0.68 to 0.71) | 0.11 | 44% | 0.9 | 17 h |
-| Wearable week only | 0.82 (0.80 to 0.83) | 0.26 | 77% | 1.1 | 23 h |
-| **Kaya: record + wearable (late fusion)** | **0.83 (0.82 to 0.84)** | **0.31** | 76% | 1.1 | 23 h |
-| One model fed both streams side by side (early fusion) | 0.83 (0.82 to 0.85) | 0.31 | 76% | 1.0 | 26 h |
+| Record only (logistic risk score) | 0.69 (0.67 to 0.71) | 0.08 | 25% | 1.0 | 34 h |
+| Simple clinical rule (HRV falling, resting heart rate rising, sleep shrinking) | 0.68 (0.66 to 0.70) | 0.10 | 41% | 0.9 | 17 h |
+| Wearable week and glucose sensor only | 0.80 (0.78 to 0.81) | 0.25 | 72% | 1.0 | 22 h |
+| **Kaya: record + wearable (late fusion)** | **0.82 (0.80 to 0.83)** | **0.29** | 71% | 1.0 | 22 h |
+| One model fed both streams side by side (early fusion) | 0.82 (0.81 to 0.84) | 0.30 | 72% | 1.0 | 23 h |
 
 Honest reading:
 
 - The **wearable week carries most of the early warning**, and the strongest single signal is last night's HRV. A simple clinical rule on the same data is far weaker.
-- Fusing the record improves the wearable alone **modestly but reliably**: AUROC +0.015 (95% CI +0.010 to +0.021) and AUPRC 0.26 to 0.31. At the alert level (events caught for a given false-alert rate) the fused and wearable-only flags are the same within noise.
-- The record's real job is **triage**: among mornings that are already part of a prodromal episode, the record alone separates a dangerous episode from a benign one with AUROC 0.80, against 0.68 for the wearable alone. The combined score has to find the episode and triage it at once, so it does not beat the record alone on that narrow question (0.74), and we do not claim it does.
+- Fusing the record improves the wearable alone **modestly but reliably**: AUROC +0.018 (95% CI +0.012 to +0.025) and AUPRC 0.25 to 0.29. At the alert level (events caught for a given false-alert rate) the fused and wearable-only flags are the same within noise.
+- The record's real job is **triage**: among mornings that are already part of a prodromal episode, the record alone separates a dangerous episode from a benign one with AUROC 0.80, against 0.69 for the wearable alone. The combined score has to find the episode and triage it at once, so it does not beat the record alone on that narrow question (0.75), and we do not claim it does.
 - Early and late fusion perform the same. We ship the late-fusion version because its two parts (wearable pattern, record risk) can be shown and explained separately.
-- Calibration of the fused probability: Brier 0.034, expected calibration error 0.003.
+- Calibration of the fused probability: Brier 0.036, expected calibration error 0.002.
 - False alerts concentrate in patients whose record is already high-risk, which is a property of the design: the same wearable change is taken more seriously in a higher-risk person.
+- **Stress tests** ([`results/cardio_robustness.md`](Kaya_IIT-Hyderabad/results/cardio_robustness.md)): glucose lows add little (+0.005 AUROC overall, +0.013 in people on insulin or a sulfonylurea). When days of wearable data are missing, a flag trained with gaps holds up better than one trained on clean data, and it says "not enough data" instead of guessing when fewer than 4 nights are usable. With no record on file it behaves like the wearable-only flag, because the simulated wearable carries nearly all the signal; real devices are noisier, so treat the missing-data results as an upper bound.
 
 ### Glucose forecasting (real CGMacros recordings, 34 subjects)
 

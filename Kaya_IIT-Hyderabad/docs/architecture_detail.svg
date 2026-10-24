@@ -182,8 +182,8 @@
 <circle cx="1001" cy="1109" r="11" fill="#0f766e"/>
 <text x="1001" y="1113.5" font-size="12.5" fill="#fff" font-weight="800" text-anchor="middle" >9</text>
 <text x="1022" y="1114" font-size="15" fill="#14212b" font-weight="700" text-anchor="start" >Heart watch (two streams, fused)</text>
-<text x="1022" y="1136" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Wearable week (LightGBM) + record (logistic), combined by a stacker. AUROC 0.83; catches 76% of</text>
-<text x="1022" y="1155" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >cardiovascular events a median 23 h ahead at about 1 false alert per patient-month. Synthetic data.</text>
+<text x="1022" y="1136" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >Wearable week (LightGBM) + record (logistic), combined by a stacker. AUROC 0.82; catches 71% of</text>
+<text x="1022" y="1155" font-size="13.5" fill="#5b6b77" font-weight="400" text-anchor="start" >cardiovascular events a median 22 h ahead at about 1 false alert per patient-month. Synthetic data.</text>
 <circle cx="1001" cy="1189" r="11" fill="#475569"/>
 <text x="1001" y="1194.5" font-size="14" fill="#fff" font-weight="800" text-anchor="middle" >i</text>
 <text x="1022" y="1194" font-size="15" fill="#14212b" font-weight="700" text-anchor="start" >Good to know</text>

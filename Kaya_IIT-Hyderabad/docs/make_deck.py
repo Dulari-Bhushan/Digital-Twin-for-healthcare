@@ -278,7 +278,7 @@ bullets(ax, 50, 41, ["The wearable model asks: is a prodrome under way?",
                      "The record model asks: how dangerous is that for this person?",
                      "A stacker combines the two; every alert lists its drivers",
                      "Replay a month, then see what really happened, including a\nmissed event and a false alarm",
-                     "76% of events caught, median 23 h ahead, about 1 false alert\nper patient-month"], 12, 6.2)
+                     f"{al_['sensitivity'] * 100:.0f}% of events caught, median {al_['median_lead_h']:.0f} h ahead, about 1 false alert\nper patient-month"], 12, 6.2)
 ax.text(50, 9.5, "Synthetic data. Decision support, not a diagnosis.", fontsize=10.5, color=AMBER)
 
 # 10 --------------------------------------------------------------- what-if

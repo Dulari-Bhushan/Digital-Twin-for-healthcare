@@ -2,10 +2,12 @@
 
 Writes docs/architecture_overview.svg and docs/architecture_detail.svg. Render with a headless browser.
 """
+import json
 from pathlib import Path
 from xml.sax.saxutils import escape
 
 D = Path(__file__).parent
+CV = json.loads((D.parent / "results" / "cardio_metrics.json").read_text())      # the Heart watch numbers come from the results file
 INK, MUTED, LINE = "#14212b", "#5b6b77", "#9aa8b2"
 TEAL, BLUE, AMBER, SLATE = "#0f766e", "#1d6fb8", "#b45309", "#475569"
 TINT = {TEAL: "#e4f5f2", BLUE: "#e6eefb", AMBER: "#fdf1dc", SLATE: "#eef2f5"}
@@ -244,8 +246,8 @@ def detail():
                                 "Eye progression and the 5-year kidney path are simulations."]),
         (8, AMBER, "Voice and documents (Sarvam AI, server-side only)", ["saaras:v4 speech-to-text, sarvam-105b-conversations chat, bulbul:v4-flash text-to-speech.",
                                                                     "Sarvam Document AI reads uploaded reports. Emergency and dose rules run in code, before the model."]),
-        (9, TEAL, "Heart watch (two streams, fused)", ["Wearable week (LightGBM) + record (logistic), combined by a stacker. AUROC 0.83; catches 76% of",
-                                                       "cardiovascular events a median 23 h ahead at about 1 false alert per patient-month. Synthetic data."]),
+        (9, TEAL, "Heart watch (two streams, fused)", [f"Wearable week (LightGBM) + record (logistic), combined by a stacker. AUROC {CV['auroc_with_ci']['fused']['auroc']:.2f}; catches {CV['alert_replay']['fused']['sensitivity'] * 100:.0f}% of",
+                                                       f"cardiovascular events a median {CV['alert_replay']['fused']['median_lead_h']:.0f} h ahead at about 1 false alert per patient-month. Synthetic data."]),
     ]
     PH = 440
     p.rect(70, fy, 1780, PH, "#fff", LINE, 18, 1.4)
