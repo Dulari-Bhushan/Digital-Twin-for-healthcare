@@ -13,6 +13,16 @@
 
 ![Kaya doctor workspace](Kaya_IIT-Hyderabad/docs/img/doctor_view.png)
 
+## Run it in three commands
+
+```bash
+git clone https://github.com/Dulari-Bhushan/Digital-Twin-for-healthcare.git
+cd Digital-Twin-for-healthcare/Kaya_IIT-Hyderabad
+docker compose up --build
+```
+
+Then open **<http://localhost:8000>**. You need [Docker Desktop](https://www.docker.com/products/docker-desktop/) and nothing else: no GPU, no data download, no account. No Docker? Use plain Python instead. Both ways, direct links to every screen and fixes for common problems are in [10. Run it](#10-run-it).
+
 ---
 
 ## Submission at a glance
@@ -28,6 +38,7 @@
 | Technical stack | [7. Technical stack](#7-technical-stack) |
 | AI/ML model or framework details | [6. AI/ML models and results](#6-aiml-models-and-results) and [`MODEL_CARDS.md`](Kaya_IIT-Hyderabad/docs/MODEL_CARDS.md) |
 | Demo video (unlisted YouTube) | [12. Demo video and documents](#12-demo-video-and-documents) |
+| How to run it | [Run it in three commands](#run-it-in-three-commands) and [10. Run it](#10-run-it) |
 | Open-source license | [14. License](#14-license), file [`LICENSE`](Kaya_IIT-Hyderabad/LICENSE) |
 | Architecture diagram (PDF) | [`architecture_2page.pdf`](Kaya_IIT-Hyderabad/docs/architecture_2page.pdf) |
 | Presentation (PDF / PPT) | [`Kaya_presentation.pdf`](Kaya_IIT-Hyderabad/docs/Kaya_presentation.pdf), [`Kaya_pitch_deck.pptx`](Kaya_IIT-Hyderabad/docs/Kaya_pitch_deck.pptx) |
@@ -73,7 +84,7 @@ The Phase 1 brief asks for a working prototype that fuses a static record with a
 | **Dynamic stream** (CGM, HRV, sleep, steps from wearables) | Yes | The same generators produce a 5-minute time series per patient: **glucose, heart rate, HRV (RMSSD), sleep stages, steps and meals**. In the coupled cohort (`cohort_v2.py`, 2,000 patients, 28 days) these streams share one physiology: a hidden autonomic load lowers HRV, raises resting heart rate, shortens sleep, lowers steps and raises glucose; short sleep raises next-day insulin resistance; TCF7L2 risk alleles enlarge post-meal rises; medicines and exercise raise the chance of a low. Cardiovascular events and benign look-alike episodes are layered on top. Real data: **CGMacros** (PhysioNet), 34 subjects with CGM, heart rate, activity and meal records. The live feed accepts new readings through `POST /api/live/{id}/reading` and a WebSocket. The glucose model used in the live demo is fed glucose, heart rate, activity and meal carbohydrates. The two-stream models described next also use HRV, sleep and the wider record. |
 | **A working model that ingests both streams** | Yes | [`windows_v2.py`](Kaya_IIT-Hyderabad/src/models/windows_v2.py) builds each glucose input from a 2-hour window of six dynamic channels (glucose, heart rate, activity, meals, HRV, sleep stage), seven slow-context numbers (last night's sleep, HRV and resting heart rate and the 7-night averages) and a 20-number static vector (age, BMI, HbA1c, sex, time of day, duration, HOMA-IR, medicines, PNPLA3, TCF7L2). The GRU in [`glucose.py`](Kaya_IIT-Hyderabad/src/models/glucose.py) takes both streams, and [`ablate_glucose.py`](Kaya_IIT-Hyderabad/src/models/ablate_glucose.py) measures what each input group adds ([results](#fusing-the-two-streams-what-each-stream-adds)). The new [`cardio.py`](Kaya_IIT-Hyderabad/src/models/cardio.py) fuses a week of nightly wearable summaries with the static record. The liver, kidney and eye modules fuse static labs with wearable-derived glucose features. Trained in [`train_glucose.py`](Kaya_IIT-Hyderabad/src/models/train_glucose.py) and [`polish_glucose.py`](Kaya_IIT-Hyderabad/src/models/polish_glucose.py); metrics in [`results/glucose_metrics.json`](Kaya_IIT-Hyderabad/results/glucose_metrics.json) and [`glucose_polish.json`](Kaya_IIT-Hyderabad/results/glucose_polish.json). |
 | **Predicts an adverse event in advance** (the brief's example: a glucose spike 2 hours ahead) | Yes | Forecasts glucose **30, 60 and 120 minutes ahead** with an 80% conformal interval, and the probability of a **high (> 180) or low (< 70) glucose event within 2 hours**. On real CGMacros data the ensemble reaches RMSE 12.6 / 21.1 / 28.2 mg/dL (persistence 16.3 / 25.8 / 36.7). Alert replay ([`alerts.py`](Kaya_IIT-Hyderabad/src/models/alerts.py)) streams a patient's week through the model: at about one false alert per patient-day, **72% of hypoglycemia episodes are caught with a median 45 minutes of warning**. Each alert states the reason it fired. **Second adverse event:** the Heart watch flags a **cardiovascular event within 72 hours** from a week of sleep, heart-rate and HRV data plus the record: AUROC 0.82 (95% CI 0.80 to 0.83), **71% of events caught with a median 22 hours of warning at about one false alert per patient-month**, against 41% for a simple clinical rule at the same false-alert rate. |
-| **Conceptual UI dashboard for a doctor** | Yes, a working one | React dashboard in [`dashboard/`](Kaya_IIT-Hyderabad/dashboard/): triaged patient list, glucose twin with forecast band and a 3-day replay, liver, eye and kidney panels, what-if studio, what-changed-since-last-visit card, full patient record, alert timeline, PDF clinical summary, plus patient and admin views, and the **Heart watch** view inside the Doctor view (`?view=heart`): a month of nights replayed morning by morning, the wearable and record streams shown as dials that combine into one risk, the factors behind each alert, data-quality and confidence chips, a medicine check for lows on insulin or a sulfonylurea, and what actually happened. See the [screenshots](#3-screenshots). Run it with the steps in [10. Run the demo](#10-run-the-demo). |
+| **Conceptual UI dashboard for a doctor** | Yes, a working one | React dashboard in [`dashboard/`](Kaya_IIT-Hyderabad/dashboard/): triaged patient list, glucose twin with forecast band and a 3-day replay, liver, eye and kidney panels, what-if studio, what-changed-since-last-visit card, full patient record, alert timeline, PDF clinical summary, plus patient and admin views, and the **Heart watch** view inside the Doctor view (`?view=heart`): a month of nights replayed morning by morning, the wearable and record streams shown as dials that combine into one risk, the factors behind each alert, data-quality and confidence chips, a medicine check for lows on insulin or a sulfonylurea, and what actually happened. See the [screenshots](#3-screenshots). Run it with the steps in [10. Run it](#10-run-it). |
 | **Open, anonymised or synthetic data only** | Yes | CGMacros, NHANES, APTOS 2019 and IDRiD are open datasets; patients and wearable streams are generated by our own synthetic generator and simglucose. No real patient data is stored or processed. See [8. Data](#8-data). |
 | **EHR source** (the brief suggests Synthea or MIMIC-IV, as examples) | Own generator instead | We used our own synthetic cohort generator, tuned to Indian T2D epidemiology, because it is the only way to link one person's glucose stream to organ outcomes. **Synthea is not used yet** and is listed as planned. MIMIC-IV is not used. |
 | **Sensor source** (open datasets or synthetic streams) | Yes | Open dataset (CGMacros) plus synthetic streams that mimic consumer wearables and CGMs. |
@@ -355,40 +366,112 @@ No public dataset links one person's glucose stream to their liver, eye and kidn
 - **Interoperable:** FHIR R4, designed to align with India's ABDM.
 - **Honest:** metrics reported against standard baselines, simulations labelled as simulations, limitations stated up front.
 
-## 10. Run the demo
+## 10. Run it
 
-The demo runs from a plain clone, with no GPU. Forecasts and risk scores for 24 held-out synthetic patients are precomputed by the validated models and stored in `artifacts/demo/`.
+Kaya runs on an ordinary laptop: **no GPU, no data download and no account**. Everything the demo uses is already in the repository. (You need internet once, to download the code and the packages or Docker images; after that it runs offline.) Pick **one** of the two ways below.
 
-**With Docker**
+| | **A. Docker** | **B. Python** |
+|---|---|---|
+| You install first | Docker Desktop | Python 3.11 or newer |
+| Time to the first screen | about 5 minutes (the first build downloads things) | about 2 minutes |
+| Choose it if | you want it to work the same on any machine | you want to see the code run directly |
+
+### Option A: run with Docker
+
+1. **Install Docker Desktop** from [docker.com](https://www.docker.com/products/docker-desktop/). On Windows keep **Use WSL 2** ticked, restart when asked, then open Docker Desktop and wait until it says **Engine running**.
+2. **Get the code** and go into the project folder:
+   ```bash
+   git clone https://github.com/Dulari-Bhushan/Digital-Twin-for-healthcare.git
+   cd Digital-Twin-for-healthcare/Kaya_IIT-Hyderabad
+   ```
+3. **Build and start it:**
+   ```bash
+   docker compose up --build
+   ```
+   The first time takes a few minutes. It is ready when the log shows `Uvicorn running on http://0.0.0.0:8000`.
+4. **Open <http://localhost:8000>.**
+5. **Stop it** with `Ctrl+C`, or run `docker compose down`.
+
+### Option B: run with Python
+
+1. **Get the code** and go into the project folder (same as step 2 above).
+2. **Create a virtual environment and install the requirements:**
+
+   macOS or Linux:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements-api.txt
+   ```
+   Windows (PowerShell):
+   ```powershell
+   python -m venv .venv
+   .venv\Scripts\Activate.ps1
+   pip install -r requirements-api.txt
+   ```
+   If PowerShell refuses to run the activate script, run `Set-ExecutionPolicy -Scope Process Bypass` first.
+3. **Start the server:**
+   ```bash
+   uvicorn app:app --app-dir src/api --port 8000
+   ```
+4. **Open <http://localhost:8000>.** The built dashboard is included, so you do not need Node.js.
+5. **Stop it** with `Ctrl+C`.
+
+### What to open
+
+| What | Link |
+|---|---|
+| Doctor workspace (the complex case, Rajesh Sharma) | <http://localhost:8000/?p=1688> |
+| Doctor workspace (the well-controlled case, Priya Kashyap) | <http://localhost:8000/?p=1636> |
+| Heart watch (cardiovascular flag), inside the Doctor view | <http://localhost:8000/?view=heart> |
+| Patient app on a phone-sized screen | <http://localhost:8000/?view=patient&p=1688> (add `&lang=hi`, `te` or `kn` for Hindi, Telugu, Kannada) |
+| Admin page (health, models, audit trail, self-test) | <http://localhost:8000/?view=admin> |
+| API documentation | <http://localhost:8000/docs> |
+
+### A two-minute tour
+
+1. Open the **Doctor** link. Press the **▶ play button** under the glucose chart ("Replay the last 3 days"): the twin forecasts glucose ahead of what actually happens.
+2. Scroll to the **What-if studio**. Press **All three**, or change a single medicine, and watch the glucose curve and the liver, eye and kidney risks move.
+3. Open the **Heart watch** link and press **Replay the month** to see how a week of sleep, heart rate and HRV plus the record raise an alert.
+4. Open a patient's full record and the **Message patient** tab, keep the **Patient app** link open in a second window, and send an urgent message or a prescription. It appears in the patient app within seconds.
+
+[`DEMO_GUIDE.md`](Kaya_IIT-Hyderabad/docs/DEMO_GUIDE.md) has the full six-minute script.
+
+### Optional: voice, chat and automatic translation
+
+These use Sarvam AI and need a key. **Without one, everything else works unchanged.**
+
+1. Copy `.env.example` to `.env` (in the `Kaya_IIT-Hyderabad` folder).
+2. Put your key after `SARVAM_API_KEY=`.
+3. Restart. Docker and Python both read the `.env` file automatically. The file is git-ignored, so the key is never committed.
+
+### Start fresh
+
+- Things a patient logs in the app (walks, medicines, how they feel) are cleared every time the server starts, so each demo begins with nothing logged. Set `KAYA_KEEP_LOGS=1` to keep them.
+- Messages and uploaded reports are kept between runs. With Docker, `docker compose down` removes them; with Python, delete `data/patient_messages/` and `data/patient_uploads/`.
+
+### If something goes wrong
+
+| What you see | What to do |
+|---|---|
+| `docker` is "not recognized" | Restart the computer after installing Docker Desktop, open Docker Desktop first, then use a **new** terminal. |
+| Docker Desktop mentions WSL | Run `wsl --update` in PowerShell and open Docker Desktop again. |
+| "port is already allocated" or "address already in use" | Something else is using port 8000. Close it (for example, an earlier run), or stop it with `docker compose down`. |
+| The first Docker build is slow | Normal. It downloads Node and Python once. Later runs take seconds. |
+| A blank or old page after an update | Hard refresh the browser (`Ctrl+Shift+R`). |
+| `pip install` fails on an old Python | Use Python 3.11 or newer (`python --version`). |
+
+### Run the tests
 
 ```bash
-cd Kaya_IIT-Hyderabad
-docker compose up --build
-```
-
-**Without Docker**
-
-```bash
-cd Kaya_IIT-Hyderabad
-pip install -r requirements-api.txt
-uvicorn app:app --app-dir src/api --port 8000
-```
-
-Then open `http://localhost:8000` (dashboard) and `http://localhost:8000/docs` (API documentation).
-
-In the dashboard, switch between **Doctor**, **Heart watch**, **Patient** and **Admin** at the top right. In the doctor view, press **Replay last 3 days** to watch the twin forecast glucose ahead of what actually happens, then try the **What-if** presets. [`DEMO_GUIDE.md`](Kaya_IIT-Hyderabad/docs/DEMO_GUIDE.md) describes two ready-made patients (a complex multi-organ case and a well-controlled case), their day-by-day stories and a suggested demo flow.
-
-**Voice assistant (optional).** Copy `.env.example` to `.env` and set `SARVAM_API_KEY`. Without a key the rest of the app works unchanged.
-
-**Tests**
-
-```bash
-cd Kaya_IIT-Hyderabad
-pip install pytest httpx
+pip install -r requirements-api.txt pytest httpx pyarrow lightgbm scikit-learn
 python -m pytest -q tests
 ```
 
-**Reproduce the model results** (needs the data downloads and, for training, a GPU)
+The same tests run on every push in GitHub Actions, together with a job that builds the Docker image, starts it and calls the main endpoints.
+
+<details>
+<summary><b>Advanced: reproduce the model results</b> (needs data downloads and, for training, a GPU)</summary>
 
 ```bash
 pip install -r requirements.txt
@@ -413,6 +496,8 @@ python src/api/build_cardio_artifacts.py                                   # Hea
 ```
 
 The Heart watch opens at `http://localhost:8000/?view=heart`.
+
+</details>
 
 ## 11. Repository layout
 
