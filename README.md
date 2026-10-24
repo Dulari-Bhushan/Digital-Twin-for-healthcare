@@ -9,7 +9,7 @@
 ![CI](https://github.com/Dulari-Bhushan/Digital-Twin-for-healthcare/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 ![Data](https://img.shields.io/badge/data-open%20%2B%20synthetic%20only-green)
-![Tests](https://img.shields.io/badge/tests-116%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-149%20passing-brightgreen)
 
 ![Kaya doctor workspace](Kaya_IIT-Hyderabad/docs/img/doctor_view.png)
 
@@ -223,7 +223,7 @@ The full diagrams are in [`architecture_2page.pdf`](Kaya_IIT-Hyderabad/docs/arch
 | **Clinical summary PDF** | One click from the doctor view (`/api/patients/{id}/report.pdf`): glucose chart with forecast, organ risks with their evidence level, what-if table and recent alerts. |
 | **Admin page** | Service health, model and data inventory with how each model was validated, integration status, latency per route, assistant safety counters (outcomes only, never message text), an audit trail, a one-click self-test and an honest hardening list. Set `KAYA_ADMIN_TOKEN` to require a token. |
 | **FHIR R4** | Read-only `Patient` and `Observation` endpoints under `/fhir`. |
-| **Tests and CI** | 116 tests (data, what-if, live inference against PyTorch, API, assistant safety, uploads, PDF, FHIR, coupled cohort, cardiovascular flag, Heart watch) run on every push with GitHub Actions. |
+| **Tests and CI** | 149 tests (data, what-if, live inference against PyTorch, API, assistant safety, uploads, PDF, FHIR, coupled cohort, cardiovascular flag, Heart watch) run on every push with GitHub Actions. |
 
 ## 6. AI/ML models and results
 
@@ -515,7 +515,7 @@ Kaya_IIT-Hyderabad/
 ├── results/         evaluation metrics (JSON)
 ├── docs/            architecture, presentation, model cards, demo guide, screenshots
 ├── scripts/         data download and server setup
-├── tests/           116 tests
+├── tests/           149 tests
 ├── Dockerfile, docker-compose.yml
 └── requirements.txt, requirements-api.txt
 ```
