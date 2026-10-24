@@ -15,6 +15,8 @@ from pathlib import Path
 
 import numpy as np
 
+import atomic
+
 ROOT = Path(__file__).resolve().parents[2]
 LOG_DIR = Path(os.environ.get("KAYA_LOGS", ROOT / "data" / "patient_logs"))
 LOCK = threading.Lock()
@@ -74,11 +76,7 @@ def seed(a: dict, today: datetime) -> list[dict]:
 
 
 def _load_patient(pid: int) -> list[dict]:
-    f = LOG_DIR / f"{pid}.json"
-    try:
-        return json.loads(f.read_text(encoding="utf8")) if f.exists() else []
-    except (OSError, ValueError):
-        return []
+    return atomic.read_json(LOG_DIR / f"{pid}.json", [])
 
 
 def effective(items: list[dict]) -> list[dict]:
@@ -131,7 +129,7 @@ def add(pid: int, today: datetime, kind: str, value, note: str = "") -> dict:
         cur = [x for x in cur if not (x["date"] == e["date"] and ((slot and x["kind"] in ("med", "med_off") and x["value"] == value)
                                                                   or (kind == "feel" and x["kind"] == "feel")))]
         cur.append(e)
-        (LOG_DIR / f"{pid}.json").write_text(json.dumps(cur), encoding="utf8")
+        atomic.write_text(LOG_DIR / f"{pid}.json", json.dumps(cur))
     return e
 
 
@@ -141,7 +139,7 @@ def remove(pid: int, entry_id: str) -> bool:
         keep = [x for x in cur if x["id"] != entry_id]
         if len(keep) == len(cur):
             return False
-        (LOG_DIR / f"{pid}.json").write_text(json.dumps(keep), encoding="utf8")
+        atomic.write_text(LOG_DIR / f"{pid}.json", json.dumps(keep))
     return True
 
 

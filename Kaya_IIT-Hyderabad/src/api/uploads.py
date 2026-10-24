@@ -14,6 +14,8 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
+import atomic
+
 ROOT = Path(__file__).resolve().parents[2]
 UP_DIR = Path(os.environ.get("KAYA_UPLOADS", ROOT / "data" / "patient_uploads"))
 MAX_BYTES = 8 * 1024 * 1024
@@ -45,11 +47,7 @@ def _meta_path(pid: int) -> Path:
 
 
 def _read(pid: int) -> list[dict]:
-    p = _meta_path(pid)
-    try:
-        return json.loads(p.read_text(encoding="utf8")) if p.exists() else []
-    except (OSError, ValueError):
-        return []
+    return atomic.read_json(_meta_path(pid), [])
 
 
 def list_uploads(pid: int, full: bool = False) -> list[dict]:
@@ -83,7 +81,7 @@ def save(pid: int, data: bytes, filename: str, title: str, category: str, date: 
                 "uploaded": today.strftime("%Y-%m-%d %H:%M"), "ext": kind[0], "media": kind[1], "size_kb": max(1, round(len(data) / 1024)), "verified": False,
                 "ocr": {"state": "pending" if read else "off"}}
         items.append(meta)
-        _meta_path(pid).write_text(json.dumps(items), encoding="utf8")
+        atomic.write_text(_meta_path(pid), json.dumps(items))
     return meta
 
 
@@ -102,7 +100,7 @@ def delete(pid: int, uid: str) -> bool:
         if meta is None:
             return False
         (UP_DIR / str(int(pid)) / f"{meta['id']}.{meta['ext']}").unlink(missing_ok=True)
-        _meta_path(pid).write_text(json.dumps([x for x in items if x["id"] != uid]), encoding="utf8")
+        atomic.write_text(_meta_path(pid), json.dumps([x for x in items if x["id"] != uid]))
     return True
 
 
@@ -113,7 +111,7 @@ def set_ocr(pid: int, uid: str, **fields) -> None:
         for x in items:
             if x["id"] == uid:
                 x["ocr"] = {**x.get("ocr", {}), **fields}
-        _meta_path(pid).write_text(json.dumps(items), encoding="utf8")
+        atomic.write_text(_meta_path(pid), json.dumps(items))
 
 
 def set_verified(pid: int, uid: str, verified: bool, today: datetime) -> dict | None:
@@ -126,7 +124,7 @@ def set_verified(pid: int, uid: str, verified: bool, today: datetime) -> dict | 
             return None
         meta["verified"] = bool(verified)
         meta["verified_at"] = today.strftime("%Y-%m-%d %H:%M") if verified else None
-        _meta_path(pid).write_text(json.dumps(items), encoding="utf8")
+        atomic.write_text(_meta_path(pid), json.dumps(items))
     return public(meta)
 
 

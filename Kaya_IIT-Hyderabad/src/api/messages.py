@@ -14,6 +14,8 @@ import threading
 import uuid
 from pathlib import Path
 
+import atomic
+
 ROOT = Path(__file__).resolve().parents[2]
 MSG_DIR = Path(os.environ.get("KAYA_MESSAGES", ROOT / "data" / "patient_messages"))
 LOCK = threading.Lock()
@@ -33,16 +35,12 @@ def _path(pid: int) -> Path:
 
 
 def _read(pid: int) -> list[dict]:
-    p = _path(pid)
-    try:
-        return json.loads(p.read_text(encoding="utf8")) if p.exists() else []
-    except (OSError, ValueError):
-        return []
+    return atomic.read_json(_path(pid), [])
 
 
 def _write(pid: int, items: list[dict]) -> None:
     MSG_DIR.mkdir(parents=True, exist_ok=True)
-    _path(pid).write_text(json.dumps(items), encoding="utf8")
+    atomic.write_text(_path(pid), json.dumps(items))
 
 
 def list_messages(pid: int) -> list[dict]:
