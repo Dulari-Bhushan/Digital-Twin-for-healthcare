@@ -37,7 +37,7 @@ Then open **<http://localhost:8000>**. You need [Docker Desktop](https://www.doc
 | Phase 1 requirements (two data streams, adverse-event prediction, dashboard, open data) | [Phase 1 requirements and how Kaya meets them](#phase-1-requirements-and-how-kaya-meets-them) |
 | Technical stack | [7. Technical stack](#7-technical-stack) |
 | AI/ML model or framework details | [6. AI/ML models and results](#6-aiml-models-and-results) and [`MODEL_CARDS.md`](Kaya_IIT-Hyderabad/docs/MODEL_CARDS.md) |
-| Demo video (unlisted YouTube) | [12. Demo video and documents](#12-demo-video-and-documents) |
+| Demo videos (2, unlisted YouTube) | [12. Demo video and documents](#12-demo-video-and-documents) |
 | How to run it | [Run it in three commands](#run-it-in-three-commands) and [10. Run it](#10-run-it) |
 | Open-source license | [14. License](#14-license), file [`LICENSE`](Kaya_IIT-Hyderabad/LICENSE) |
 | Architecture diagram (PDF) | [`architecture_2page.pdf`](Kaya_IIT-Hyderabad/docs/architecture_2page.pdf) |
@@ -525,6 +525,7 @@ Kaya_IIT-Hyderabad/
 | Item | Link |
 |---|---|
 | Demo video (unlisted YouTube) | [Watch on YouTube](https://youtu.be/SyA4dCjmQi8) |
+| Second video: detailed demo of Kaya (unlisted YouTube) | [Watch on YouTube](https://youtu.be/2PoE34SuBEI) |
 | Architecture diagram (PDF) | [`architecture_2page.pdf`](Kaya_IIT-Hyderabad/docs/architecture_2page.pdf) |
 | Presentation (PDF) | [`Kaya_presentation.pdf`](Kaya_IIT-Hyderabad/docs/Kaya_presentation.pdf) |
 | Presentation (PPT) | [`Kaya_pitch_deck.pptx`](Kaya_IIT-Hyderabad/docs/Kaya_pitch_deck.pptx) |
@@ -532,7 +533,7 @@ Kaya_IIT-Hyderabad/
 | Demo guide | [`DEMO_GUIDE.md`](Kaya_IIT-Hyderabad/docs/DEMO_GUIDE.md) |
 | Project plan and roadmap | [`PROJECT_PLAN.md`](Kaya_IIT-Hyderabad/docs/PROJECT_PLAN.md) |
 
-> **About the video.** It was recorded before the **Heart watch** (the cardiovascular flag), doctor messaging and prescriptions, the medicine-by-medicine what-if, report verification and the triage list were added. It shows the glucose twin, the liver, eye and kidney modules and the what-if studio as they were. The newer parts are described in [5. Product features](#5-product-features) and [6. AI/ML models and results](#6-aiml-models-and-results), shown in the [screenshots](#3-screenshots), and you can try them in the two-minute tour in [10. Run it](#10-run-it).
+> **About the first video.** It was recorded before the **Heart watch** (the cardiovascular flag), doctor messaging and prescriptions, the medicine-by-medicine what-if, report verification and the triage list were added. It shows the glucose twin, the liver, eye and kidney modules and the what-if studio as they were. The newer parts are described in [5. Product features](#5-product-features) and [6. AI/ML models and results](#6-aiml-models-and-results), shown in the [screenshots](#3-screenshots), and you can try them in the two-minute tour in [10. Run it](#10-run-it).
 
 ## 13. Limitations and roadmap
 
