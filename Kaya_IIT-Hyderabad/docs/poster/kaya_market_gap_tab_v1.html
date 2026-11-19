@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kaya 佳弥 – market size and the gap (tablet board)</title>
+<style>
+:root{--ink:#1d2b29;--muted:#4c5a56;--teal:#4f9b8d;--teal2:#6bb0a3;--mint:#eaf4f0;--mint2:#d5e8e1;--amber:#e0b862;--sand:#fbf3dc;--rose:#fae9e4;--rose-d:#cf6f61;--slate:#7ea3b3;--line:#e6e1d3;
+--serif:'Palatino Linotype','Book Antiqua',Palatino,Georgia,serif;--sans:'Segoe UI','Yu Gothic UI','Yu Gothic',Meiryo,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#fff;color:var(--ink);font-family:var(--sans);overflow:hidden;height:100%}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1200px;transform-origin:0 0;padding:20px 44px 8px;display:flex;flex-direction:column;gap:14px;background:#fff}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:#9fc9c0;text-underline-offset:3px}
+.hd{display:flex;align-items:flex-end;justify-content:space-between;height:90px;border-bottom:2px solid var(--ink);padding-bottom:8px}
+.kick{font-size:20px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-family:var(--serif);font-size:52px;line-height:1.04;font-weight:700;margin-top:6px}
+h1 em{font-style:normal;color:#b3382c}
+.tag{text-align:right;font-size:22px;line-height:1.3}
+.tag b{font-family:var(--serif);font-size:34px;display:block}
+.row1{display:grid;grid-template-columns:600px 650px 1fr;gap:24px;height:540px}
+.row2{display:grid;grid-template-columns:990px 1fr;gap:24px;height:372px}
+.card{background:var(--mint);border-radius:8px;padding:16px 22px;position:relative;overflow:hidden}
+.card.sand{background:var(--sand)} .card.rose{background:var(--rose)} .card.plain{background:#fff;border:1.5px solid var(--line)}
+.ct{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+.ct .n{font-family:var(--serif);font-size:42px;font-weight:700;line-height:1}
+.ct .t{font-family:var(--serif);font-size:30px;font-weight:700}
+.sub{font-size:20px;color:var(--muted);margin-bottom:8px;line-height:1.25}
+.big{font-family:var(--serif);font-weight:700;line-height:1}
+.lab{font-size:21px;line-height:1.22}
+.small{font-size:16px;color:var(--muted);line-height:1.3}
+.hl{text-decoration:underline;text-decoration-color:#f3bfb3;text-decoration-thickness:.32em;text-underline-offset:-.08em;text-decoration-skip-ink:none}
+/* people */
+.jp,.in{display:flex;align-items:flex-end;gap:16px;margin:8px 0}
+.jp .big{font-size:66px}.in .big{font-size:66px}
+.cap{font-size:21px;line-height:1.22;padding-bottom:6px}
+.cap b{font-weight:700}
+.flag{font-size:19px;font-weight:700;letter-spacing:.1em;color:var(--muted);margin-top:10px}
+.bars{margin-top:12px}
+.brow{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:20px}
+.brow .nm{width:62px;font-weight:700}
+.track{flex:1;height:34px;position:relative}
+.seg{position:absolute;top:0;height:34px}
+.val{position:absolute;top:3px;font-size:20px;font-weight:700;white-space:nowrap}
+/* dots */
+.pics{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:6px}
+.pic{background:#fff;border-radius:8px;padding:12px 10px 12px;text-align:center}
+.pic svg{display:block;margin:0 auto}
+.pic .num{font-family:var(--serif);font-size:54px;font-weight:700;line-height:1;margin-top:8px}
+.pic .num small{font-size:24px;font-weight:600}
+.pic .what{font-size:18px;line-height:1.2;margin-top:2px;min-height:66px}
+.leg{display:flex;gap:26px;font-size:19px;margin-top:12px;align-items:center}
+.sw{display:inline-block;width:16px;height:16px;border-radius:50%;margin-right:7px;vertical-align:-2px}
+/* cost */
+.cb{margin:9px 0 2px}
+.cb .v{font-family:var(--serif);font-size:36px;font-weight:700;line-height:1}
+.cb .d{font-size:18px;line-height:1.2;margin:2px 0 5px}
+.cb .bar{height:20px;border-radius:3px}
+.callout{background:#fff;border-radius:8px;padding:9px 14px;margin-top:10px;font-size:19px;line-height:1.25}
+.callout b{font-family:var(--serif);font-size:25px;display:block}
+/* who pays */
+.flow{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.lane{display:flex;align-items:center;gap:10px}
+.lane .tg{width:62px;font-size:17px;font-weight:700;letter-spacing:.08em}
+.node{background:#fff;border-radius:7px;padding:7px 10px;font-size:17px;line-height:1.2;text-align:center;flex:1}
+.node b{display:block;font-size:20px}
+.node.k{background:var(--teal);color:#fff;font-weight:700}
+.node.k b{font-size:24px}
+.arr{font-size:26px;line-height:1}
+/* footer */
+.ft{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;height:70px}
+.sowhat{background:var(--ink);color:#fff;border-radius:8px;padding:8px 20px;display:flex;align-items:center;gap:16px}
+.sowhat .big{font-size:40px;color:#fff;min-width:150px}
+.sowhat .lab{color:#fff;font-size:20px}
+.note{font-size:14px;color:var(--muted);line-height:1.3;margin-top:-2px}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<header class="hd">
+  <div>
+    <div class="kick">Kaya 佳弥 · Type 2 diabetes · Market size and the gap</div>
+    <h1>A huge, quiet problem, and a <em>gap</em> nobody is filling</h1>
+  </div>
+  <div class="tag"><b>≈ 111 million people</b>with type 2 diabetes across Japan and India</div>
+</header>
+
+<section class="row1">
+
+  <!-- 1 PEOPLE -->
+  <div class="card">
+    <div class="ct"><span class="n">1</span><span class="t">The people</span></div>
+    <div class="sub">Who lives with type 2 diabetes today</div>
+    <div class="flag">JAPAN · FIRST</div>
+    <div class="jp"><span class="big">10M+</span><span class="cap"><b>strongly suspected</b>, about 1 in 10 adults.<br>Another <b>~10M</b> are on the edge.</span></div>
+    <div class="flag">INDIA · SCALE</div>
+    <div class="in"><span class="big">101M</span><span class="cap"><b>adults</b> with diabetes, plus <b>136M</b> in prediabetes. About <b>43%</b> don’t know (IDF).</span></div>
+    <div class="bars">
+      <div class="small" style="margin-bottom:2px">Drawn to scale (millions of people)</div>
+      <div class="brow"><span class="nm">Japan</span><div class="track">
+        <div class="seg" style="left:0;width:19px;background:var(--teal)"></div>
+        <div class="seg" style="left:19px;width:19px;background:var(--mint2)"></div>
+        <span class="val" style="left:48px">10 + 10</span></div></div>
+      <div class="brow"><span class="nm">India</span><div class="track">
+        <div class="seg" style="left:0;width:196px;background:var(--teal)"></div>
+        <div class="seg" style="left:196px;width:264px;background:var(--mint2)"></div>
+        <span class="val" style="left:10px;color:#fff">101</span><span class="val" style="left:210px">136</span></div></div>
+      <div class="small"><span class="sw" style="background:var(--teal);border-radius:2px"></span>diabetes &nbsp; <span class="sw" style="background:var(--mint2);border-radius:2px"></span>on the edge / prediabetes</div>
+    </div>
+  </div>
+
+  <!-- 2 GAP -->
+  <div class="card sand">
+    <div class="ct"><span class="n">2</span><span class="t">The gap</span></div>
+    <div class="sub">Of every <b>100</b> people with type 2 diabetes in Japan…</div>
+    <div class="pics">
+      <div class="pic"><svg id="d1" width="160" height="160"></svg><div class="num">53<small> of 100</small></div><div class="what">skip the <b>yearly eye exam</b></div></div>
+      <div class="pic"><svg id="d2" width="160" height="160"></svg><div class="num">85<small> of 100</small></div><div class="what">skip the <b>yearly urine test</b> that catches kidney damage (Europe: 41 of 100)</div></div>
+      <div class="pic"><svg id="d3" width="160" height="160"></svg><div class="num">99<small> of 100</small></div><div class="what">are <b>not reached</b> by the prevention program</div></div>
+    </div>
+    <div class="leg"><span><span class="sw" style="background:var(--rose-d)"></span>missed</span><span><span class="sw" style="background:var(--teal)"></span>reached</span></div>
+    <div style="margin-top:10px;font-size:21px;line-height:1.26"><b>Why:</b> nurses find high-risk people <span class="hl">by hand</span>. Doctors’ overtime is capped, so more hands is not the answer.</div>
+    <div class="small" style="margin-top:8px">Eye 47% and urine 15% are yearly completion rates; the prevention program reached about 1% in one city (Kyoto).</div>
+  </div>
+
+  <!-- 3 COST -->
+  <div class="card rose">
+    <div class="ct"><span class="n">3</span><span class="t">What the gap costs</span></div>
+    <div class="sub">Japan, per year · one dialysis patient ≈ ¥5M a year</div>
+    <div class="cb"><div class="v">≈ ¥1.2 trillion</div><div class="d">spent on diabetes care in total (2018)</div><div class="bar" style="width:100%;background:var(--slate)"></div></div>
+    <div class="cb"><div class="v">≈ ¥0.7 trillion</div><div class="d">dialysis for diabetic kidney disease, all current patients <b>(≈137,000)</b></div><div class="bar" style="width:57%;background:var(--rose-d)"></div></div>
+    <div class="cb"><div class="v">≈ ¥85 billion</div><div class="d">for each new year’s diabetic dialysis starters <b>(≈17,000)</b></div><div class="bar" style="width:7%;background:var(--rose-d)"></div></div>
+    <div class="callout"><b>1% prevented ≈ ¥0.85B saved a year</b>for one year’s new starters alone.</div>
+    <div class="small" style="margin-top:10px">≈ is our arithmetic: patients × ¥5M (range ¥4–6M). Years of source figures differ, so treat as a rough scale.</div>
+  </div>
+</section>
+
+<section class="row2">
+
+  <!-- 4 MARKET -->
+  <div class="card plain" style="background:var(--mint)">
+    <div class="ct"><span class="n">4</span><span class="t">How big is the market?</span></div>
+    <div class="sub">Analyst estimates, <b>digital diabetes management</b>, US$ billion. Publishers disagree.</div>
+    <svg id="mk" width="940" height="194" viewBox="0 0 1040 215"></svg>
+    <div class="small">Sources: IMARC (Japan, India), Market Research Future (both). Scope differs by publisher, up to about 6× apart for Japan 2024. Kaya’s own price is not set yet: this is the pool, not our revenue.</div>
+  </div>
+
+  <!-- WHO PAYS -->
+  <div class="card sand">
+    <div class="ct"><span class="t">Who writes the cheque</span></div>
+    <div class="sub">The side that pays for the damage pays for the prevention</div>
+    <div class="flow">
+      <div class="lane"><span class="tg">JAPAN</span><div class="node"><b>Insurers</b>1,716 municipal + 1,383 employer societies</div><span class="arr">→</span><div class="node k"><b>Kaya 佳弥</b></div><span class="arr">→</span><div class="node"><b>Nurses &amp; doctors</b></div></div>
+      <div class="lane"><span class="tg">INDIA</span><div class="node"><b>Hospital &amp; lab chains</b>patients mostly pay</div><span class="arr">→</span><div class="node k"><b>Kaya 佳弥</b></div><span class="arr">→</span><div class="node"><b>Doctors</b></div></div>
+    </div>
+    <div class="callout" style="margin-top:12px"><b>2.2 lakh new kidney failures a year in India</b>about ₹4–5 lakh a year each in private care, so roughly ₹8,800–11,000 crore a year for one year’s new patients (all causes, rough).</div>
+  </div>
+</section>
+
+<footer class="ft">
+  <div class="sowhat"><span class="big">111M</span><span class="lab">people with type 2 diabetes in our two markets</span></div>
+  <div class="sowhat"><span class="big">85–99</span><span class="lab">of every 100 miss a key early-warning step</span></div>
+  <div class="sowhat"><span class="big">¥5M</span><span class="lab">a year per dialysis patient the insurer avoids paying</span></div>
+</footer>
+<div class="note">Not yet validated in Japan. No price set. Sources (click): <a href="https://nippon.com/en/features/h00249">Japan diabetes survey</a> · <a href="https://www.downtoearth.org.in/health/india-s-diabetes-epidemic-just-got-more-grim-lancet-report-reveals-why-89946">ICMR-INDIAB (Lancet 2023)</a> · <a href="https://medicaldialogues.in/diabetes-endocrinology/news/international-diabetes-federation-releases-diabetes-atlas-11th-edition-2025-top-10-key-takeaways-from-india-146394">IDF Atlas 2025</a> · <a href="https://dev.japanhpn.org/en/?p=6336">Japan prevention program</a> · <a href="https://www.mof.go.jp/english/pri/publication/pp_review/ppr19_01_01.pdf">MOF: diabetes spend, dialysis share</a> · <a href="https://doaj.org/article/4dc0063c9e1d4489aa9ab59e7320e229">JSDT dialysis registry</a> · <a href="https://imarcgroup.com/japan-digital-diabetes-management-market">IMARC Japan</a> · <a href="https://www.imarcgroup.com/india-digital-diabetes-management-market">IMARC India</a> · <a href="https://marketresearchfuture.com/reports/japan-digital-diabetes-management-market-50605">MRFR Japan</a> · <a href="https://www.marketresearchfuture.com/reports/india-digital-diabetes-management-market-50610">MRFR India</a> · <a href="https://main.mohfw.gov.in/sites/default/files/Guidelines%20PMNDP.pdf">India PMNDP guidelines</a> · <a href="https://www.medboundtimes.com/medicine/world-kidney-day-2026-dialysis-access-cost-kidney-care-india">India dialysis cost</a>. Eye 47%, urine 15% vs 59%: see the Kaya poster references.</div>
+
+</div>
+
+<script>
+(function(){
+  function fit(){var s=Math.min(innerWidth/1920,innerHeight/1200);var st=document.getElementById('stage');
+    st.style.transform='scale('+s+')';st.style.left=((innerWidth-1920*s)/2)+'px';st.style.top=((innerHeight-1200*s)/2)+'px';}
+  fit();addEventListener('resize',fit);
+  // dot grids
+  function dots(id,missed){var svg=document.getElementById(id),h='';
+    for(var i=0;i<100;i++){var r=Math.floor(i/10),c=i%10;
+      var col=(i<missed)?'#cf6f61':'#4f9b8d';
+      h+='<circle cx="'+(8+c*16)+'" cy="'+(8+r*16)+'" r="6.4" fill="'+col+'"/>';}
+    svg.innerHTML=h;}
+  dots('d1',53);dots('d2',85);dots('d3',99);
+  // market chart
+  var svg=document.getElementById('mk'),x0=210,W=780,max=5,ink='#1d2b29';
+  function X(v){return x0+W*v/max;}
+  var h='';
+  for(var t=0;t<=5;t++){h+='<line x1="'+X(t)+'" y1="4" x2="'+X(t)+'" y2="182" stroke="#d5e8e1" stroke-width="1.5"/>';
+    h+='<text x="'+X(t)+'" y="205" font-size="18" text-anchor="middle" fill="#4c5a56">'+t+'</text>';}
+  var rows=[
+   {y:6,label:'Japan, today',sub:'2024',lo:0.20,hi:1.19,range:true,col:'#4f9b8d'},
+   {y:50,label:'Japan, forecast',sub:'2033 · IMARC',lo:0,hi:4.80,range:false,col:'#4f9b8d'},
+   {y:94,label:'India, today',sub:'2024–25',lo:0.34,hi:0.65,range:true,col:'#7ea3b3'},
+   {y:138,label:'India, forecast',sub:'2034 · IMARC',lo:0,hi:1.92,range:false,col:'#7ea3b3'}];
+  rows.forEach(function(r){
+    h+='<text x="0" y="'+(r.y+13)+'" font-size="22" font-weight="700" fill="'+ink+'" font-family="Palatino Linotype,Georgia,serif">'+r.label+'</text>';
+    h+='<text x="0" y="'+(r.y+34)+'" font-size="16" fill="#4c5a56">'+r.sub+'</text>';
+    var bx=X(r.lo),bw=X(r.hi)-X(r.lo);
+    h+='<rect x="'+bx+'" y="'+r.y+'" width="'+bw+'" height="28" rx="3" fill="'+r.col+'"/>';
+    var lab=r.range?('$'+r.lo.toFixed(2)+' – $'+r.hi.toFixed(2)+'B'):('$'+r.hi.toFixed(1)+'B');
+    h+='<text x="'+(X(r.hi)+10)+'" y="'+(r.y+22)+'" font-size="22" font-weight="700" fill="'+ink+'">'+lab+'</text>';
+  });
+  svg.innerHTML=h;
+})();
+</script>
+</body>
+</html>

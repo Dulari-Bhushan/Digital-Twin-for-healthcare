@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kaya 佳弥 – market size and revenue we can capture (tablet board)</title>
+<style>
+:root{--ink:#1b2a3a;--muted:#55616e;--line:#d9dee5;--indigo:#3f6c9e;--indigo-l:#b4cbe3;--coral:#e07a5f;--coral-l:#f4c6b8;--gold:#f2cc8f;
+--serif:'Palatino Linotype','Book Antiqua',Palatino,Georgia,serif;--sans:'Segoe UI','Yu Gothic UI','Yu Gothic',Meiryo,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#fff;color:var(--ink);font-family:var(--sans);overflow:hidden;height:100%}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1200px;transform-origin:0 0;padding:34px 64px 14px;background:#fff}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:#b9c6d6;text-underline-offset:3px}
+.kick{font-size:21px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-family:var(--serif);font-size:62px;line-height:1.05;font-weight:700;margin-top:6px}
+h1 em{font-style:normal;color:var(--coral)}
+.rule{height:3px;background:var(--ink);margin:16px 0 0}
+.cols{display:grid;grid-template-columns:640px 1fr;gap:70px;margin-top:22px}
+.sec h2{font-family:var(--serif);font-size:40px;font-weight:700}
+.sec .sub{font-size:23px;color:var(--muted);margin-top:2px}
+.vr{border-left:1.5px solid var(--line);padding-left:70px}
+.tot{margin-top:6px;border-top:1.5px solid var(--line);padding-top:12px}
+.note{position:absolute;left:64px;right:64px;bottom:12px;font-size:14px;color:var(--muted);line-height:1.35}
+svg text{font-family:var(--sans)}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="kick">Kaya 佳弥 · Type 2 diabetes · The revenue opportunity</div>
+  <h1>How big is the market, and <em>how much can we capture?</em></h1>
+  <div class="rule"></div>
+
+  <div class="cols">
+    <div class="sec">
+      <h2>The market</h2>
+      <div class="sub">Analyst estimates, US$ billion a year</div>
+      <svg id="mk" width="640" height="680" viewBox="0 0 640 680"></svg>
+    </div>
+    <div class="sec vr">
+      <h2>What we capture</h2>
+      <div class="sub">Yearly revenue as more patients join, at one flat fee per patient</div>
+      <svg id="st" width="1010" height="680" viewBox="0 0 1010 680"></svg>
+    </div>
+  </div>
+
+  <div class="tot"><svg id="tt" width="1792" height="170" viewBox="0 0 1792 170"></svg></div>
+
+  <div class="note">Illustrative base case, not a forecast. Our price is not set; the fees are assumptions (US$1 = ¥150 = ₹84; 1 crore = 10 million). Market: IMARC (Japan 2024, India 2025); other publishers estimate lower (Japan US$0.2B, India US$0.34B). A fee up to about ¥4,000 pays for itself on dialysis savings alone. Sources: <a href="https://imarcgroup.com/japan-digital-diabetes-management-market">IMARC Japan</a> · <a href="https://www.imarcgroup.com/india-digital-diabetes-management-market">IMARC India</a> · <a href="https://marketresearchfuture.com/reports/japan-digital-diabetes-management-market-50605">MRFR Japan</a> · <a href="https://www.marketresearchfuture.com/reports/india-digital-diabetes-management-market-50610">MRFR India</a> · <a href="https://nippon.com/en/features/h00249">Japan survey (10M+)</a> · <a href="https://www.downtoearth.org.in/health/india-s-diabetes-epidemic-just-got-more-grim-lancet-report-reveals-why-89946">ICMR-INDIAB (101M)</a> · <a href="https://www.mof.go.jp/english/pri/publication/pp_review/ppr19_01_01.pdf">MOF</a> · <a href="https://doaj.org/article/4dc0063c9e1d4489aa9ab59e7320e229">JSDT</a>.</div>
+</div>
+
+<script>
+(function(){
+  function fit(){var s=Math.min(innerWidth/1920,innerHeight/1200);var st=document.getElementById('stage');
+    st.style.transform='scale('+s+')';st.style.left=((innerWidth-1920*s)/2)+'px';st.style.top=((innerHeight-1200*s)/2)+'px';}
+  fit();addEventListener('resize',fit);
+  var INK='#1b2a3a',MUT='#55616e',IND='#3f6c9e',INDL='#b4cbe3',COR='#e07a5f',CORL='#f4c6b8',GOLD='#f2cc8f',SERIF='Palatino Linotype,Georgia,serif';
+  function T(x,y,txt,size,opt){opt=opt||{};return '<text x="'+x+'" y="'+y+'" font-size="'+size+'" text-anchor="'+(opt.a||'middle')+'" font-weight="'+(opt.w||400)+'" fill="'+(opt.c||INK)+'"'+(opt.f?' font-family="'+opt.f+'"':'')+(opt.ls?' letter-spacing="'+opt.ls+'"':'')+'>'+txt+'</text>';}
+
+  // ---------- market bars ----------
+  var h='',base=590,k=88; // px per US$ billion
+  var bars=[{x:30,v:1.19,c:INDL,lab:'$1.2B',yr:'2024'},{x:170,v:4.8,c:IND,lab:'$4.8B',yr:'2033'},{x:360,v:0.65,c:CORL,lab:'$0.65B',yr:'2025'},{x:500,v:1.92,c:COR,lab:'$1.9B',yr:'2034'}];
+  h+='<line x1="0" y1="'+base+'" x2="640" y2="'+base+'" stroke="'+INK+'" stroke-width="2"/>';
+  bars.forEach(function(b){
+    var hh=b.v*k;
+    h+='<rect x="'+b.x+'" y="'+(base-hh)+'" width="120" height="'+hh+'" rx="3" fill="'+b.c+'"/>';
+    h+=T(b.x+60,base-hh-14,b.lab,44,{w:700,f:SERIF});
+    h+=T(b.x+60,base+32,b.yr,24,{c:MUT});
+  });
+  h+=T(160,base+82,'JAPAN',30,{w:700,c:IND,ls:4});
+  h+=T(490,base+82,'INDIA',30,{w:700,c:COR,ls:4});
+  document.getElementById('mk').innerHTML=h;
+
+  // ---------- staircases ----------
+  function stairs(ox,name,col,coll,sub,steps,unit,scale){
+    var s='',bb=590,w=134;
+    s+=T(ox,40,name,32,{a:'start',w:700,c:col,ls:4});
+    s+=T(ox,76,sub,23,{a:'start',c:MUT});
+    s+='<line x1="'+ox+'" y1="'+bb+'" x2="'+(ox+470)+'" y2="'+bb+'" stroke="'+INK+'" stroke-width="2"/>';
+    steps.forEach(function(st,i){
+      var x=ox+10+i*160, hh=Math.max(st.v*scale,8);
+      s+='<rect x="'+x+'" y="'+(bb-hh)+'" width="'+w+'" height="'+hh+'" rx="3" fill="'+(st.base?col:coll)+'"/>';
+      s+=T(x+w/2,bb-hh-14,st.lab,46,{w:700,f:SERIF});
+      if(st.base){s+='<rect x="'+(x+14)+'" y="'+(bb-hh-96)+'" width="'+(w-28)+'" height="30" rx="15" fill="'+GOLD+'"/>'+T(x+w/2,bb-hh-75,'BASE CASE',18,{w:700,ls:2});}
+      s+=T(x+w/2,bb+38,st.pat,30,{w:700});
+      s+=T(x+w/2,bb+66,st.pct,21,{c:MUT});
+    });
+    return s;
+  }
+  var r='';
+  r+=stairs(0,'JAPAN',IND,INDL,'10 million patients · ¥2,000 per patient a year',[
+     {v:0.2,lab:'¥0.2B',pat:'100,000',pct:'1% of patients'},
+     {v:1,lab:'¥1B',pat:'500,000',pct:'5% of patients',base:true},
+     {v:2,lab:'¥2B',pat:'1,000,000',pct:'10% of patients'}],'¥',190);
+  r+=stairs(520,'INDIA',COR,CORL,'101 million patients · ₹1,000 per patient a year',[
+     {v:100,lab:'₹100 cr',pat:'1,000,000',pct:'1% of patients',base:true},
+     {v:300,lab:'₹300 cr',pat:'3,000,000',pct:'3% of patients'},
+     {v:500,lab:'₹500 cr',pat:'5,000,000',pct:'5% of patients'}],'₹',0.76);
+  document.getElementById('st').innerHTML=r;
+
+  // ---------- total ----------
+  var t='';
+  t+=T(0,92,'≈ US$19M',104,{a:'start',w:700,f:SERIF});
+  t+=T(0,134,'a year, base case, Japan + India together',27,{a:'start',c:MUT});
+  var X0=820,W=960,jw=W*7/19,iw=W-jw;
+  t+='<rect x="'+X0+'" y="30" width="'+jw+'" height="62" rx="3" fill="'+INDL+'"/>';
+  t+='<rect x="'+(X0+jw)+'" y="30" width="'+iw+'" height="62" rx="3" fill="'+CORL+'"/>';
+  t+=T(X0+jw/2,72,'Japan  US$7M',30,{w:700});
+  t+=T(X0+jw+iw/2,72,'India  US$12M',30,{w:700});
+  t+=T(X0,134,'only about 1% of the combined analyst market (US$1.8B)',27,{a:'start',c:MUT});
+  document.getElementById('tt').innerHTML=t;
+})();
+</script>
+</body>
+</html>
