@@ -120,17 +120,86 @@ Direct links: `?view=heart&hp=1091&day=12` opens Anil Saxena on his alert mornin
 
 The dials show the wearable-and-glucose pattern, the record-risk percentile and the combined 72-hour risk. **Why this score** lists the factors that pushed it up, tagged wearable, glucose sensor or record. The wording is deliberate: "Review suggested" is a prompt to look at a patient, not a diagnosis. Two tables at the bottom give the measured behaviour on held-out patients: **How well does it work?** (use it, not the 24 examples, when asked about accuracy) and **When the data is thin or messy** (glucose lows, the watch off for days, no record). Say plainly that the cohort is synthetic, that cardiovascular events are far more frequent in it than in real life (7 events among 24 people in a month), and that the link between severe lows and heart episodes is an assumption of the simulator.
 
-## Suggested flow (about 6 minutes)
+## Screening tracker: which yearly tests are overdue
 
-1. **Doctor view, Rajesh.** Show the triage list (sorted by priority; Priya is further down, pick her by name). Point at why he is flagged (time in range, liver, kidney, retinopathy). Press **Replay last 3 days**: the forecast fan appears before the evening spike.
-2. **What-if studio.** Press **All three**: time in range improves, liver and kidney projections move. Say it is a simulation with editable assumptions.
-3. **Switch to Priya** in the list. Same screens, very different picture: green rings, low risks, forecasts that stay in range.
-4. **Patient app, Rajesh.** Tap Sun, Mon, Tue and Today to show how each day differs. On Mon, point at the low in the chart.
-5. **Same app, Priya.** Show the wedding day and the recovery.
-6. **Assistant.** Tap the small microphone icon, ask a question in Hindi or Kannada, and try "how much insulin should I take" to show the safety rule.
-7. **Reports.** In the doctor view show the changes card, then open Reports and a retinal report; in the patient app tap the Reports tab.
-8. **Go live** in the doctor view and the **clinical summary** button, if time allows.
-9. **Heart watch** (the second tab inside the Doctor view). It opens on the same patient as the glucose twin. Pick Anil Saxena, replay the month, stop on the alert morning and show the dials, the drivers and the medicine check. Then Rakesh Bhatt, to show the record calming a wearable scare, and Radha Nair, to show "Not enough data". Say the number of false alarms out loud, and end on the two evidence tables.
+In the doctor record's **Overview**, under *What changed since the last visit*, the **Screening tracker** lists four yearly tests for a person with diabetes: the eye (retina) exam, the urine albumin test, kidney function (eGFR) and the foot exam. Each row shows when it was last done, whether it is **up to date**, **due soon** (under 60 days left) or **overdue**, and why the test matters. The patient list also gets a **Screening overdue** flag, so these patients no longer look stable.
+
+| Patient | What to show |
+|---|---|
+| **Rajesh Sharma (ID 1688)** | The one-patient demo. Eye exam overdue (last photo 14 months ago, which showed moderate retinopathy) and foot exam overdue (14 months); urine albumin and kidney function are up to date. Press **Refer to eye specialist**: the row shows "Referral sent" and the message appears in his patient app. His other stories are unchanged: the changes card still shows retinopathy progressing from mild to moderate, and albumin rising to 231 mg/g |
+| Brijmohan Yadav (ID 302) | Eye exam and foot exam overdue (15 and 19 months) |
+| Neha Chauhan (ID 496) | Urine albumin test overdue. The Reports tab shows the urine albumin trend with gaps, because only the oldest lab panel had the test |
+| Priya Kashyap | Everything up to date |
+
+The history of which tests were done is simulated and seeded by patient id (`src/api/screening.py`); about 30% of the cohort is overdue for the eye exam, 30% for the urine albumin test and 25% for the foot exam. The same schedule decides which reports exist in the record, so the tracker and the Reports tab always agree. A reminder or referral is an ordinary message to the patient; the row clears when a new report for that test is in the record. Sending one writes to `data/patient_messages/` (git-ignored); delete that folder to reset the demo.
+
+## Japanese (日本語)
+
+In the patient app press **日** at the top, or open `http://localhost:8000/?view=patient&p=1688&lang=ja`.
+
+| What | How it works |
+|---|---|
+| Every patient screen | Japanese text in `dashboard/src/i18n_ja.json` (228 strings, a first draft: **have a native speaker read it before the day**) |
+| Ask Kaya (chat) | Answers in Japanese from **Google Gemini** (`src/api/gemini.py`), using the patient's anonymous facts only |
+| Doctor's messages and prescriptions | Quick-start messages are pre-translated; free text and prescription notes are translated by Gemini the first time the patient opens them (needs internet) |
+| Reading aloud and the microphone | The browser's own Japanese voice (Edge has natural-sounding ones) and Chrome or Edge speech recognition, which needs internet. Sarvam has no Japanese |
+| Reports and the doctor's screens | Stay in English, as issued |
+
+**Setup.** Put `GEMINI_API_KEY=...` in `.env` (git-ignored, see `.env.example`). `GEMINI_MODEL` picks a different model first; the default is `gemini-3.1-flash-lite`, with `gemini-3.5-flash-lite` as back-up. `GEMINI_DAILY_BUDGET` (default 1500) caps model calls per day. Without a key, Japanese chat says "I could not answer just now" politely and everything else works.
+
+**Safety and security on every Japanese (and other) chat request**
+- **Fixed answers first, in code, before the model:** Japanese emergency words (胸が痛い, 息ができない, 意識がない ...) get the 119 message; medicine and dose words (薬, インスリン, 用量, 何単位 ...) get the "ask your doctor or pharmacist" message. The model never sees them.
+- **Input cleaned:** control, zero-width and direction-override characters removed, length capped at 500 characters, earlier turns from the browser re-checked because they could be forged.
+- **Rule-change and key requests refused without calling the model:** "ignore your instructions", "show the system prompt", "what is the API key" (English and Japanese).
+- **Limits:** 40 requests a minute per client (all voice and chat), 12 model calls a minute per client, a daily budget, and a circuit breaker that stops calling a failing service for a minute. A busy service gets a polite message.
+- **Nothing identifying is sent:** the model gets age, sex and the numbers, never a name, id or contact details.
+- **Replies checked:** links, e-mail addresses, phone numbers and key-shaped text removed or refused, dose advice replaced by the medicine message, and a reply that is not Japanese is not shown.
+- **The key stays on the server:** read from `.env`, sent in a header, scrubbed from every error text, never returned to a browser. The admin page shows only "configured".
+
+Say plainly if asked: the Japanese wording is a machine-assisted first draft awaiting native-speaker review, and the chat assistant is general guidance, not medical advice.
+
+## Appointments: reception, the doctor's calendar and booking from the patient app
+
+Three views share one calendar (`src/api/appointments.py`, stored in `data/appointments.json`, git-ignored; `python scripts/reset_demo.py` clears it and the server creates a fresh sample week on start).
+
+| View | How to open | What it does |
+|---|---|---|
+| **Reception** | the **Reception** button in the header (a badge shows how many requests wait; red when one is urgent), or `?view=reception` | Requests queue (urgent first) with Confirm, Decline, or Place for an urgent request. The week calendar below: click a person to see their request, move them, cancel them, mark them seen or absent; click an empty slot to book a patient in |
+| **Doctor's schedule** | Doctor view, **Schedule** tab, or `?view=schedule` | The same calendar for the doctor and nurse, with the same changes and the two tools below |
+| **Patient app** | the **Appointments** card: always in the Reports tab, and on the main Today screen only when it matters (an appointment is coming up, or yearly tests are due or overdue; otherwise Today has no booking card), or `?view=patient&p=1688&book=1` | A four-week month calendar marks open days, full days and closed days, and pins the date a test is due (or lists tests that are overdue). Tapping a day opens its times, with free, taken and "urgent only" slots; the patient picks one and sends a request |
+
+**Rules built in**
+- The clinic is open Monday to Friday, 09:00-12:00 and 14:00-17:00, in 20-minute slots. Today is Wednesday 14 January 2026 at 21:50 on the demo clock, so the first bookable day is Thursday 15 January.
+- A request **holds its slot at once**, so nobody else can take it, until reception answers. A declined or cancelled slot is free again immediately for other patients.
+- **Cancelling:** the patient app says "If you need to cancel, please do it at least 24 hours before, so another patient can take the slot." Cancelling inside 24 hours is allowed but marked as a late cancellation (and the app warns first).
+- **Emergencies:** the last slot of each session (11:40 and 16:40) is held back, and patients cannot book it. A patient who ticks **This is urgent** needs no slot: the request goes to the top of reception's queue (the app tells them to call 119 in a real emergency), and reception places them in a held-back slot, or squeezes them into a busy one on purpose.
+- A patient can hold at most 3 appointments and send 6 requests a day.
+
+**When the doctor is called away** (Reception or the doctor's Schedule tab, under the calendar)
+- **When the doctor is called away:** pick the day, the time away and back, and "move to the next free slots" or "cancel and tell them". **Show who is affected** lists each patient and where they would move; **Apply** moves them, blocks the time for new bookings, and each patient sees a banner in the app with the reason. Patients who no longer fit that day go to the next open day.
+- **Running late:** everyone from a chosen time keeps their slot but is told to come about 20 minutes later; the app shows "expected about 10:45".
+
+Every change adds a banner in the patient app (confirmed, moved, cancelled, running late) that stays until the patient presses **I have seen this**.
+
+**A two-minute demo:** in the patient app (Rajesh) book Thursday 09:20, then switch to **Reception** and press Confirm (the patient app shows the confirmation). Tick **This is urgent** as a second patient to show the red queue. Then open **Show who is affected** for Thursday 09:00-12:00 to show the plan for an emergency operation, and apply it. Reset afterwards.
+
+The calendar and the sample requests are synthetic. The reception, doctor and patient screens are separate views of the same data with no sign-in: a real clinic needs staff accounts and roles. The patient screens are translated into Japanese; the reception and doctor screens are in English.
+
+## Suggested flow: one patient, Rajesh Sharma (about 6 minutes)
+
+Before you start: stop the server, run `python scripts/reset_demo.py`, start the server again, and open two windows: the doctor view (`http://localhost:8000/?p=1688`) and the patient app (`http://localhost:8000/?view=patient&p=1688`). The story is the doctor's: *the twin finds the problem, the screening gap shows what is missing, and the doctor acts without the patient having to come in.*
+
+1. **Who needs me today.** In the doctor list, press the **Screening** chip: only patients with an overdue test remain. Rajesh is near the top (high priority). Open him.
+2. **Why he is flagged.** The header and the **What changed since the last visit** card: time in range, a night low, albumin up, retinopathy progressing from mild to moderate. Press **Replay last 3 days** to show the forecast fan before the evening spike.
+3. **The screening gap.** Scroll to the **Screening tracker**: his eye exam is 14 months overdue even though his last photo already showed moderate retinopathy, and the foot exam is overdue too. Press **Refer to eye specialist**; the row now says "Referral sent". In the patient window, the doctor's message appears within seconds.
+4. **Try a medicine before prescribing.** Open the **What-if studio** and change a medicine (stop, change the dose, or add one) to see glucose and low-sugar risk move. Say it is a simulation with editable assumptions.
+5. **The patient sends a report from home, no visit needed.** In the patient app open **Reports**, **Add a report**, choose `docs/sample/Rajesh_Sharma_lab_report.pdf`, press **Yes, read it for me** (needs internet for the reading service). In the doctor's **Reports** tab it appears under *Uploaded by the patient*, marked unverified.
+6. **The doctor acts.** Open **Message patient**, set a medicine to *Change dose*, write a note, press **Send prescription to the patient**. In the patient window the "Your doctor changed your medicines" pop-up appears; **Got it, show me my reports** shows the new consultation note and the updated medicine list.
+7. **Close** with the patient's side if time allows: tap Sun, Mon, Tue and Today, the Mon night low, and the assistant (ask "how much insulin should I take" to show the safety rule).
+
+**Optional extras:** compare with Priya Kashyap (everything green and up to date); **Heart watch** (the second tab in the Doctor view: Anil Saxena, Rakesh Bhatt, Radha Nair; say it is research-only and say the number of false alarms out loud); the clinical summary PDF; the IT admin page.
+
+If the internet is down: skip the automatic report reading in step 5 (the upload and the doctor's view still work) and have the backup screen recording ready.
 
 ## How the stories were made
 

@@ -1,6 +1,7 @@
 import EXTRA from './i18n_extra.json'
+import JA from './i18n_ja.json'
 
-// Patient-app strings in English, Hindi, Telugu and Kannada, plus machine-made drafts for the other Indian languages (i18n_extra.json).
+// Patient-app strings in English, Hindi, Telugu, Kannada and Japanese (i18n_ja.json, a first draft to be checked by a native speaker), plus machine-made drafts for the other Indian languages (i18n_extra.json).
 // Hindi, Telugu and Kannada are first drafts and should be reviewed by a native speaker before clinical use.
 
 // label: the language in its own script; name: in English, so a helper can find it too. rtl: written right to left.
@@ -9,6 +10,7 @@ export const LANGS = [
   { code: 'hi', short: 'हिं', label: 'हिन्दी', name: 'Hindi', locale: 'hi-IN' },
   { code: 'te', short: 'తె', label: 'తెలుగు', name: 'Telugu', locale: 'te-IN' },
   { code: 'kn', short: 'ಕ', label: 'ಕನ್ನಡ', name: 'Kannada', locale: 'kn-IN' },
+  { code: 'ja', short: '日', label: '日本語', name: 'Japanese', locale: 'ja-JP' },
 ]
 // More languages (Tamil, Bengali, Marathi ... all 22) are prepared in the backend and in scripts/translate_ui.py; add an entry here once its
 // screen text is translated into i18n_extra.json and checked by a native speaker.
@@ -215,7 +217,87 @@ Object.assign(kn, {
   msg_auto: 'ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಅನುವಾದಿಸಲಾಗಿದೆ', msg_orig: 'ನಿಮ್ಮ ವೈದ್ಯರು ಬರೆದಂತೆಯೇ',
 })
 
-const DICT = { en, hi, te, kn, ...EXTRA }
+Object.assign(en, {
+  "appt_title": "Appointments",
+  "appt_book": "Book an appointment",
+  "appt_card_sub": "See free times and ask the clinic for one",
+  "appt_next": "Your next appointment",
+  "appt_asap": "as soon as possible",
+  "appt_status_requested": "Waiting for the clinic",
+  "appt_status_confirmed": "Confirmed",
+  "appt_status_declined": "Not available",
+  "appt_status_cancelled": "Cancelled",
+  "appt_status_completed": "Done",
+  "appt_status_no_show": "Missed",
+  "appt_expected": "expected about {time}",
+  "appt_n_confirmed": "Your appointment is confirmed: {when}",
+  "appt_n_urgent": "The clinic has given you an urgent time: {when}",
+  "appt_n_declined": "The clinic could not give you {when}. Please choose another time.",
+  "appt_n_moved": "Your appointment has moved from {old} to {when}.",
+  "appt_n_cancelled": "The clinic had to cancel your appointment on {when}. Please book another time.",
+  "appt_n_delayed": "The doctor is running about {min} minutes late. Please come at about {time}.",
+  "appt_err": "Could not load the calendar. Please try again.",
+  "appt_cancel_note": "If you need to cancel, please do it at least 24 hours before, so another patient can take the slot.",
+  "appt_mine": "My appointments",
+  "appt_urgent_short": "urgent",
+  "appt_cancel_confirm": "Cancel this appointment?",
+  "appt_cancel_late": "This is less than 24 hours away. If you can still come, please keep it, or call the clinic.",
+  "appt_cancel_yes": "Yes, cancel it",
+  "appt_keep": "Keep it",
+  "appt_cancel": "Cancel",
+  "appt_cancelled": "Cancelled. The slot is free again for other patients.",
+  "appt_new": "Ask for an appointment",
+  "appt_reason": "Reason",
+  "appt_r_routine": "Routine check",
+  "appt_r_follow_up": "Follow-up",
+  "appt_r_screening": "Eye, kidney or foot test",
+  "appt_r_results": "Talk about my results",
+  "appt_r_other": "Something else",
+  "appt_urgent_title": "This is urgent",
+  "appt_urgent_sub": "Same-day request, the clinic will find a time",
+  "appt_urgent_warn": "In an emergency call 119 or go to the nearest emergency room. Do not wait for the app.",
+    "appt_choose_day": "Choose a day",
+  "appt_choose_time": "Choose a time",
+  "appt_n_free": "{n} free",
+  "appt_full": "full",
+  "appt_free": "free",
+  "appt_taken": "taken",
+  "appt_reserved": "urgent only",
+  "appt_reserved_hint": "Kept for urgent cases",
+  "appt_note": "A note for the clinic (optional)",
+  "appt_sending": "Sending…",
+  "appt_send_urgent": "Send urgent request",
+  "appt_send": "Send request",
+  "appt_confirm_note": "The clinic confirms each request. You will see the answer here.",
+  "appt_sent": "Request sent. The time is held for you until the clinic answers.",
+  "appt_sent_urgent": "Urgent request sent. The clinic will give you a time as soon as it can."
+})
+
+Object.assign(en, {
+  "appt_tests_due": "Tests due",
+  "appt_overdue": "overdue",
+  "appt_due_on": "due {date}",
+  "appt_due_tip": "Tap a test to book it. Due dates are also pinned on the calendar.",
+  "appt_t_eye": "Eye exam",
+  "appt_t_uacr": "Urine albumin test",
+  "appt_t_egfr": "Kidney function test",
+  "appt_t_foot": "Foot exam",
+  "appt_pick_day": "Tap a day on the calendar to see its times.",
+  "appt_day_times": "Times on {day}",
+  "appt_l_free": "free times",
+  "appt_l_full": "full",
+  "appt_l_closed": "closed",
+  "appt_l_due": "test due",
+  "appt_none_free": "There are no free times in the next four weeks. Please call the clinic."
+})
+
+Object.assign(en, {
+  "appt_pending_title": "Checkups due",
+  "appt_pending_cta": "Tap to book a time",
+  "appt_soon": "due soon"
+})
+
+const DICT = { en, hi, te, kn, ja: JA, ...EXTRA }
 
 export function makeT(lang) {
   return (key, vars = {}) => {

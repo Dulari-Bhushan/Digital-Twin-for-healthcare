@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { getChanges, getPatient, getPatients, getSeries } from './api'
+import { getApptSummary, getChanges, getPatient, getPatients, getSeries } from './api'
 import { AlertsCard, GlucoseCard, Hero, Organs, ProbCard, RangeCard, WhatIfStudio } from './components/Doctor'
 import { Sidebar } from './components/Triage'
 import PatientApp from './components/PatientApp'
 import Record from './components/Record'
 import Admin from './components/Admin'
 import Heart from './components/Heart'
+import Reception from './components/Reception'
+import Schedule from './components/Schedule'
 import { ChangesCard } from './components/Reports'
 import { useLive } from './live'
 import { Logo } from './ui'
@@ -34,8 +36,10 @@ export default function App() {
   const params = new URLSearchParams(window.location.search)
   const [patients, setPatients] = useState([])
   const [sel, setSel] = useState(null)
-  const [mode, setMode] = useState(['patient', 'admin'].includes(params.get('view')) ? params.get('view') : 'doctor')
-  const [docView, setDocView] = useState(params.get('view') === 'heart' ? 'heart' : 'twin')
+  const [mode, setMode] = useState(['patient', 'admin', 'reception'].includes(params.get('view')) ? params.get('view') : 'doctor')
+  const [docView, setDocView] = useState(params.get('view') === 'heart' ? 'heart' : params.get('view') === 'schedule' ? 'schedule' : 'twin')
+  const [apptSum, setApptSum] = useState({ pending: 0, urgent: 0 })
+  const refreshAppts = () => getApptSummary().then(setApptSum).catch(() => {})
   const [d, setD] = useState(null)
   const [series, setSeries] = useState(null)
   const [changes, setChanges] = useState(null)
@@ -68,6 +72,8 @@ export default function App() {
       setSel(params.get('p') ? Number(params.get('p')) : demo.id)
     }).catch((e) => setErr(String(e)))
   }, [])
+
+  useEffect(() => { refreshAppts(); const id = setInterval(refreshAppts, 6000); return () => clearInterval(id) }, [])
 
   useEffect(() => {                                   // flags change when a patient writes or the doctor replies
     const refresh = () => getPatients().then(setPatients).catch(() => {})
@@ -125,6 +131,7 @@ export default function App() {
         <div className="switch" role="tablist">
           <button className={mode === 'doctor' ? 'on' : ''} onClick={() => setMode('doctor')}>Doctor</button>
           <button className={mode === 'patient' ? 'on' : ''} onClick={() => setMode('patient')}>Patient</button>
+          <button className={mode === 'reception' ? 'on' : ''} onClick={() => setMode('reception')}>Reception{apptSum.pending > 0 && <span className={`badge ${apptSum.urgent ? 'urg' : ''}`} title={`${apptSum.pending} request(s) waiting${apptSum.urgent ? `, ${apptSum.urgent} urgent` : ''}`}>{apptSum.pending}</span>}</button>
           <button className={mode === 'admin' ? 'on' : ''} onClick={() => setMode('admin')}>Admin</button>
         </div>
       </header>
@@ -134,9 +141,10 @@ export default function App() {
         <nav className="subnav" aria-label="Doctor views">
           <button className={docView === 'twin' ? 'on' : ''} onClick={() => setDocView('twin')}>Glucose twin</button>
           <button className={docView === 'heart' ? 'on' : ''} onClick={() => setDocView('heart')}>Heart watch</button>
+          <button className={docView === 'schedule' ? 'on' : ''} onClick={() => setDocView('schedule')}>Schedule</button>
         </nav>
       )}
-      {mode === 'admin' ? <Admin /> : mode === 'doctor' && docView === 'heart' ? (sel == null ? <div className="stage muted">Loading…</div> : <Heart pid={sel} onPick={setSel} onOpenTwin={(id) => { setSel(id); setDocView('twin') }} />) : mode === 'patient' ? (
+      {mode === 'admin' ? <Admin /> : mode === 'reception' ? <main className="wide"><Reception patients={patients} onChanged={refreshAppts} onOpenPatient={(id) => { setSel(id); setMode('doctor'); setDocView('twin'); setRecord({ tab: 'catchup' }) }} /></main> : mode === 'doctor' && docView === 'schedule' ? <main className="wide"><Schedule role="doctor" patients={patients} onChanged={refreshAppts} onOpenPatient={(id) => { setSel(id); setDocView('twin'); setRecord({ tab: 'catchup' }) }} /></main> : mode === 'doctor' && docView === 'heart' ? (sel == null ? <div className="stage muted">Loading…</div> : <Heart pid={sel} onPick={setSel} onOpenTwin={(id) => { setSel(id); setDocView('twin') }} />) : mode === 'patient' ? (
         ready ? <PatientApp d={d} at={at} pid={sel} changes={changes} /> : <div className="stage muted">Loading…</div>
       ) : (
         <div className="layout" style={{ '--sidew': `${sideW}px` }}>

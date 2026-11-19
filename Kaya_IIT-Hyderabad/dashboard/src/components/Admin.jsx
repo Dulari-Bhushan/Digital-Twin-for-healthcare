@@ -105,7 +105,7 @@ export default function Admin() {
           </div>
         </Sec>
         <Sec title="Assistant safety" hint="outcomes, never the questions">
-          <table className="rt"><tbody>{['chat', 'navigate', 'medicine', 'emergency', 'unavailable', 'error'].map((k) => <tr key={k}><td><b>{k}</b></td><td>{data.assistant[k] || 0}</td></tr>)}</tbody></table>
+          <table className="rt"><tbody>{['chat', 'navigate', 'medicine', 'emergency', 'declined', 'busy', 'unavailable', 'error'].map((k) => <tr key={k}><td><b>{k}</b></td><td>{data.assistant[k] || 0}</td></tr>)}</tbody></table>
           <div className="note">Emergency and medicine questions are answered by fixed rules and never reach the language model. Message text is not stored.</div>
         </Sec>
       </div>

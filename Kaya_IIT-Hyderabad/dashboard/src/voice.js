@@ -46,6 +46,11 @@ export async function speak(text, lang, enabled) {
   if ('speechSynthesis' in window) {
     const u = new SpeechSynthesisUtterance(text)
     u.lang = LOCALE[lang] || 'en-IN'
+    const want = (u.lang || '').toLowerCase().split('-')[0]
+    // prefer a natural (online) voice of the language when the browser has one, for example Edge's Japanese voices
+    const voices = window.speechSynthesis.getVoices().filter((v) => (v.lang || '').toLowerCase().replace('_', '-').startsWith(want))
+    const v = voices.find((x) => /natural|online/i.test(x.name)) || voices[0]
+    if (v) u.voice = v
     window.speechSynthesis.speak(u)
     return true
   }

@@ -118,7 +118,8 @@ export function Trends({ data, keys = TREND_KEYS, height = 190 }) {
   const [k, setK] = useState(keys[0][0])
   const sel = keys.find((x) => x[0] === k) || keys[0]
   const y = data[sel[0]]
-  const lo = Math.min(...y), hi = Math.max(...y)
+  const known = y.filter((v) => v != null)
+  const lo = known.length ? Math.min(...known) : 0, hi = known.length ? Math.max(...known) : 1
   const pad = (hi - lo) * 0.25 || hi * 0.1 || 1
   return (
     <div>

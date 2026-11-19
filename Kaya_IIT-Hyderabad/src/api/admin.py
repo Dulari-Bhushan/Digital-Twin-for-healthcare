@@ -114,6 +114,8 @@ def overview(state: dict) -> dict:
         {"item": "Patient endpoints require sign-in", "ok": False, "note": "Open in this demo. A deployment needs hospital single sign-on and role checks before real data is used."},
         {"item": "Cross-origin access restricted", "ok": False, "note": "CORS allows any origin for the demo; restrict it to the hospital's domain."},
         {"item": "Data is synthetic", "ok": True, "note": "24 invented patients; no real health records are stored."},
+        {"item": "Gemini key kept on the server only", "ok": True, "note": "Read from .env or the environment, scrubbed from error texts, never sent to a browser."},
+        {"item": "Chat requests are checked before and after the model", "ok": True, "note": "Cleaned input, rule-change and key requests refused, 12 calls a minute per client, a daily budget, a circuit breaker, replies stripped of links and key-shaped text."},
         {"item": "Voice requests rate limited", "ok": True, "note": "40 per minute per address, 120 per minute for the diary."},
         {"item": "Medicine and emergency questions handled in code", "ok": True, "note": "The language model never sees them; see the assistant counters below."},
         {"item": "Uploaded documents sent to a third party only with consent", "ok": True, "note": "Reading is opt-in per upload and sends the file to Sarvam AI. A hospital deployment needs a data-processing agreement or an on-premises reader."},
@@ -129,6 +131,7 @@ def overview(state: dict) -> dict:
                  "synthetic": True, "diary_files": n_logs, "uploaded_files": (len([f for f in state["uploads_dir"].rglob("*") if f.is_file() and f.name != "index.json"]) if state["uploads_dir"].exists() else 0), "eye_images": len(list((root / "artifacts" / "eye").glob("*.jpg"))), "dashboard_build": (root / "dashboard" / "dist" / "index.html").exists()},
         "integrations": [
             {"name": "Sarvam voice and chat", "status": "configured" if state["voice"] else "not configured", "detail": state["voice_models"]},
+            {"name": "Japanese chat and translation (Gemini)", "status": "configured" if state.get("gemini") else "not configured", "detail": state.get("gemini_models", "")},
             {"name": "Document reading (Sarvam Document AI)", "status": "configured" if state["voice"] else "not configured", "detail": "OCR of uploaded reports; the file leaves this server only when the patient agrees"},
             {"name": "FHIR R4 read API", "status": "enabled", "detail": "Patient, Observation (read only)"},
             {"name": "Live feed (WebSocket)", "status": "enabled" if state["live_loaded"] else "unavailable", "detail": f"{state['live_sessions']} active session(s)"},

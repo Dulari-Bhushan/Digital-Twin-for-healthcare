@@ -67,7 +67,7 @@ export default function Assistant({ t, lang, pid, tab, voice, screenText, large,
     }
     stopSpeaking()
     try {
-      if (voice.enabled && canRecord()) {
+      if (voice.enabled && canRecord() && lang !== 'ja') {
         rec.current = await startListening(lang, true)
         setPhase('recording')
       } else if (browserCanListen()) {
@@ -81,7 +81,7 @@ export default function Assistant({ t, lang, pid, tab, voice, screenText, large,
     } catch (e) { setPhase('idle'); setErr(t('ask_mic_denied')) }
   }
 
-  const canMic = (voice.enabled && canRecord()) || browserCanListen()
+  const canMic = (voice.enabled && canRecord() && lang !== 'ja') || browserCanListen()
   const chips = ['ask_s1', 'ask_s2', 'ask_s3', 'ask_s4']
   return (
     <div className="sheet" role="dialog" aria-label={t('ask_title')}>
@@ -119,7 +119,7 @@ export default function Assistant({ t, lang, pid, tab, voice, screenText, large,
           onKeyDown={(e) => { if (e.key === 'Enter') send(text) }} disabled={phase === 'recording'} maxLength={400} aria-label={t('ask_placeholder')} />
         <button className="sendbtn" onClick={() => send(text)} disabled={!text.trim() || phase !== 'idle'} aria-label={t('send')}>➤</button>
       </div>
-      <div className="note" style={{ margin: '6px 16px 12px', textAlign: 'center' }}>{t('ask_note')}{voice.enabled ? ' · Sarvam AI' : ''}</div>
+      <div className="note" style={{ margin: '6px 16px 12px', textAlign: 'center' }}>{t('ask_note')}{lang === 'ja' ? ' · Gemini' : voice.enabled ? ' · Sarvam AI' : ''}</div>
     </div>
   )
 }

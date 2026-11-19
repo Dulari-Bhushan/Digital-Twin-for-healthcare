@@ -14,6 +14,8 @@ from datetime import datetime, timedelta, timezone
 
 import numpy as np
 
+import screening
+
 LAB = "Kaya Demo Diagnostics (synthetic)"
 HOSP = "Kaya Demo Hospital (synthetic)"
 DOCS = {"diab": "Dr. Anita Kapoor, Diabetologist", "eye": "Dr. Vivek Bansal, Ophthalmologist", "liver": "Dr. Shalini Arora, Hepatologist",
@@ -163,7 +165,7 @@ def _meds(a: dict, today: datetime) -> list[dict]:
 
 
 # ---------------------------------------------------------------- report builders
-def _lab_report(a: dict, v: dict, date: str, days_before: int, new: bool) -> dict:
+def _lab_report(a: dict, v: dict, date: str, days_before: int, new: bool, with_uacr: bool = True) -> dict:
     sex = a["profile"]["sex"]
     ref_f = "50 or more" if sex == "F" else "40 or more"
     return {
@@ -173,8 +175,8 @@ def _lab_report(a: dict, v: dict, date: str, days_before: int, new: bool) -> dic
             {"title": "Diabetes control", "rows": [_row("HbA1c", v["hba1c"], "%", "below 7 for most adults with T2D", "hba1c"),
                                                    _row("Fasting plasma glucose", v["fpg"], "mg/dL", "80 - 130", "fpg", dec=0)]},
             {"title": "Kidney function", "rows": [_row("Serum creatinine", v["creatinine"], "mg/dL", "0.6 - 1.1" if sex == "F" else "0.7 - 1.3", "creatinine", sex, dec=2),
-                                                  _row("eGFR (CKD-EPI 2021)", v["egfr"], "mL/min/1.73m2", "90 or more", "egfr", dec=0),
-                                                  _row("Urine albumin / creatinine ratio", v["uacr"], "mg/g", "below 30", "uacr", dec=0)]},
+                                                  _row("eGFR (CKD-EPI 2021)", v["egfr"], "mL/min/1.73m2", "90 or more", "egfr", dec=0)]
+                                                 + ([_row("Urine albumin / creatinine ratio", v["uacr"], "mg/g", "below 30", "uacr", dec=0)] if with_uacr else [])},
             {"title": "Liver function", "rows": [_row("ALT (SGPT)", v["alt"], "U/L", "up to 40", "alt", dec=0), _row("AST (SGOT)", v["ast"], "U/L", "up to 40", "ast", dec=0),
                                                  _row("Platelet count", v["platelets"], "x10^3/uL", "150 - 400", "platelets", dec=0), _row("FIB-4 index", v["fib4"], "", "below 1.3", "fib4", dec=2)]},
             {"title": "Lipid profile", "rows": [_row("Total cholesterol", v["ldl"] + v["hdl"] + v["tg"] / 5, "mg/dL", "below 200", "tc", dec=0),
@@ -185,13 +187,13 @@ def _lab_report(a: dict, v: dict, date: str, days_before: int, new: bool) -> dic
     }
 
 
-def _lab_text(rep: dict, v: dict) -> None:
+def _lab_text(rep: dict, v: dict, with_uacr: bool = True) -> None:
     f, bad = [], []
     if v["hba1c"] >= 7:
         bad.append(f"HbA1c {v['hba1c']:.1f}% is above the 7% target")
     if v["egfr"] < 60:
         bad.append(f"eGFR {v['egfr']:.0f} is reduced")
-    if v["uacr"] >= 30:
+    if with_uacr and v["uacr"] >= 30:
         bad.append(f"urine albumin {v['uacr']:.0f} mg/g shows albuminuria")
     if v["alt"] > 40:
         bad.append(f"ALT {v['alt']:.0f} U/L is raised")
@@ -205,6 +207,8 @@ def _lab_text(rep: dict, v: dict) -> None:
     rep["plain"] = (("Some of your results are outside the healthy range: " + "; ".join(bad) + ". This does not mean something new is wrong today; your doctor will look at the pattern across your last few reports and explain what to change.")
                     if bad else "All your blood and urine results are in the healthy or target range. Keep doing what you are doing.")
     rep["recommendations"] = ["Review the trend against the previous report", "Repeat in 3 months" if v["hba1c"] >= 7 else "Repeat in 6 months"]
+    if not with_uacr:
+        rep["recommendations"].append("Urine albumin was not measured: add a urine albumin / creatinine test")
 
 
 def _fundus_report(a: dict, v: dict, date: str, days_before: int, tr: dict) -> dict:
@@ -368,18 +372,26 @@ def build_record(a: dict, today: datetime) -> dict:
     for i, d in enumerate(VISIT_DAYS):
         v = _vals(a, d, tr)
         reports.append(_visit(a, v, _date(today, d), d, meds, i))
+    sch = screening.schedule(p["id"])                       # which yearly tests were actually done decides which reports exist
     for d in VISIT_DAYS + [LAB_DAY]:
         v = _vals(a, d, tr)
-        rep = _lab_report(a, v, _date(today, d), d, new=d == LAB_DAY)
-        _lab_text(rep, v)
+        has_uacr = d >= sch["uacr"]                          # a patient overdue for the urine albumin test only has it in the oldest panel
+        rep = _lab_report(a, v, _date(today, d), d, new=d == LAB_DAY, with_uacr=has_uacr)
+        _lab_text(rep, v, with_uacr=has_uacr)
         rep["vals"] = {k: v[k] for k in ("hba1c", "egfr", "uacr", "alt", "fib4", "tg", "ldl", "sbp", "dbp", "weight", "bmi")}
+        rep["_has_uacr"] = has_uacr
         reports.append(rep)
+    eye_days = screening.eye_photo_days(p["id"])
+    for i, d in enumerate(eye_days):
+        v = _vals(a, d, tr)
+        if len(eye_days) == 2:                                # the older photo shows the earlier grade, the newer one today's grade
+            v["grade"] = tr["grade_old"] if i == 0 else a["profile"]["clinic"]["dr_grade"]
+        reports.append(_fundus_report(a, v, _date(today, d), d, tr))
     for d in (365, LAB_DAY):
-        reports.append(_fundus_report(a, _vals(a, d, tr), _date(today, d), d, tr))
         reports.append(_liver_scan(a, _vals(a, d, tr), _date(today, d), d))
     reports.append(_cxr(a, _date(today, 548), 548))
     reports.append(_ecg(a, _date(today, 365), 365))
-    reports.append(_foot(a, _date(today, 182), 182, tr))
+    reports.append(_foot(a, _date(today, sch["foot"]), sch["foot"], tr))
     reports.append(_cgm_report(a, _date(today, 0)))
     for r in reports:
         r["id"] = f"{p['id']}-{r['date']}-{r['code']}"
@@ -398,13 +410,14 @@ def build_record(a: dict, today: datetime) -> dict:
     # trends for charts (oldest first)
     trends = {"dates": [r["date"] for r in labs]}
     for key in ("hba1c", "egfr", "uacr", "alt", "tg", "ldl"):
-        trends[key] = [next(x["value"] for s in r["sections"] for x in s["rows"] if x["key"] == key) for r in labs]
+        trends[key] = [next((x["value"] for s in r["sections"] for x in s["rows"] if x["key"] == key), None) for r in labs]   # None = test not done
     trends["sbp"] = [round(r["vals"]["sbp"], 0) for r in labs]
     trends["weight"] = [round(r["vals"]["weight"], 1) for r in labs]
     for r in reports:
+        r.pop("_has_uacr", None)
         r.pop("vals", None) if r["code"] != "LAB" else None
     return {"patient_id": p["id"], "today": today.strftime("%Y-%m-%d"), "reports": reports, "trends": trends, "medications": meds,
-            "_vals": {d: _vals(a, d, tr) for d in VISIT_DAYS + [LAB_DAY]}, "_tr": tr,
+            "_vals": {d: _vals(a, d, tr) for d in VISIT_DAYS + [LAB_DAY]}, "_tr": tr, "_sch": sch,
             "note": "All reports are synthetic. Earlier values are generated backwards from today's values with a seeded trend."}
 
 
@@ -438,6 +451,8 @@ def build_changes(a: dict, rec: dict) -> dict:
     v0, v1 = rec["_vals"][last_days], rec["_vals"][LAB_DAY]
     items = []
     for key, (label, plain, group, unit, dec, lb, thr) in SPEC.items():
+        if key == "uacr" and rec["_sch"]["uacr"] > LAB_DAY + 2:        # no recent urine albumin test, so there is nothing to compare
+            continue
         rel = key in ("uacr", "alt", "fib4", "tg")
         items.append(_item(key, label, plain, group, unit, dec, lb, thr, v0[key], v1[key], when, rel=rel))
     # imaging: latest against the previous scan of the same kind
@@ -480,7 +495,7 @@ def build_changes(a: dict, rec: dict) -> dict:
         attn.append({"tone": "butter", "text": f"Time in range fell from {byk['tir']['before']:.0f}% to {byk['tir']['after']:.0f}% week on week."})
     if byk["egfr"]["direction"] == "worse" and v1["egfr"] < 60:
         attn.append({"tone": "rose", "text": f"eGFR down from {v0['egfr']:.0f} to {v1['egfr']:.0f}; already below 60."})
-    if byk["uacr"]["direction"] == "worse" and v1["uacr"] >= 30:
+    if byk.get("uacr", {}).get("direction") == "worse" and v1["uacr"] >= 30:
         attn.append({"tone": "rose", "text": f"Urine albumin up {byk['uacr']['delta_pct']:.0f}% to {v1['uacr']:.0f} mg/g since the last visit."})
     if byk.get("dr", {}).get("direction") == "worse":
         attn.append({"tone": "rose", "text": f"Retinopathy progressed from {GRADES[int(byk['dr']['before'])].lower()} to {GRADES[int(byk['dr']['after'])].lower()}; arrange ophthalmology review."})

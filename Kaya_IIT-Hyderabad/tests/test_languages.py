@@ -29,11 +29,11 @@ def tmp_store(tmp_path, monkeypatch):
 
 
 def test_every_language_has_the_fixed_safety_messages():
-    assert len(assistant.LANGS) == 23 and "ta" in assistant.LANGS and "sat" in assistant.LANGS
+    assert len(assistant.LANGS) == 24 and "ta" in assistant.LANGS and "sat" in assistant.LANGS and "ja" in assistant.LANGS
     for lang in assistant.LANGS:
         for table in (assistant.EMERGENCY_MSG, assistant.MEDICINE_MSG, assistant.FALLBACK_MSG, assistant.OPEN_MSG, assistant.TAB_LABEL):
             assert table[lang]
-        assert "108" in assistant.EMERGENCY_MSG[lang]                      # the emergency number survives translation
+        assert ("119" if lang == "ja" else "108") in assistant.EMERGENCY_MSG[lang]      # the local emergency number survives translation
 
 
 def test_the_voice_covers_fewer_languages_than_translation():

@@ -12,6 +12,7 @@ const FILTERS = [
   ['kidney', 'Kidney', (t) => t.key === 'egfr'],
   ['new', 'New since last visit', (t) => t.event],
   ['msg', 'Messages', (t) => t.key === 'msg'],
+  ['screening', 'Screening', (t) => t.key === 'screening'],
 ]
 const SNOOZES = [['1d', 1], ['3d', 3], ['1w', 7]]
 const PAGE = 20

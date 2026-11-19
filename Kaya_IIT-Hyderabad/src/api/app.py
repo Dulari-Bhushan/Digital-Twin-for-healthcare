@@ -33,10 +33,13 @@ from kidney_dynamic import KidneyParams, projection  # noqa: E402
 import assistant as asst  # noqa: E402
 import admin as adm  # noqa: E402
 import diary  # noqa: E402
+import gemini as gem  # noqa: E402
 import labparse  # noqa: E402
 import uploads as upl  # noqa: E402
 import messages as msgs  # noqa: E402
 import reports as rpt  # noqa: E402
+import screening  # noqa: E402
+import appointments as appt  # noqa: E402
 from live import Calibration, LiveTwin, NumpyGRU  # noqa: E402
 from names import DEMO_TAGS, name_of  # noqa: E402
 from voice import CHAT_MODEL, LANG_CODES, STT_MODEL, TTS_LANGS, TTS_MODEL, SarvamClient, VoiceError, load_key  # noqa: E402
@@ -129,6 +132,9 @@ def _triage(pid: int, m: dict, recent: list, liver12: float, fib12: float, egfr:
         add("nolog", "No data logged", f"No readings or logs for {no_log_days} days", "warn", True, no_log_days * 24)
     if m["tir"] < 0.5:
         add("tir", "Poor glucose control", f"Time in range {m['tir'] * 100:.0f}%", "warn", False)
+    late = screening.overdue(pid)
+    if late:
+        add("screening", "Screening overdue", f"{len(late)} yearly test{'s' if len(late) > 1 else ''} overdue: " + ", ".join(late), "warn", False)
     if score >= 0.35 and not trig:
         add("risk", "Elevated risk", "Elevated overall risk", "warn", False)
 
@@ -213,8 +219,11 @@ def load() -> None:
     if os.environ.get("KAYA_KEEP_LOGS") != "1":
         diary.reset_patient_logs()                       # a demo starts with nothing logged today; set KAYA_KEEP_LOGS=1 to keep entries
     _seed_patient_messages()
+    appt.seed(_clinic_now(), list(STORE))                 # a believable week of appointments, unless a calendar already exists
     key = load_key(ROOT)
     VOICE["client"] = SarvamClient(key) if key else None
+    gkey = gem.load_key(ROOT)
+    VOICE["gemini"] = gem.GeminiClient(gkey) if gkey else None
     if (MODEL_DIR / "gru_numpy.npz").exists():
         LIVE["net"] = NumpyGRU(MODEL_DIR / "gru_numpy.npz")
         LIVE["cal"] = Calibration(MODEL_DIR / "calibration.json")
@@ -467,7 +476,7 @@ def _translate_in_background(pid: int, m: dict) -> None:
 
 
 def _translate_one_language(pid: int, m: dict, lang: str) -> None:
-    client = VOICE.get("client")
+    client = _chat_client(lang)
     if client is None:
         return
 
@@ -494,7 +503,7 @@ def messages_list(pid: int, lang: str = Query("en")):
         if msgs.needs_translation(m) and (pid, m["id"]) not in TRANSLATING:
             TRANSLATING.add((pid, m["id"]))
             _translate_in_background(pid, m)
-    if lang in LANG_CODES and lang not in ("en", "hi", "te", "kn"):         # the other languages are translated when a patient first asks for them
+    if (lang in LANG_CODES or lang in gem.GEMINI_LANGS) and lang not in ("en", "hi", "te", "kn"):         # the other languages are translated when a patient first asks for them
         for m in items:
             if msgs.needs_language(m, lang) and (pid, m["id"], lang) not in TRANSLATING:
                 TRANSLATING.add((pid, m["id"], lang))
@@ -556,16 +565,21 @@ def contact_check(pid: int, body: ContactCheckReq, request: Request):
         out = {"verdict": "emergency", "reason": "emergency", "reply": asst.EMERGENCY_MSG[lang]}
     elif asst.MEDICINE_RE.search(text) or asst.MEDICINE_RE.search(safe):
         out = {"verdict": "doctor", "reason": "medicine", "reply": ""}
-    elif VOICE.get("client") is None:
+    elif _chat_client(lang) is None:
         out = {"verdict": "unsure", "reason": "unavailable", "reply": ""}
+    elif gem.looks_like_injection(text) or (isinstance(_chat_client(lang), gem.GeminiClient) and gem.GUARD.allow(_client_ip(request))):
+        out = {"verdict": "doctor", "reason": "unchecked", "reply": ""}        # not answered by the helper: the doctor reads it
     else:
         out = {"verdict": "unsure", "reason": "unavailable", "reply": ""}
         try:
-            raw = VOICE["client"].chat([{"role": "system", "content": asst.contact_prompt(lang, asst.patient_context(a, 0))},
-                                        {"role": "user", "content": text}], max_tokens=400)
+            raw = _chat_client(lang).chat([{"role": "system", "content": asst.contact_prompt(lang, asst.patient_context(a, 0))},
+                                           {"role": "user", "content": gem.sanitize_input(text)}], max_tokens=400)
             d = msgs._json_object(raw)
             if d and isinstance(d.get("forward"), bool):
                 reply, blocked = asst.clean_reply(str(d.get("reply", "")), lang)
+                if isinstance(_chat_client(lang), gem.GeminiClient) and not blocked:
+                    reply, vetted = _chat_client(lang).vet(reply, lang)
+                    blocked = not vetted and bool(str(d.get("reply", "")).strip())
                 if blocked:
                     out = {"verdict": "doctor", "reason": "medicine", "reply": ""}
                 else:
@@ -608,6 +622,13 @@ def messages_read(pid: int, mid: str):
         raise HTTPException(404, "message not found")
     adm.TEL.audit("patient app", "message acknowledged", f"patient {pid}")
     return m
+
+
+@app.get("/api/patients/{pid}/screening")
+def screening_status(pid: int):
+    """Which yearly diabetes tests (eye, urine albumin, kidney function, foot) are done, due soon or overdue, and whether the doctor has already sent a reminder or referral."""
+    _get(pid)
+    return screening.status(pid, _today(pid), msgs.list_messages(pid))
 
 
 @app.get("/api/patients/{pid}/changes")
@@ -746,6 +767,19 @@ def _rate_limit(request: Request, limit: int = 40, window: float = 60.0) -> None
     HITS[ip] = hits + [now]
 
 
+def _chat_client(lang: str):
+    """The chat and translation client for a language: Gemini for Japanese (Sarvam has none), Sarvam for the Indian languages,
+    and Gemini as the back-up when Sarvam is not configured."""
+    g, sv = VOICE.get("gemini"), VOICE.get("client")
+    if lang in gem.GEMINI_LANGS:
+        return g
+    return sv or g
+
+
+def _client_ip(request: Request) -> str:
+    return request.client.host if request.client else "local"
+
+
 def _client() -> SarvamClient:
     c = VOICE.get("client")
     if c is None:
@@ -816,29 +850,228 @@ def _english_for_safety(text: str, lang: str) -> str:
 
 
 def _assistant_inner(body: AssistantReq, request: Request):
-    """Safety rules run first; only an ordinary question reaches the language model."""
+    """Safety rules run first; only an ordinary question reaches the language model, and only after the security checks."""
     _rate_limit(request)
     a = _get(body.pid)
     lang = body.lang if body.lang in asst.LANGS else "en"
-    cls = asst.classify(body.message, lang)
+    message = gem.sanitize_input(body.message)                             # control and invisible characters out, length capped
+    if not message:
+        return {"kind": "error", "reply": asst.FALLBACK_MSG[lang], "action": None}
+    cls = asst.classify(message, lang)
     if cls["kind"] == "chat" and lang not in asst.COVERED:
-        c2 = asst.classify(_english_for_safety(body.message, lang), "en")
+        c2 = asst.classify(_english_for_safety(message, lang), "en")
         if c2["kind"] in ("emergency", "medicine"):
             cls = {"kind": c2["kind"], "reply": (asst.EMERGENCY_MSG if c2["kind"] == "emergency" else asst.MEDICINE_MSG)[lang]}
     if cls["kind"] == "navigate":
         return {"kind": "navigate", "reply": cls["reply"], "action": {"type": "navigate", "tab": cls["tab"]}}
     if cls["kind"] in ("emergency", "medicine"):
         return {"kind": cls["kind"], "reply": cls["reply"], "action": None}
-    client = VOICE.get("client")
+    if gem.looks_like_injection(message):                                   # an attempt to change the rules or ask for a key: the model is never called
+        return {"kind": "declined", "reply": asst.DECLINE_MSG.get(lang) or asst.FALLBACK_MSG[lang], "action": None}
+    client = _chat_client(lang)
     if client is None:
         return {"kind": "unavailable", "reply": asst.FALLBACK_MSG[lang], "action": None}
-    history = [{"role": h["role"], "content": str(h.get("content", ""))[:400]} for h in body.history[-6:] if h.get("role") in ("user", "assistant")]
-    messages = [{"role": "system", "content": asst.system_prompt(lang, asst.patient_context(a, body.tab))}] + history + [{"role": "user", "content": body.message}]
+    if isinstance(client, gem.GeminiClient) and gem.GUARD.allow(_client_ip(request)):       # per-client limit, daily budget, circuit breaker
+        return {"kind": "busy", "reply": asst.BUSY_MSG.get(lang) or asst.BUSY_MSG["en"], "action": None}
+    history = []
+    for h in body.history[-6:]:                                             # the browser could forge earlier turns, so they are checked like new text
+        text = gem.sanitize_input(str(h.get("content", "")), 400)
+        if h.get("role") in ("user", "assistant") and text and not gem.looks_like_injection(text):
+            history.append({"role": h["role"], "content": text})
+    messages = [{"role": "system", "content": asst.system_prompt(lang, asst.patient_context(a, body.tab))}] + history + [{"role": "user", "content": message}]
     try:
         reply, blocked = asst.clean_reply(client.chat(messages), lang)
-    except VoiceError:
+    except (VoiceError, gem.GeminiError):
         return {"kind": "error", "reply": asst.FALLBACK_MSG[lang], "action": None}
+    if not blocked and isinstance(client, gem.GeminiClient):
+        reply, ok = client.vet(reply, lang)                                 # no links, addresses, key-shaped text, or wrong language
+        if not ok:
+            return {"kind": "error", "reply": asst.FALLBACK_MSG[lang], "action": None}
     return {"kind": "medicine" if blocked else "chat", "reply": reply, "action": None}
+
+
+# ------------------------------------------------------------------ appointments: patients request, reception confirms, the doctor can move people
+def _clinic_now() -> datetime:
+    """The demo's simulated clock (the same for every patient), so the calendar and the patient app agree on today."""
+    return _today(min(STORE))
+
+
+def _appt(fn, *a, **kw):
+    try:
+        return fn(*a, **kw)
+    except appt.ApptError as e:
+        raise HTTPException(e.code, str(e)) from None
+
+
+def _pname(pid: int) -> str:
+    p = STORE.get(int(pid))
+    return p["profile"]["name"] if p else f"Patient {pid}"
+
+
+class ApptRequest(BaseModel):
+    slot: str | None = Field(None, max_length=16)
+    reason: str = "routine"
+    note: str = Field("", max_length=300)
+    urgent: bool = False
+
+
+class ApptBook(ApptRequest):
+    pid: int
+    override: bool = False
+    actor: str = Field("reception", pattern="^(reception|doctor|nurse)$")
+
+
+class ApptAct(BaseModel):
+    slot: str | None = Field(None, max_length=16)
+    reason: str = Field("", max_length=200)
+    override: bool = False
+    status: str = ""
+    actor: str = Field("reception", pattern="^(reception|doctor|nurse)$")
+
+
+class Unavailable(BaseModel):
+    date: str = Field(..., max_length=10)
+    start: str = Field(..., max_length=5)
+    end: str = Field(..., max_length=5)
+    mode: str = "move"
+    reason: str = Field("", max_length=200)
+    preview: bool = True
+    actor: str = Field("doctor", pattern="^(reception|doctor|nurse)$")
+
+
+class DelayReq(BaseModel):
+    date: str = Field(..., max_length=10)
+    from_time: str = Field(..., max_length=5)
+    minutes: int = Field(..., ge=5, le=240)
+    reason: str = Field("", max_length=200)
+    actor: str = Field("doctor", pattern="^(reception|doctor|nurse)$")
+
+
+@app.get("/api/clinic")
+def clinic_info():
+    now = _clinic_now()
+    return {**appt.CLINIC, "now": now.strftime("%Y-%m-%d %H:%M"), "today": now.strftime("%Y-%m-%d"), "reasons": list(appt.REASONS),
+            "first_open_day": appt.first_open_day(now).isoformat(), "max_active_per_patient": appt.MAX_ACTIVE_PER_PATIENT}
+
+
+@app.get("/api/availability")
+def appointment_availability(days: int = Query(appt.HORIZON_DAYS, ge=1, le=appt.HORIZON_DAYS)):
+    """Free, taken and reserved slots for the patient app. No names."""
+    return {"days": appt.availability(_clinic_now(), days), "cancel_notice_hours": appt.CANCEL_NOTICE_H}
+
+
+@app.get("/api/schedule")
+def appointment_schedule(start: str | None = Query(None, max_length=10), days: int = Query(7, ge=1, le=21)):
+    """The calendar with names, for reception and the doctor."""
+    return _appt(appt.schedule, _clinic_now(), start, days, _pname)
+
+
+@app.get("/api/appointments/queue")
+def appointment_queue():
+    return {"items": appt.queue(_pname)}
+
+
+@app.get("/api/appointments/summary")
+def appointment_summary():
+    return appt.summary()
+
+
+@app.get("/api/patients/{pid}/appointments")
+def patient_appointments(pid: int):
+    _get(pid)
+    return appt.for_patient(pid, _clinic_now())
+
+
+@app.post("/api/patients/{pid}/appointments")
+def patient_appointment_request(pid: int, body: ApptRequest, request: Request):
+    """The patient asks for a slot (or, if urgent, for the soonest time). The slot is held until reception answers."""
+    _rate_limit(request, limit=20)
+    _get(pid)
+    out = _appt(appt.request, pid, body.slot, body.reason, body.note, body.urgent, _clinic_now())
+    adm.TEL.audit("patient app", "appointment requested", f"patient {pid}, {'urgent' if body.urgent else out.get('slot')}")
+    return out
+
+
+@app.post("/api/patients/{pid}/appointments/{aid}/cancel")
+def patient_appointment_cancel(pid: int, aid: str, request: Request):
+    _rate_limit(request, limit=20)
+    _get(pid)
+    out = _appt(appt.patient_cancel, pid, aid, _clinic_now())
+    adm.TEL.audit("patient app", "appointment cancelled" + (" late" if out.get("late_cancel") else ""), f"patient {pid}")
+    return out
+
+
+@app.post("/api/patients/{pid}/appointments/{aid}/seen")
+def patient_appointment_seen(pid: int, aid: str):
+    _get(pid)
+    return _appt(appt.mark_seen, pid, aid)
+
+
+@app.post("/api/appointments")
+def appointment_book(body: ApptBook):
+    """Reception (or the doctor) books for a patient: confirmed at once. `override` squeezes an urgent patient into a busy slot."""
+    _get(body.pid)
+    out = _appt(appt.request, body.pid, body.slot, body.reason, body.note, body.urgent, _clinic_now(), actor=body.actor, confirmed=True, override=body.override)
+    adm.TEL.audit(body.actor, "appointment booked", f"patient {body.pid}, {out.get('slot')}")
+    return out
+
+
+@app.post("/api/appointments/{aid}/confirm")
+def appointment_confirm(aid: str, body: ApptAct):
+    out = _appt(appt.confirm, aid, _clinic_now(), body.actor, body.slot, body.override)
+    adm.TEL.audit(body.actor, "appointment confirmed", f"patient {out['pid']}, {out.get('slot')}")
+    return out
+
+
+@app.post("/api/appointments/{aid}/decline")
+def appointment_decline(aid: str, body: ApptAct):
+    out = _appt(appt.decline, aid, _clinic_now(), body.actor, body.reason)
+    adm.TEL.audit(body.actor, "appointment declined", f"patient {out['pid']}")
+    return out
+
+
+@app.post("/api/appointments/{aid}/move")
+def appointment_move(aid: str, body: ApptAct):
+    if not body.slot:
+        raise HTTPException(422, "choose the new time")
+    out = _appt(appt.move, aid, body.slot, _clinic_now(), body.actor, body.reason, body.override)
+    adm.TEL.audit(body.actor, "appointment moved", f"patient {out['pid']}, {out.get('slot')}")
+    return out
+
+
+@app.post("/api/appointments/{aid}/cancel")
+def appointment_clinic_cancel(aid: str, body: ApptAct):
+    out = _appt(appt.clinic_cancel, aid, _clinic_now(), body.actor, body.reason)
+    adm.TEL.audit(body.actor, "appointment cancelled by the clinic", f"patient {out['pid']}")
+    return out
+
+
+@app.post("/api/appointments/{aid}/close")
+def appointment_close(aid: str, body: ApptAct):
+    return _appt(appt.close, aid, _clinic_now(), body.actor, body.status)
+
+
+@app.post("/api/schedule/unavailable")
+def schedule_unavailable(body: Unavailable):
+    """The doctor is called away from `start` to `end`. preview=true lists who would move where; preview=false does it and tells each patient."""
+    now = _clinic_now()
+    if body.preview:
+        return _appt(appt.plan_unavailable, body.date, body.start, body.end, body.mode, now, _pname)
+    out = _appt(appt.apply_unavailable, body.date, body.start, body.end, body.mode, body.reason, now, body.actor, _pname)
+    adm.TEL.audit(body.actor, "doctor unavailable", f"{body.date} {body.start}-{body.end}, {len(out['affected'])} patient(s) told ({body.mode})")
+    return out
+
+
+@app.delete("/api/schedule/blocks/{block_id}")
+def schedule_block_remove(block_id: str):
+    return _appt(appt.remove_block, block_id)
+
+
+@app.post("/api/schedule/delay")
+def schedule_delay(body: DelayReq):
+    out = _appt(appt.delay_day, body.date, body.from_time, body.minutes, body.reason, _clinic_now(), body.actor)
+    adm.TEL.audit(body.actor, "running late", f"{body.date} from {body.from_time}, +{body.minutes} min, {out['informed']} patient(s) told")
+    return out
 
 
 # ------------------------------------------------------------------ reports uploaded by the patient (PDF or photo)
@@ -960,7 +1193,7 @@ def _admin_guard(request: Request) -> None:
 
 def _admin_state() -> dict:
     return {"root": ROOT, "art_dir": ART_DIR, "model_dir": MODEL_DIR, "log_dir": diary.LOG_DIR, "live_loaded": "net" in LIVE, "live_sessions": len(SESSIONS),
-            "voice": VOICE.get("client") is not None, "voice_models": f"{STT_MODEL}, {TTS_MODEL}, {CHAT_MODEL}", "patients": len(STORE), "version": app.version, "uploads_dir": upl.UP_DIR}
+            "gemini": VOICE.get("gemini") is not None, "gemini_models": ", ".join(VOICE["gemini"].models) if VOICE.get("gemini") else "", "voice": VOICE.get("client") is not None, "voice_models": f"{STT_MODEL}, {TTS_MODEL}, {CHAT_MODEL}", "patients": len(STORE), "version": app.version, "uploads_dir": upl.UP_DIR}
 
 
 @app.get("/api/admin/overview")

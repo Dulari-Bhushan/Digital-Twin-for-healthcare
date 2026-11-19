@@ -27,6 +27,7 @@ export const checkContact = (id, body) => post(`/api/patients/${id}/contact-chec
 export const markHandled = (id) => post(`/api/patients/${id}/messages/handled`)
 export const readMessage = (id, mid) => post(`/api/patients/${id}/messages/${mid}/read`)
 export const getReports = (id) => fetch(`/api/patients/${id}/reports`).then(j)
+export const getScreening = (id) => fetch(`/api/patients/${id}/screening`).then(j)
 export const getChanges = (id) => fetch(`/api/patients/${id}/changes`).then(j)
 export const getUploads = (id) => fetch(`/api/patients/${id}/uploads`).then(j)
 export const uploadReport = async (id, file, { title, category, date, read }) => {
@@ -45,3 +46,23 @@ export const postLog = (id, body) =>
 export const verifyUpload = (id, uid, verified = true) =>
   fetch(`/api/patients/${id}/uploads/${uid}/verify`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ verified }) }).then(j)
 export const readUpload = (id, uid) => fetch(`/api/patients/${id}/uploads/${uid}/read`, { method: 'POST' }).then(j)
+
+// ---- appointments: the patient app, reception and the doctor's calendar
+const send = (method, url, body) => fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined }).then(async (r) => {
+  if (!r.ok) { let m = `${r.status}`; try { m = (await r.json()).detail || m } catch (e) { /* not json */ } throw new Error(typeof m === 'string' ? m : 'Please check the form') }
+  return r.json()
+})
+export const getClinic = () => fetch('/api/clinic').then(j)
+export const getAvailability = () => fetch('/api/availability').then(j)
+export const getSchedule = (start, days = 7) => fetch(`/api/schedule?days=${days}${start ? `&start=${start}` : ''}`).then(j)
+export const getApptQueue = () => fetch('/api/appointments/queue').then(j)
+export const getApptSummary = () => fetch('/api/appointments/summary').then(j)
+export const getMyAppointments = (id) => fetch(`/api/patients/${id}/appointments`).then(j)
+export const requestAppointment = (id, body) => send('POST', `/api/patients/${id}/appointments`, body)
+export const cancelMyAppointment = (id, aid) => send('POST', `/api/patients/${id}/appointments/${aid}/cancel`)
+export const seenAppointment = (id, aid) => send('POST', `/api/patients/${id}/appointments/${aid}/seen`)
+export const bookAppointment = (body) => send('POST', '/api/appointments', body)
+export const apptAct = (aid, action, body = {}) => send('POST', `/api/appointments/${aid}/${action}`, body)
+export const unavailable = (body) => send('POST', '/api/schedule/unavailable', body)
+export const runningLate = (body) => send('POST', '/api/schedule/delay', body)
+export const removeBlock = (id) => send('DELETE', `/api/schedule/blocks/${id}`)

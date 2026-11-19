@@ -2,6 +2,7 @@ import { Logo } from '../ui'
 import { useEffect, useMemo, useState } from 'react'
 import { InboxBanners, RxModal, useInbox } from './Inbox'
 import ContactDoctor from './ContactDoctor'
+import { ApptCard, ApptNotices, BookingSheet, useAppointments, useDueTests } from './Booking'
 import { getLog, getSeries, postLog, postWhatIf } from '../api'
 import { LANGS, localeFor, makeT } from '../i18n'
 import { getVoiceStatus } from '../voice'
@@ -250,7 +251,10 @@ export default function PatientApp({ d, at, pid, changes }) {
   const [askOpen, setAskOpen] = useState(new URLSearchParams(window.location.search).get('ask') === '1')
   const [large, setLarge] = useState(false)
   const [contactOpen, setContactOpen] = useState(false)
+  const [bookOpen, setBookOpen] = useState(new URLSearchParams(window.location.search).get('book') === '1')
   const inbox = useInbox(pid, lang)
+  const appts = useAppointments(pid)
+  const dueTests = useDueTests(pid)
   useEffect(() => { getVoiceStatus().then(setVoice) }, [])
   const locale = localeFor(lang)
   const t = useMemo(() => makeT(lang), [lang])
@@ -287,6 +291,8 @@ export default function PatientApp({ d, at, pid, changes }) {
         <div className="p-brand"><Logo size={26} /><b>Kaya</b></div>
         <div className="screen">
           <InboxBanners t={t} lang={lang} inbox={inbox} showPast={tab === 0} />
+          <ApptNotices t={t} locale={locale} appts={appts} />
+          {(tab === 0 || tab === 4) && <ApptCard t={t} locale={locale} appts={appts} due={dueTests} always={tab === 4} onOpen={() => setBookOpen(true)} />}
           {!series14 ? <div className="muted" style={{ padding: 30 }}>{t('loading')}</div> : (
             tab === 0 ? <Today t={t} name={d.profile.name || `Patient ${d.profile.id}`} series={series14} at={at} day={day} setDay={setDay} st={st} days={days} log={log} logIt={logIt} risky={!!d.profile.on_insulin_or_su} /> :
             tab === 1 ? <Insights t={t} series={series14} st={st} d={d} locale={locale} /> :
@@ -295,6 +301,7 @@ export default function PatientApp({ d, at, pid, changes }) {
           {lang !== 'en' && <p className="note" style={{ marginTop: 10 }}>{t('lang_note')}</p>}
         </div>
         <RxModal t={t} lang={lang} inbox={inbox} onOpenReports={() => setTab(4)} />
+        {bookOpen && <BookingSheet t={t} locale={locale} pid={pid} appts={appts} onClose={() => setBookOpen(false)} />}
         {contactOpen && <ContactDoctor t={t} lang={lang} pid={pid} inbox={inbox} onClose={() => setContactOpen(false)} />}
         {!askOpen && <button className="vbtn ai" onClick={() => setAskOpen(true)} aria-label={t('ask_title')} title={t('ask_title')}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M10 2l1.9 5.6L17.5 9.5l-5.6 1.9L10 17l-1.9-5.6L2.5 9.5l5.6-1.9z" /><path d="M18.5 13l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z" /></svg>

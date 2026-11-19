@@ -11,7 +11,8 @@ sys.path.insert(0, str(ROOT / "src" / "api"))
 sys.path.insert(0, str(ROOT / "src" / "whatif"))
 sys.path.insert(0, str(ROOT / "src" / "models"))
 
-import reports as rpt  # noqa: E402
+import reports as rpt
+import screening  # noqa: E402
 
 DEMO = ROOT / "artifacts" / "demo"
 PIDS = [1688, 1636, 62]
@@ -35,8 +36,10 @@ def test_record_is_complete_and_consistent_with_today(pid):
     row = {x["key"]: x["value"] for s in latest["sections"] for x in s["rows"]}
     assert row["hba1c"] == round(a["profile"]["hba1c"], 1)
     assert row["uacr"] == round(a["profile"]["labs"]["uacr_mg_g"])
-    fundus = next(r for r in rec["reports"] if r["code"] == "EYE" and r["days_ago"] == rpt.LAB_DAY)
-    assert fundus["grade"] == a["profile"]["clinic"]["dr_grade"]
+    last_eye = screening.schedule(pid)["eye"]                     # a patient overdue for the eye exam has no photo from today
+    fundus = next(r for r in rec["reports"] if r["code"] == "EYE" and r["days_ago"] == last_eye)
+    if last_eye <= rpt.LAB_DAY + 2 or pid == 1688:                # Rajesh's newest (old) photo is scripted to show today's grade
+        assert fundus["grade"] == a["profile"]["clinic"]["dr_grade"]
 
 
 def test_record_is_deterministic():

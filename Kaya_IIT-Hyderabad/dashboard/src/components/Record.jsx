@@ -5,6 +5,7 @@ import { explain, fmtDT } from '../utils'
 import { FEATURE_NAMES, agp, dailyStats, dayLabel, egfrStage, eyeFactors, kidneySlope, labFlag, mealResponses, mean } from '../record'
 import LineChart from './LineChart'
 import DiarySection from './Diary'
+import ScreeningCard from './Screening'
 import { ChangesCard, ReportsTab } from './Reports'
 import MessageTab from './Message'
 import { AgpChart, Bars, CgmChart, Contrib, DataTable, StackedTir } from './RecordCharts'
@@ -112,6 +113,7 @@ function Overview({ d, days, series, go, changes }) {
         <Kpi label="Sleep" value={`${sleep.toFixed(1)} h`} sub="per night" tone={sleep < 6 ? 'butter' : 'mint'} />
       </div>
       <ChangesCard ch={changes} audience="doctor" onOpen={go} />
+      <ScreeningCard pid={d.profile.id} />
       <DiarySection pid={d.profile.id} />
       <Section title="Problem list" hint="click a row to open it">
         <div style={{ display: 'grid', gap: 10 }}>

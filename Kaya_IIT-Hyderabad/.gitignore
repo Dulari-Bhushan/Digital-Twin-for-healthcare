@@ -20,6 +20,7 @@ docs/img/slide_*.png
 data/patient_logs/
 data/patient_uploads/
 data/patient_messages/
+data/appointments.json
 
 # generated simulation data and trained models
 data/synthetic_v2/

@@ -463,3 +463,94 @@ body.resizing { cursor: col-resize; user-select: none; }
 .cd-card .ico { width: 42px; height: 42px; border-radius: 14px; background: var(--rose-d); color: #fff; display: grid; place-items: center; font-size: 22px; flex: none; }
 .cd-card b { display: block; font-size: 15px; } .cd-card small { display: block; font-size: 12px; font-weight: 700; opacity: .85; }
 
+
+
+/* ---- appointments: reception, the doctor's calendar and the patient's booking sheet ---- */
+.switch .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; margin-left: 7px; padding: 0 6px; border-radius: 999px; background: var(--butter-d); color: #fff; font-size: 12px; font-weight: 800; }
+.switch .badge.urg { background: var(--rose-d); animation: pulse 1.4s infinite; }
+main.wide { padding: 18px 24px 40px; max-width: 1700px; margin: 0 auto; }
+.recep { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+.recep-q { background: #fff; border-radius: 26px; padding: 18px; box-shadow: 0 8px 28px rgba(15, 110, 104, .10); position: sticky; top: 12px; max-height: calc(100vh - 40px); overflow: auto; }
+.rq { border: 2px solid var(--line); border-radius: 18px; padding: 12px 14px; margin-bottom: 10px; background: #fff; }
+.rq.urgent { border-color: var(--rose-d); background: var(--rose); }
+.rq-h { display: flex; align-items: center; gap: 8px; } .rq-h small { margin-left: auto; color: var(--muted); }
+.rq-w { margin: 4px 0; font-weight: 700; font-size: 14px; } .rq-n { font-size: 13px; font-style: italic; color: var(--muted); margin-bottom: 6px; }
+.rq-a { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; } .rq-a input { flex: 1; min-width: 120px; border: 2px solid var(--line); border-radius: 12px; padding: 6px 10px; font: inherit; font-size: 13px; }
+.rq-sel { display: block; font-size: 13px; font-weight: 700; margin-top: 6px; } .rq-sel select { width: 100%; margin-top: 3px; }
+.cal { background: #fff; border-radius: 26px; padding: 18px; box-shadow: 0 8px 28px rgba(15, 110, 104, .10); }
+.cal-wrap { overflow-x: auto; }
+.cal-grid { display: grid; gap: 4px; min-width: 620px; }
+.cal-dh { text-align: center; padding: 6px 2px; display: flex; flex-direction: column; } .cal-dh small { color: var(--muted); font-weight: 600; }
+.cal-t { font-size: 11px; font-weight: 700; color: var(--muted); text-align: right; padding: 8px 6px 0 0; }
+.cal-cell { min-height: 34px; border-radius: 10px; padding: 3px; display: flex; flex-wrap: wrap; gap: 3px; align-items: center; background: #f5faf9; border: 1.5px dashed #d3e6e2; }
+.cal-cell.free { cursor: pointer; } .cal-cell.free:hover, .cal-cell.reserved:hover { background: var(--mint); border-style: solid; }
+.cal-cell.reserved { background: repeating-linear-gradient(135deg, #fff3f0, #fff3f0 6px, #ffe3dd 6px, #ffe3dd 12px); border-color: #f2b4a8; cursor: pointer; }
+.cal-cell.busy { background: #fff; border: 1.5px solid var(--line); } .cal-cell.past { opacity: .45; } .cal-cell.blocked { background: #e4e8ea; border: 1.5px solid #c7cfd3; }
+.cal-cell.sel { outline: 3px solid var(--lav-d); } .cal-res { font-size: 10px; font-weight: 800; color: var(--rose-dd); margin: 0 auto; } .cal-away { font-size: 11px; font-weight: 800; color: #5b666b; margin: 0 auto; }
+.cal-pill { border: 0; border-radius: 999px; padding: 4px 9px; font-size: 12px; font-weight: 800; cursor: pointer; background: var(--mint); color: var(--mint-dd); white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.cal-pill.requested { background: var(--butter); color: var(--butter-dd); } .cal-pill.urgent { background: var(--rose-d); color: #fff; }
+.cal-pill.completed { background: #e5ecea; color: #5b666b; } .cal-pill.no_show { background: var(--peach); color: var(--peach-dd); } .cal-pill.on { outline: 3px solid var(--lav-d); }
+.cal-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 12px; color: var(--muted); font-weight: 700; }
+.cal-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; margin-right: 5px; vertical-align: -1px; background: #f5faf9; border: 1.5px dashed #d3e6e2; }
+.cal-legend i.req { background: var(--butter); border: 0; } .cal-legend i.conf { background: var(--mint); border: 0; } .cal-legend i.urg { background: var(--rose-d); border: 0; }
+.cal-legend i.res { background: #ffe3dd; border: 1.5px solid #f2b4a8; } .cal-legend i.blk { background: #e4e8ea; border: 1.5px solid #c7cfd3; }
+.cal-flash { background: var(--mint); color: var(--mint-dd); border-radius: 14px; padding: 9px 14px; font-weight: 700; margin: 8px 0; }
+.cal-err { background: var(--rose); color: var(--rose-dd); border-radius: 14px; padding: 9px 14px; font-weight: 700; margin: 8px 0; }
+.cal-detail, .cal-tools { margin-top: 16px; }
+.cal-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin-bottom: 10px; } .cal-facts small { display: block; color: var(--muted); font-weight: 700; font-size: 11px; text-transform: uppercase; }
+.cal-actions { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: flex-end; }
+.cal-actions label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 700; color: var(--muted); }
+.cal-actions select, .cal-actions input:not([type=checkbox]) { border: 2px solid var(--line); border-radius: 12px; padding: 7px 10px; font: inherit; font-size: 14px; min-width: 150px; background: #fff; }
+.cal-actions .cal-check { flex-direction: row; align-items: center; gap: 6px; }
+.cal-plan { margin-top: 12px; } .cal-plan table { width: 100%; margin-bottom: 10px; }
+.cal-hist { margin-top: 10px; font-size: 13px; } .cal-hist div { padding: 2px 0; }
+.cal-block { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; }
+/* the patient's booking sheet and card */
+.appt-card { display: flex; gap: 12px; align-items: center; width: 100%; border: 0; margin-bottom: 10px; cursor: pointer; font: inherit; }
+.bk { gap: 10px; }
+.bk-h { font-weight: 800; font-size: 14px; margin-top: 6px; }
+.bk-mine { display: grid; gap: 8px; }
+.bk-appt { display: flex; justify-content: space-between; gap: 10px; align-items: center; border-radius: 16px; padding: 10px 12px; background: var(--butter); color: var(--butter-dd); }
+.bk-appt.confirmed { background: var(--mint); color: var(--mint-dd); } .bk-appt small, .bk-appt .bk-st { display: block; font-size: 12px; font-weight: 700; opacity: .9; }
+.bk-appt button, .bk-conf button { border: 0; border-radius: 999px; padding: 8px 14px; font-weight: 800; background: var(--rose-d); color: #fff; } .bk-appt button.ghost, .bk-conf button.ghost { background: rgba(255, 255, 255, .8); color: var(--ink); }
+.bk-conf { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; max-width: 52%; } .bk-late { color: var(--rose-dd); font-weight: 800; text-align: right; }
+.bk-chips { display: flex; flex-wrap: wrap; gap: 8px; } .bk-chips button { border: 0; border-radius: 999px; padding: 9px 13px; background: var(--sky); color: var(--sky-dd); font-weight: 700; font-size: 13px; } .bk-chips button.on { background: var(--lav-d); color: #fff; }
+.bk-urgent { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 14px; background: var(--rose); color: var(--rose-dd); padding: 10px 12px; border-radius: 14px; } .bk-urgent small { flex-basis: 100%; }
+.bk-warn { background: var(--rose-d); color: #fff; border-radius: 14px; padding: 10px 12px; font-weight: 700; font-size: 14px; }
+.bk-err { background: var(--rose); color: var(--rose-dd); border-radius: 14px; padding: 9px 12px; font-weight: 700; font-size: 14px; }
+.bk-days { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.bk-days button { flex: none; border: 2px solid var(--line); background: #fff; border-radius: 16px; padding: 8px 12px; font-weight: 800; font-size: 14px; display: flex; flex-direction: column; align-items: center; min-width: 64px; }
+.bk-days button small { font-size: 11px; font-weight: 700; color: var(--mint-dd); } .bk-days button.full small { color: var(--muted); } .bk-days button.on { background: var(--lav-d); border-color: var(--lav-d); color: #fff; } .bk-days button.on small { color: #fff; }
+.bk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.bk-grid button { border: 2px solid var(--mint-d); background: var(--mint); color: var(--mint-dd); border-radius: 14px; padding: 11px 4px; font-weight: 800; font-size: 15px; display: flex; flex-direction: column; align-items: center; }
+.bk-grid button small { font-size: 10px; font-weight: 700; }
+.bk-grid button.on { background: var(--lav-d); border-color: var(--lav-d); color: #fff; }
+.bk-grid button:disabled { cursor: not-allowed; }
+.bk-grid button.taken, .bk-grid button.past, .bk-grid button.blocked { background: #eef1f1; border-color: #e1e6e6; color: #a2adad; text-decoration: line-through; }
+.bk-grid button.reserved { background: repeating-linear-gradient(135deg, #fff3f0, #fff3f0 6px, #ffe9e4 6px, #ffe9e4 12px); border-color: #f2c6bd; color: #c0847a; text-decoration: none; }
+.bk-legend { display: flex; gap: 14px; font-size: 12px; font-weight: 700; color: var(--muted); } .bk-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; margin-right: 5px; vertical-align: -1px; }
+.bk-legend .f { background: var(--mint); border: 1.5px solid var(--mint-d); } .bk-legend .t { background: #eef1f1; border: 1.5px solid #e1e6e6; } .bk-legend .r { background: #ffe9e4; border: 1.5px solid #f2c6bd; }
+@media (max-width: 1000px) { .recep { grid-template-columns: 1fr; } .recep-q { position: static; max-height: none; } }
+
+/* month calendar in the patient's booking sheet */
+.bk > * { flex: none; }
+.bk-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.bk-wd { text-align: center; font-size: 11px; font-weight: 800; color: var(--muted); padding-bottom: 2px; }
+.bk-cal button { position: relative; border: 2px solid transparent; border-radius: 12px; height: 46px; padding: 0; font: inherit; font-weight: 800; font-size: 15px; display: flex; align-items: center; justify-content: center; background: transparent; color: #b3bdbd; }
+.bk-cal button em { position: absolute; top: 2px; left: 4px; font-style: normal; font-size: 9px; font-weight: 800; color: var(--muted); }
+.bk-cal button.free { background: var(--mint); border-color: var(--mint-d); color: var(--mint-dd); cursor: pointer; }
+.bk-cal button.full { background: #eef1f1; color: #9aa6a6; border-color: #e1e6e6; }
+.bk-cal button.closed, .bk-cal button.past { background: transparent; color: #cfd6d6; }
+.bk-cal button.on { background: var(--lav-d); border-color: var(--lav-d); color: #fff; }
+.bk-cal button:disabled { cursor: not-allowed; }
+.bk-cal .pin { position: absolute; top: -6px; right: -3px; font-size: 14px; }
+.bk-legend .c { background: transparent; border: 1.5px dashed #cfd6d6; }
+.bk-due { background: var(--butter); color: var(--butter-dd); border-radius: 16px; padding: 10px 12px; display: grid; gap: 6px; }
+.bk-due .bk-chips button { background: #fff; color: var(--butter-dd); } .bk-due .bk-chips button.overdue { background: var(--rose-d); color: #fff; }
+.bk-hint { text-align: center; padding: 6px 0; }
+
+.bk-month { display: flex; align-items: center; justify-content: space-between; }
+.bk-month b { font-size: 17px; }
+.bk-month button { border: 0; width: 38px; height: 38px; border-radius: 50%; background: var(--sky); color: var(--sky-dd); font-size: 22px; font-weight: 800; line-height: 1; }
+.bk-month button:disabled { opacity: .3; cursor: not-allowed; }
+.bk-blank { height: 46px; }
