@@ -75,6 +75,10 @@ In the patient app, Reports tab, **Add a report** lets the patient choose a PDF 
 
 **Automatic reading, with a question first.** Upload `docs/sample/Rajesh_Sharma_lab_report.pdf` (a fictional lab report for Rajesh, dated 10 Jan 2026; regenerate with `python docs/make_sample_report.py`). The file is saved, and the app then asks **Should the AI read this report?** with a plain explanation that saying yes sends the file to Sarvam AI. Nothing leaves the server before the patient presses **Yes, read it for me**. After about 5 to 10 seconds a summary card appears: how many results were read, the ones outside the healthy range as chips, and **View the report**. The report is also in the list as an *Unverified* report with values, flags, the previous value from the last panel, the source text and a link to the original. **No, keep the file only** keeps the file; a **Read with AI** button on the file lets the patient change their mind later. A rule-based parser (`src/api/labparse.py`, not a language model) picks out only values it can trace to a line of the document, so a missing value is left out, never guessed. If reading fails, the file is kept. Values read this way are not used by the twin; the history charts and the changes card use the verified panels only. For the demo, upload it for Rajesh (`?view=patient&p=1688&tab=4`), then open the doctor view's Reports tab to show it there too.
 
+## Starting again: the Reset button
+
+Nothing resets by itself, so a visitor's booking or message stays until you decide. To start the demo again, open **Admin** and press **↺ Reset the demo**, then **Yes, reset the demo**. It clears the messages and prescriptions, uploaded reports, patient diary and appointments visitors made, restores the sample patient messages and the sample week of appointments, and brings back any patients parked in the doctor's list. The same thing is done by `python scripts/reset_demo.py` with the server stopped. The server must be running for the button, and if it was started with `KAYA_ADMIN_TOKEN` you sign in on the Admin page first.
+
 ## Starting clean
 
 Everything a patient logs in the app (walks, medicines, how they feel) is cleared when the server starts, so each demo begins with 0 minutes walked and nothing newly logged. Start the server with `KAYA_KEEP_LOGS=1` to keep the entries between runs. In the quick log, tapping a ticked medicine again un-ticks it. Messages and uploads are kept between runs; delete `data/patient_messages/` or `data/patient_uploads/` to reset those.
@@ -120,6 +124,44 @@ Direct links: `?view=heart&hp=1091&day=12` opens Anil Saxena on his alert mornin
 
 The dials show the wearable-and-glucose pattern, the record-risk percentile and the combined 72-hour risk. **Why this score** lists the factors that pushed it up, tagged wearable, glucose sensor or record. The wording is deliberate: "Review suggested" is a prompt to look at a patient, not a diagnosis. Two tables at the bottom give the measured behaviour on held-out patients: **How well does it work?** (use it, not the 24 examples, when asked about accuracy) and **When the data is thin or messy** (glucose lows, the watch off for days, no record). Say plainly that the cohort is synthetic, that cardiovascular events are far more frequent in it than in real life (7 events among 24 people in a month), and that the link between severe lows and heart episodes is an assumption of the simulator.
 
+## Japan mode: names, emergency number and wording
+
+The demo is set in **Japan by default** (`KAYA_REGION=JP`); start the server with `KAYA_REGION=IN` for the India version. Japan mode changes:
+
+- **The emergency number:** 119 in every message and warning (108 in India mode), in all languages.
+- **Foods in the English texts:** "rice and bread" instead of "rice and roti", "vegetables and protein" instead of "dal".
+- **Patient names:** all 24 demo patients have Japanese names (all invented). English screens show Hiroshi Tanaka; the Japanese patient app greets 田中さん. The Heart watch patients and the two messy-data examples are renamed too.
+- **Doctors in the reports:** Japanese doctor names (Dr. Keiko Mori and others).
+
+This guide was written with the Indian names, so use the table to find a patient. Everything else (ids, stories, numbers) is the same.
+
+| Patient id | Name in India mode (used below) | Name in Japan mode |
+|---|---|---|
+| 7 | Sanjay Gupta | Kenji Yamamoto (山本 健二) |
+| 62 | Harpreet Singh | Takashi Nakamura (中村 隆) |
+| 302 | Brijmohan Yadav | Masaru Kobayashi (小林 勝) |
+| 308 | Prakash Joshi | Yoshio Kato (加藤 義雄) |
+| 430 | Anjali Mehra | Emi Yoshida (吉田 恵美) |
+| 496 | Neha Chauhan | Aya Matsumoto (松本 彩) |
+| 507 | Surendra Pratap Singh | Hideo Inoue (井上 英雄) |
+| 750 | Gopal Chaudhary | Koji Kimura (木村 浩二) |
+| 800 | Arjun Malhotra | Daisuke Hayashi (林 大輔) |
+| 814 | Dilip Pandey | Shinji Shimizu (清水 慎二) |
+| 1008 | Ramprasad Mishra | Tetsuo Yamaguchi (山口 哲夫) |
+| 1091 | Anil Saxena | Hiroyuki Saito (斎藤 浩之) |
+| 1102 | Mohammed Rafiq | Akira Mori (森 明) |
+| 1128 | Manoj Dubey | Naoki Ogawa (小川 直樹) |
+| 1132 | Sunita Agarwal | Keiko Abe (阿部 恵子) |
+| 1217 | Pooja Verma | Mio Ikeda (池田 美緒) |
+| 1357 | Rakesh Bhatt | Tomoya Hashimoto (橋本 智也) |
+| 1520 | Vikram Rathore | Ryota Ishikawa (石川 亮太) |
+| 1527 | Meena Tiwari | Yumi Maeda (前田 由美) |
+| 1636 | Priya Kashyap | Yui Sato (佐藤 結衣) |
+| 1688 | Rajesh Sharma | Hiroshi Tanaka (田中 浩) |
+| 1705 | Savitri Devi | Fumiko Ono (小野 文子) |
+| 1789 | Kamla Devi | Sachiko Fujita (藤田 幸子) |
+| 1974 | Imran Qureshi | Shota Okada (岡田 翔太) |
+
 ## Screening tracker: which yearly tests are overdue
 
 In the doctor record's **Overview**, under *What changed since the last visit*, the **Screening tracker** lists four yearly tests for a person with diabetes: the eye (retina) exam, the urine albumin test, kidney function (eGFR) and the foot exam. Each row shows when it was last done, whether it is **up to date**, **due soon** (under 60 days left) or **overdue**, and why the test matters. The patient list also gets a **Screening overdue** flag, so these patients no longer look stable.
@@ -158,6 +200,10 @@ In the patient app press **日** at the top, or open `http://localhost:8000/?vie
 
 Say plainly if asked: the Japanese wording is a machine-assisted first draft awaiting native-speaker review, and the chat assistant is general guidance, not medical advice.
 
+## Referral letter (紹介状)
+
+In Japan a patient usually goes to a hospital specialist only with a letter from the clinic (large hospitals charge at least ¥7,000 extra without one). Under the **Screening tracker** in a patient's Overview, the **Referral letter** box makes that letter: choose the clinic (eye 眼科, kidney 腎臓内科, or hospital diabetes 糖尿病内科), the language (日本語 or English), add an optional note, and press **Open the letter (PDF)**. It is one A4 page with the patient, the diagnosis, the reason for referral, key results (HbA1c, eGFR, urine albumin, blood pressure, retinopathy, 14-day glucose), the current medicines (including prescriptions sent in the demo), the overdue tests, and a place for the doctor's signature. The Japanese letter follows the 診療情報提供書 layout (御侍史, ご高診, era date). **Refer to eye specialist** still sends the patient a message; the letter is what the doctor hands over. The doctor must read and sign it: the page says it is made from synthetic data. Code: `src/api/referral.py`.
+
 ## Appointments: reception, the doctor's calendar and booking from the patient app
 
 Three views share one calendar (`src/api/appointments.py`, stored in `data/appointments.json`, git-ignored; `python scripts/reset_demo.py` clears it and the server creates a fresh sample week on start).
@@ -185,9 +231,13 @@ Every change adds a banner in the patient app (confirmed, moved, cancelled, runn
 
 The calendar and the sample requests are synthetic. The reception, doctor and patient screens are separate views of the same data with no sign-in: a real clinic needs staff accounts and roles. The patient screens are translated into Japanese; the reception and doctor screens are in English.
 
+## The one-page FAQ
+
+`docs/faq/Kaya_FAQ_en.pdf` and `Kaya_FAQ_ja.pdf` (A4, one page each) answer the ten questions visitors ask, with the numbers behind them and a source for each: dialysis and its cost, the share of patients who get their yearly eye and urine tests, who pays in Japan, the referral surcharge, Kaya's own results and their limits. Rebuild after editing the text in `docs/make_faq.py` with `python docs/make_faq.py`. The Japanese page was proofread (see below) but have a Japanese speaker read it before printing.
+
 ## Suggested flow: one patient, Rajesh Sharma (about 6 minutes)
 
-Before you start: stop the server, run `python scripts/reset_demo.py`, start the server again, and open two windows: the doctor view (`http://localhost:8000/?p=1688`) and the patient app (`http://localhost:8000/?view=patient&p=1688`). The story is the doctor's: *the twin finds the problem, the screening gap shows what is missing, and the doctor acts without the patient having to come in.*
+Before you start: open **Admin** and press **Reset the demo** (or stop the server, run `python scripts/reset_demo.py` and start it again), then open two windows: the doctor view (`http://localhost:8000/?p=1688`) and the patient app (`http://localhost:8000/?view=patient&p=1688`). The story is the doctor's: *the twin finds the problem, the screening gap shows what is missing, and the doctor acts without the patient having to come in.*
 
 1. **Who needs me today.** In the doctor list, press the **Screening** chip: only patients with an overdue test remain. Rajesh is near the top (high priority). Open him.
 2. **Why he is flagged.** The header and the **What changed since the last visit** card: time in range, a night low, albumin up, retinopathy progressing from mild to moderate. Press **Replay last 3 days** to show the forecast fan before the evening spike.

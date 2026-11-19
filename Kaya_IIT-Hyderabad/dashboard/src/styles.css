@@ -532,6 +532,10 @@ main.wide { padding: 18px 24px 40px; max-width: 1700px; margin: 0 auto; }
 .bk-legend .f { background: var(--mint); border: 1.5px solid var(--mint-d); } .bk-legend .t { background: #eef1f1; border: 1.5px solid #e1e6e6; } .bk-legend .r { background: #ffe9e4; border: 1.5px solid #f2c6bd; }
 @media (max-width: 1000px) { .recep { grid-template-columns: 1fr; } .recep-q { position: static; max-height: none; } }
 
+.adm-reset { display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 14px 18px; margin-bottom: 14px; }
+.scr-letter { margin-top: 14px; padding: 12px 14px; border-radius: 16px; background: var(--sky); color: var(--sky-dd); }
+.scr-letter .muted { color: inherit; opacity: .8; }
+
 /* month calendar in the patient's booking sheet */
 .bk > * { flex: none; }
 .bk-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }

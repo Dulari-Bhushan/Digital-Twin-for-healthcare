@@ -8,6 +8,7 @@ const j = async (r) => {
   return r.json()
 }
 const getOverview = (token) => fetch('/api/admin/overview', { headers: hdr(token) }).then(j)
+const resetDemo = (token) => fetch('/api/admin/reset-demo', { method: 'POST', headers: { ...hdr(token), 'Content-Type': 'application/json' }, body: JSON.stringify({ confirm: true }) }).then(j)
 const runSelftest = (token) => fetch('/api/admin/selftest', { method: 'POST', headers: hdr(token) }).then(j)
 
 const up = (s) => (s >= 3600 ? `${Math.floor(s / 3600)} h ${Math.floor((s % 3600) / 60)} min` : s >= 60 ? `${Math.floor(s / 60)} min ${s % 60} s` : `${s} s`)
@@ -23,10 +24,20 @@ export default function Admin() {
   const [err, setErr] = useState(null)
   const [test, setTest] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [askReset, setAskReset] = useState(false)
+  const [resetMsg, setResetMsg] = useState(null)
 
   const load = useCallback(() => getOverview(token).then((d) => { setData(d); setErr(null) }).catch((e) => setErr(e.message)), [token])
   useEffect(() => { load(); const t = setInterval(load, 10000); return () => clearInterval(t) }, [load])
 
+  const doReset = () => {
+    setBusy(true)
+    resetDemo(token).then((r) => {
+      setResetMsg({ ok: true, text: `Reset done. Cleared: ${Object.entries(r.cleared).map(([k, v]) => `${k} ${v}`).join(', ')}. Restored: ${r.restored.join(', ')}.` })
+      try { window.localStorage.removeItem('kaya.triage.v1') } catch (e) { /* ignore */ }     // patients parked in the doctor's list come back
+      setAskReset(false); load()
+    }).catch((e) => setResetMsg({ ok: false, text: `Could not reset: ${e.message}` })).finally(() => setBusy(false))
+  }
   const signIn = () => { try { window.sessionStorage.setItem('kaya-admin', draft) } catch (e) { /* ignore */ } setToken(draft) }
   const doTest = () => { setBusy(true); runSelftest(token).then(setTest).catch((e) => setTest({ ok: false, checks: [{ name: 'Self-test', ok: false, ms: 0, detail: e.message }] })).finally(() => { setBusy(false); load() }) }
 
@@ -60,6 +71,21 @@ export default function Admin() {
           <Pill tone={data.auth === 'token' ? 'mint' : 'butter'}>{data.auth === 'token' ? 'Token protected' : 'Demo mode: no sign-in'}</Pill>
           <button className="btn go" onClick={doTest} disabled={busy}>{busy ? 'Running…' : '▶ Run self-test'}</button>
         </div>
+      </div>
+
+      <div className="card soft adm-reset">
+        <div>
+          <b>Start the demo again</b>
+          <div className="muted" style={{ fontSize: 13 }}>Clears the messages, prescriptions, uploaded reports, diary and appointments that visitors made, and restores the sample patient messages and the sample week. Nothing resets by itself: it only happens when you press this button.</div>
+        </div>
+        {askReset ? (
+          <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+            <b style={{ color: 'var(--rose-dd)' }}>Clear everything visitors did?</b>
+            <button className="btn go" style={{ background: 'var(--rose-d)' }} onClick={doReset} disabled={busy}>{busy ? 'Resetting…' : 'Yes, reset the demo'}</button>
+            <button className="btn" onClick={() => setAskReset(false)}>Cancel</button>
+          </div>
+        ) : <button className="btn" onClick={() => { setResetMsg(null); setAskReset(true) }}>↺ Reset the demo</button>}
+        {resetMsg && <div className={resetMsg.ok ? 'cal-flash' : 'cal-err'} role="status" style={{ flexBasis: '100%' }}>{resetMsg.text}</div>}
       </div>
 
       <div className="rec-kpis">

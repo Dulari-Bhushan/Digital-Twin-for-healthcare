@@ -1,5 +1,6 @@
 import EXTRA from './i18n_extra.json'
 import JA from './i18n_ja.json'
+import { L, withNumber } from './region'
 
 // Patient-app strings in English, Hindi, Telugu, Kannada and Japanese (i18n_ja.json, a first draft to be checked by a native speaker), plus machine-made drafts for the other Indian languages (i18n_extra.json).
 // Hindi, Telugu and Kannada are first drafts and should be reviewed by a native speaker before clinical use.
@@ -299,9 +300,10 @@ Object.assign(en, {
 
 const DICT = { en, hi, te, kn, ja: JA, ...EXTRA }
 
-export function makeT(lang) {
+export function makeT(lang, region = 'JP') {
   return (key, vars = {}) => {
     let s = (DICT[lang] && DICT[lang][key]) ?? en[key] ?? key
+    s = lang === 'en' ? L(s, region) : withNumber(s, region)      // local emergency number (and foods in English), before any value is filled in
     for (const [k, v] of Object.entries(vars)) s = s.split(`{${k}}`).join(v)
     return s
   }

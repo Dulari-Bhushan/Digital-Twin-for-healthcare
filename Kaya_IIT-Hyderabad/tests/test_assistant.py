@@ -5,6 +5,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src" / "api"))
+import region  # noqa: E402
 import assistant as asst  # noqa: E402
 
 fastapi_testclient = pytest.importorskip("fastapi.testclient")
@@ -17,7 +18,7 @@ import app as kaya  # noqa: E402
 ])
 def test_emergency_words_never_reach_the_model(msg, lang):
     r = asst.classify(msg, lang)
-    assert r["kind"] == "emergency" and "108" in r["reply"]
+    assert r["kind"] == "emergency" and region.EMERGENCY_NUMBER in r["reply"]
 
 
 @pytest.mark.parametrize("msg,lang", [

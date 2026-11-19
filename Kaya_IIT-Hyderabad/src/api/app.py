@@ -8,6 +8,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import shutil
 import sys
 import threading
 import time
@@ -40,8 +41,10 @@ import messages as msgs  # noqa: E402
 import reports as rpt  # noqa: E402
 import screening  # noqa: E402
 import appointments as appt  # noqa: E402
+import referral  # noqa: E402
 from live import Calibration, LiveTwin, NumpyGRU  # noqa: E402
-from names import DEMO_TAGS, name_of  # noqa: E402
+import region  # noqa: E402
+from names import DEMO_TAGS, localize_name, localize_name_ja, name_ja_of, name_of  # noqa: E402
 from voice import CHAT_MODEL, LANG_CODES, STT_MODEL, TTS_LANGS, TTS_MODEL, SarvamClient, VoiceError, load_key  # noqa: E402
 from liver_dynamic import LiverParams, risk_timeline  # noqa: E402
 
@@ -184,22 +187,20 @@ def _summary(a: dict) -> dict:
             "triage": _triage(pr["id"], m, recent, liver12, fib12, egfr, score, *max({"Liver": liver12, "Kidney": kid, "Eye": eye}.items(), key=lambda kv: kv[1]), msgs.pending_from_patient(pr["id"]))}
 
 
-DEMO_PATIENT_MESSAGES = {
-    "Brijmohan Yadav": (9, "Doctor, I felt dizzy and shaky this morning before breakfast. Should I change my tablets?", "doctor"),
-    "Arjun Malhotra": (50, "My sugar has been high after dinner all week. Can I eat chapati instead of rice?", "self_insisted"),
-    "Dilip Pandey": (52, "I am travelling next week for a wedding. Do I need to change my medicine timing?", "doctor"),
+DEMO_PATIENT_MESSAGES = {       # patient id: (hours ago, the patient's words, what the helper decided)
+    302: (9, "Doctor, I felt dizzy and shaky this morning before breakfast. Should I change my tablets?", "doctor"),
+    800: (50, "My sugar has been high after dinner all week. Can I eat chapati instead of rice?", "self_insisted"),
+    814: (52, "I am travelling next week for a wedding. Do I need to change my medicine timing?", "doctor"),
 }
 
 
 def _seed_patient_messages() -> None:
     """A demo starts with a few unanswered patient messages so the doctor's list has something real to show."""
-    by_name = {p["profile"]["name"]: pid for pid, p in STORE.items()}
-    for name, (hours, text, check) in DEMO_PATIENT_MESSAGES.items():
-        pid = by_name.get(name)
-        if pid is None:
+    for pid, (hours, text, check) in DEMO_PATIENT_MESSAGES.items():
+        if pid not in STORE:
             continue
         at = datetime.combine(_today(pid), datetime.now().time()) - timedelta(hours=hours)
-        msgs.replace_seed(pid, text, at.strftime("%Y-%m-%d %H:%M:%S"), check)
+        msgs.replace_seed(pid, region.localize(text), at.strftime("%Y-%m-%d %H:%M:%S"), check)
 
 
 @app.on_event("startup")
@@ -211,10 +212,13 @@ def load() -> None:
     for item in META["patients"]:
         STORE[item["id"]] = json.loads((ART_DIR / f"{item['id']}.json").read_text())
         STORE[item["id"]]["profile"]["name"] = name_of(item["id"])
+        STORE[item["id"]]["profile"]["name_ja"] = name_ja_of(item["id"])
         STORE[item["id"]]["profile"]["demo_tag"] = DEMO_TAGS.get(item["id"])
     if (CARDIO_DIR / "index.json").exists():
         for item in json.loads((CARDIO_DIR / "index.json").read_text())["patients"]:
             CARDIO["patients"][item["id"]] = json.loads((CARDIO_DIR / f"{item['id']}.json").read_text())
+            pr = CARDIO["patients"][item["id"]]["profile"]
+            pr["name"], pr["name_ja"] = localize_name(pr["name"], item["id"]), localize_name_ja(pr["name"], item["id"])     # the names baked into the artifacts, in this region's version
         CARDIO["evidence"] = json.loads((CARDIO_DIR / "evidence.json").read_text())
     if os.environ.get("KAYA_KEEP_LOGS") != "1":
         diary.reset_patient_logs()                       # a demo starts with nothing logged today; set KAYA_KEEP_LOGS=1 to keep entries
@@ -572,7 +576,7 @@ def contact_check(pid: int, body: ContactCheckReq, request: Request):
     else:
         out = {"verdict": "unsure", "reason": "unavailable", "reply": ""}
         try:
-            raw = _chat_client(lang).chat([{"role": "system", "content": asst.contact_prompt(lang, asst.patient_context(a, 0))},
+            raw = _chat_client(lang).chat([{"role": "system", "content": asst.contact_prompt(lang, asst.patient_context(a, 0, _patient_extra(pid)))},
                                            {"role": "user", "content": gem.sanitize_input(text)}], max_tokens=400)
             d = msgs._json_object(raw)
             if d and isinstance(d.get("forward"), bool):
@@ -622,6 +626,23 @@ def messages_read(pid: int, mid: str):
         raise HTTPException(404, "message not found")
     adm.TEL.audit("patient app", "message acknowledged", f"patient {pid}")
     return m
+
+
+@app.get("/api/patients/{pid}/referral.pdf")
+def referral_pdf(pid: int, to: str = Query("hospital", max_length=12), lang: str = Query("ja", max_length=2), note: str = Query("", max_length=300)):
+    """A referral letter (紹介状) for the patient to an eye clinic, a kidney clinic or a hospital, in Japanese or English. The doctor reads and signs it."""
+    if to not in referral.DESTINATIONS:
+        raise HTTPException(422, "to must be eye, kidney or hospital")
+    a = _get(pid)
+    rec = _record(pid)["record"]
+    rx = [m for m in msgs.list_messages(pid) if m["kind"] == "prescription"]
+    meds = msgs.apply_to_medicines(rec["medications"], rx) if rx else rec["medications"]
+    eyes = sorted([r for r in rec["reports"] if r["code"] == "EYE"], key=lambda r: r["days_ago"])
+    now = _today(pid)
+    pdf = referral.build_referral(a, meds, eyes[0] if eyes else None, screening.status(pid, now, msgs.list_messages(pid)), to, "ja" if lang == "ja" else "en", note, now,
+                                  rpt.DOCS["diab"].split(",")[0])
+    adm.TEL.audit("clinician", "referral letter PDF", f"patient {pid}: {to}, {lang}")
+    return Response(pdf, media_type="application/pdf", headers={"Content-Disposition": f'inline; filename="referral_{pid}_{to}_{lang}.pdf"'})
 
 
 @app.get("/api/patients/{pid}/screening")
@@ -776,6 +797,18 @@ def _chat_client(lang: str):
     return sv or g
 
 
+def _patient_extra(pid: int) -> str:
+    """Other things the patient app shows that the helper may be asked about: yearly tests that are due, and the next appointment."""
+    bits = []
+    late = screening.overdue(pid)
+    if late:
+        bits.append("Yearly tests overdue: " + ", ".join(late) + " (the patient can book them in the Appointments card).")
+    nxt = (appt.for_patient(pid, _clinic_now())["upcoming"] or [None])[0]
+    if nxt:
+        bits.append(f"Next appointment: {nxt['slot'] or 'as soon as possible'} ({nxt['status']}).")
+    return " ".join(bits)
+
+
 def _client_ip(request: Request) -> str:
     return request.client.host if request.client else "local"
 
@@ -878,7 +911,7 @@ def _assistant_inner(body: AssistantReq, request: Request):
         text = gem.sanitize_input(str(h.get("content", "")), 400)
         if h.get("role") in ("user", "assistant") and text and not gem.looks_like_injection(text):
             history.append({"role": h["role"], "content": text})
-    messages = [{"role": "system", "content": asst.system_prompt(lang, asst.patient_context(a, body.tab))}] + history + [{"role": "user", "content": message}]
+    messages = [{"role": "system", "content": asst.system_prompt(lang, asst.patient_context(a, body.tab, _patient_extra(body.pid)))}] + history + [{"role": "user", "content": message}]
     try:
         reply, blocked = asst.clean_reply(client.chat(messages), lang)
     except (VoiceError, gem.GeminiError):
@@ -950,7 +983,7 @@ class DelayReq(BaseModel):
 @app.get("/api/clinic")
 def clinic_info():
     now = _clinic_now()
-    return {**appt.CLINIC, "now": now.strftime("%Y-%m-%d %H:%M"), "today": now.strftime("%Y-%m-%d"), "reasons": list(appt.REASONS),
+    return {**appt.CLINIC, "region": region.REGION, "emergency_number": region.EMERGENCY_NUMBER, "now": now.strftime("%Y-%m-%d %H:%M"), "today": now.strftime("%Y-%m-%d"), "reasons": list(appt.REASONS),
             "first_open_day": appt.first_open_day(now).isoformat(), "max_active_per_patient": appt.MAX_ACTIVE_PER_PATIENT}
 
 
@@ -1200,6 +1233,46 @@ def _admin_state() -> dict:
 def admin_overview(request: Request):
     _admin_guard(request)
     return adm.overview(_admin_state())
+
+
+class ResetReq(BaseModel):
+    confirm: bool = False
+
+
+def _wipe(path: Path) -> int:
+    """Delete a folder or file the demo wrote to; the number of files removed."""
+    path = Path(path)
+    if path.is_file():
+        path.unlink()
+        return 1
+    if path.is_dir():
+        n = sum(1 for f in path.rglob("*") if f.is_file())
+        shutil.rmtree(path, ignore_errors=True)
+        return n
+    return 0
+
+
+@app.post("/api/admin/reset-demo")
+def admin_reset_demo(body: ResetReq, request: Request):
+    """Start the demo again: clears what visitors did (messages and prescriptions, uploaded reports, the diary, appointments) and restores the
+    sample patient messages and the sample week of appointments. Nothing resets by itself; this runs only when someone presses the button."""
+    _admin_guard(request)
+    if not body.confirm:
+        raise HTTPException(422, "confirm the reset")
+    with msgs.LOCK:                                     # the stores are cleared one at a time; each seeding below takes its own lock
+        cleared_msgs = _wipe(msgs.MSG_DIR)
+    with appt.LOCK:
+        cleared_appts = _wipe(appt.FILE)
+    cleared = {"messages and prescriptions": cleared_msgs, "uploaded reports": _wipe(upl.UP_DIR), "diary entries": diary.reset_patient_logs(),
+               "appointment calendar": cleared_appts}
+    _seed_patient_messages()
+    appt.seed(_clinic_now(), list(STORE), force=True)
+    TRANSLATING.clear()
+    RECORDS.clear()
+    HITS.clear()
+    gem.GUARD = gem.Guard()
+    adm.TEL.audit("admin", "demo reset", ", ".join(f"{k}: {v}" for k, v in cleared.items()))
+    return {"ok": True, "cleared": cleared, "restored": ["sample patient messages", "sample week of appointments"]}
 
 
 @app.post("/api/admin/selftest")

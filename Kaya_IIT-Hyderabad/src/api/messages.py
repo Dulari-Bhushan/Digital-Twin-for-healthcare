@@ -15,6 +15,7 @@ import uuid
 from pathlib import Path
 
 import atomic
+import region
 
 ROOT = Path(__file__).resolve().parents[2]
 MSG_DIR = Path(os.environ.get("KAYA_MESSAGES", ROOT / "data" / "patient_messages"))
@@ -282,6 +283,7 @@ TEMPLATE_TEXT = {
     "a_portions": ("Try smaller portions of rice and roti", "Your sugar rises a lot after meals. Please try smaller portions of rice and roti, and add more vegetables and dal."),
     "a_meds": ("I want to review your medicines", "After looking at your data I would like to change your medicines. I will send you a new prescription shortly. Please do not change anything until then."),
 }
+TEMPLATE_TEXT = {k: (region.localize(t), region.localize(b)) for k, (t, b) in TEMPLATE_TEXT.items()}      # local emergency number and foods
 _TEXT_TO_TEMPLATE = {v: k for k, v in TEMPLATE_TEXT.items()}
 
 

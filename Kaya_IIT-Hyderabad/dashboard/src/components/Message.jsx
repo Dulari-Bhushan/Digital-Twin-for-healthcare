@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getMessages, getReports, markHandled, sendMessage, sendPrescription } from '../api'
 import { TONE } from '../ui'
+import { L } from '../region'
 
 const URGENT = [
   { id: 'u_clinic', label: 'Come to the clinic today', action: 'come_to_clinic', title: 'Please come to the clinic today',
@@ -69,7 +70,7 @@ function Compose({ pid, onSent }) {
   const [translate, setTranslate] = useState(true)
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState(null)
-  const templates = kind === 'urgent' ? URGENT : ADVICE
+  const templates = (kind === 'urgent' ? URGENT : ADVICE).map((x) => ({ ...x, title: L(x.title), body: L(x.body) }))
   const apply = (t) => setF({ title: t.title, body: t.body, action: t.action || f.action, template: t.id })
   useEffect(() => { setF({ title: '', body: '', action: 'come_to_clinic', template: null }); setMsg(null) }, [kind, pid])
   const send = () => {

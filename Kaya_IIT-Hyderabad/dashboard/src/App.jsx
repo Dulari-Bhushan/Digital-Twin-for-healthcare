@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { getApptSummary, getChanges, getPatient, getPatients, getSeries } from './api'
+import { getApptSummary, getChanges, getClinic, getPatient, getPatients, getSeries } from './api'
+import { setRegion } from './region'
 import { AlertsCard, GlucoseCard, Hero, Organs, ProbCard, RangeCard, WhatIfStudio } from './components/Doctor'
 import { Sidebar } from './components/Triage'
 import PatientApp from './components/PatientApp'
@@ -39,6 +40,7 @@ export default function App() {
   const [mode, setMode] = useState(['patient', 'admin', 'reception'].includes(params.get('view')) ? params.get('view') : 'doctor')
   const [docView, setDocView] = useState(params.get('view') === 'heart' ? 'heart' : params.get('view') === 'schedule' ? 'schedule' : 'twin')
   const [apptSum, setApptSum] = useState({ pending: 0, urgent: 0 })
+  const [region, setRegionState] = useState(null)
   const refreshAppts = () => getApptSummary().then(setApptSum).catch(() => {})
   const [d, setD] = useState(null)
   const [series, setSeries] = useState(null)
@@ -73,6 +75,7 @@ export default function App() {
     }).catch((e) => setErr(String(e)))
   }, [])
 
+  useEffect(() => { getClinic().then((c) => { setRegion(c.region); setRegionState(c.region) }).catch(() => { setRegionState('JP') }) }, [])
   useEffect(() => { refreshAppts(); const id = setInterval(refreshAppts, 6000); return () => clearInterval(id) }, [])
 
   useEffect(() => {                                   // flags change when a patient writes or the doctor replies
@@ -145,7 +148,7 @@ export default function App() {
         </nav>
       )}
       {mode === 'admin' ? <Admin /> : mode === 'reception' ? <main className="wide"><Reception patients={patients} onChanged={refreshAppts} onOpenPatient={(id) => { setSel(id); setMode('doctor'); setDocView('twin'); setRecord({ tab: 'catchup' }) }} /></main> : mode === 'doctor' && docView === 'schedule' ? <main className="wide"><Schedule role="doctor" patients={patients} onChanged={refreshAppts} onOpenPatient={(id) => { setSel(id); setDocView('twin'); setRecord({ tab: 'catchup' }) }} /></main> : mode === 'doctor' && docView === 'heart' ? (sel == null ? <div className="stage muted">Loading…</div> : <Heart pid={sel} onPick={setSel} onOpenTwin={(id) => { setSel(id); setDocView('twin') }} />) : mode === 'patient' ? (
-        ready ? <PatientApp d={d} at={at} pid={sel} changes={changes} /> : <div className="stage muted">Loading…</div>
+        ready ? <PatientApp d={d} at={at} pid={sel} changes={changes} region={region || 'JP'} /> : <div className="stage muted">Loading…</div>
       ) : (
         <div className="layout" style={{ '--sidew': `${sideW}px` }}>
           <Sidebar patients={patients} selected={sel} onSelect={(id) => { setSel(id); setRecord({ tab: 'catchup' }) }} />

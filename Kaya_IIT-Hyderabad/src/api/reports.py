@@ -14,12 +14,16 @@ from datetime import datetime, timedelta, timezone
 
 import numpy as np
 
+import region
 import screening
 
 LAB = "Kaya Demo Diagnostics (synthetic)"
 HOSP = "Kaya Demo Hospital (synthetic)"
-DOCS = {"diab": "Dr. Anita Kapoor, Diabetologist", "eye": "Dr. Vivek Bansal, Ophthalmologist", "liver": "Dr. Shalini Arora, Hepatologist",
-        "rad": "Dr. Nitin Saluja, Radiologist", "card": "Dr. Rohit Khanna, Cardiologist", "pod": "Dr. Meera Chopra, Diabetes Foot Clinic"}
+DOCS = ({"diab": "Dr. Keiko Mori, Diabetologist", "eye": "Dr. Kenji Takahashi, Ophthalmologist", "liver": "Dr. Yoko Hayashi, Hepatologist",
+         "rad": "Dr. Naoki Ishikawa, Radiologist", "card": "Dr. Satoshi Kondo, Cardiologist", "pod": "Dr. Mika Fujita, Diabetes Foot Clinic"}
+        if region.REGION == "JP" else
+        {"diab": "Dr. Anita Kapoor, Diabetologist", "eye": "Dr. Vivek Bansal, Ophthalmologist", "liver": "Dr. Shalini Arora, Hepatologist",
+         "rad": "Dr. Nitin Saluja, Radiologist", "card": "Dr. Rohit Khanna, Cardiologist", "pod": "Dr. Meera Chopra, Diabetes Foot Clinic"})
 GRADES = ["No retinopathy", "Mild", "Moderate", "Severe", "Proliferative"]
 VISIT_DAYS = [548, 365, 182, 91]          # clinic visits, in days before "today"
 LAB_DAY = 3                                # newest lab panel, reported a few days ago and not yet reviewed
@@ -301,7 +305,7 @@ def _foot(a: dict, date: str, days_before: int, tr: dict) -> dict:
 def _visit(a: dict, v: dict, date: str, days_before: int, meds: list[dict], idx: int) -> dict:
     p = a["profile"]
     r = np.random.default_rng([p["id"], 12, idx])
-    complaints = ["No new complaints.", "Some tiredness in the afternoons.", "Occasional tingling in the feet.", "Skipped some evening walks over the festival season."]
+    complaints = ["No new complaints.", "Some tiredness in the afternoons.", "Occasional tingling in the feet.", "Skipped some evening walks over the holidays."]
     if p["on_insulin_or_su"] and v["hba1c"] >= 8.5:
         complaints = ["Occasional dizziness and sweating in the early morning.", "Feels tired and thirsty through the day."]
     if v["hba1c"] >= 9:

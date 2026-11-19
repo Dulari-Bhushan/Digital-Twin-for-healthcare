@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getScreening, sendMessage } from '../api'
+import { getClinic, getScreening, sendMessage } from '../api'
 import { TONE } from '../ui'
 import { fmtDate } from './Reports'
 
@@ -14,6 +14,8 @@ export default function ScreeningCard({ pid }) {
   const [sc, setSc] = useState(null)
   const [busy, setBusy] = useState(null)
   const [err, setErr] = useState('')
+  const [letter, setLetter] = useState({ to: 'eye', lang: 'ja', note: '' })
+  useEffect(() => { getClinic().then((c) => setLetter((l) => ({ ...l, lang: c.region === 'IN' ? 'en' : 'ja' }))).catch(() => {}) }, [])
   const load = () => getScreening(pid).then(setSc).catch(() => {})
   useEffect(() => { setSc(null); setErr(''); load() }, [pid])
   if (!sc) return null
@@ -61,6 +63,16 @@ export default function ScreeningCard({ pid }) {
             </div>
           )
         })}
+      </div>
+      <div className="scr-letter">
+        <b>Referral letter</b>
+        <span className="muted"> to hand to the specialist (紹介状)</span>
+        <div className="cal-actions" style={{ marginTop: 8 }}>
+          <label>To <select value={letter.to} onChange={(e) => setLetter({ ...letter, to: e.target.value })}><option value="eye">Eye clinic (眼科)</option><option value="kidney">Kidney clinic (腎臓内科)</option><option value="hospital">Hospital, diabetes (糖尿病内科)</option></select></label>
+          <label>Language <select value={letter.lang} onChange={(e) => setLetter({ ...letter, lang: e.target.value })}><option value="ja">日本語</option><option value="en">English</option></select></label>
+          <label>Extra note (optional) <input value={letter.note} maxLength={300} placeholder="added to the reason for referral" onChange={(e) => setLetter({ ...letter, note: e.target.value })} /></label>
+          <a className="btn sm go" target="_blank" rel="noreferrer" href={`/api/patients/${pid}/referral.pdf?to=${letter.to}&lang=${letter.lang}&note=${encodeURIComponent(letter.note)}`}>Open the letter (PDF)</a>
+        </div>
       </div>
       {err && <div className="note" style={{ color: 'var(--rose-dd)' }}>{err}</div>}
       <div className="note">A yearly test counts as done when its report is in the record. The messages go to the patient app. The test history is synthetic.</div>

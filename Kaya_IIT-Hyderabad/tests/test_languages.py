@@ -8,6 +8,7 @@ sys.path.insert(0, str(ROOT / "src" / "api"))
 
 import assistant  # noqa: E402
 import messages  # noqa: E402
+import region  # noqa: E402
 import voice  # noqa: E402
 
 
@@ -33,7 +34,7 @@ def test_every_language_has_the_fixed_safety_messages():
     for lang in assistant.LANGS:
         for table in (assistant.EMERGENCY_MSG, assistant.MEDICINE_MSG, assistant.FALLBACK_MSG, assistant.OPEN_MSG, assistant.TAB_LABEL):
             assert table[lang]
-        assert ("119" if lang == "ja" else "108") in assistant.EMERGENCY_MSG[lang]      # the local emergency number survives translation
+        assert region.EMERGENCY_NUMBER in assistant.EMERGENCY_MSG[lang]      # the local emergency number survives translation
 
 
 def test_the_voice_covers_fewer_languages_than_translation():

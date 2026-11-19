@@ -245,3 +245,26 @@ def test_api_doctor_unavailable_preview_then_apply(client):
     assert n[-1]["kind"] == "moved" and n[-1]["reason"] == "emergency surgery"
     late = client.post("/api/schedule/delay", json={"date": FRI, "from_time": "10:00", "minutes": 15, "actor": "nurse"}).json()
     assert late["informed"] >= 2
+
+
+# ---------------------------------------------------------------- the reset button
+def test_reset_demo_clears_what_visitors_did_and_restores_the_sample_data(client, tmp_path, monkeypatch):
+    import messages as msgs
+    import uploads as upl
+    monkeypatch.setattr(msgs, "MSG_DIR", tmp_path / "msgs")
+    monkeypatch.setattr(upl, "UP_DIR", tmp_path / "uploads")
+    import diary
+    monkeypatch.setattr(diary, "LOG_DIR", tmp_path / "logs")                                         # never touch the real diary folder
+    (tmp_path / "uploads").mkdir()
+    (tmp_path / "uploads" / "x.pdf").write_bytes(b"x")
+    client.post("/api/patients/1688/messages", json={"kind": "advice", "title": "Test", "body": "Walk more.", "translate": False})
+    a = client.post("/api/patients/1688/appointments", json={"slot": f"{THU} 15:00", "reason": "routine"}).json()
+    assert client.get("/api/patients/1688/appointments").json()["upcoming"][0]["id"] == a["id"]
+    assert client.post("/api/admin/reset-demo", json={}).status_code == 422                       # a confirmation is required
+    r = client.post("/api/admin/reset-demo", json={"confirm": True}).json()
+    assert r["ok"] and r["cleared"]["uploaded reports"] == 1 and r["cleared"]["messages and prescriptions"] >= 1
+    assert client.get("/api/patients/1688/appointments").json()["upcoming"] == []                  # the demo patient's calendar is clear again
+    assert not [m for m in msgs.list_messages(1688) if m["title"] == "Test"]
+    assert msgs.list_messages(302)                                                                 # the sample patient messages are back
+    q = client.get("/api/appointments/queue").json()["items"]
+    assert any(x["urgent"] for x in q) and len(q) == 3                                              # the sample week and its waiting requests

@@ -5,6 +5,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src" / "api"))
+import names  # noqa: E402
 
 fastapi_testclient = pytest.importorskip("fastapi.testclient")
 import app as kaya  # noqa: E402
@@ -102,6 +103,6 @@ def test_heart_watch_covers_the_same_people_as_the_glucose_twin(client):
     assert set(twin) == {i for i, r in rows.items() if r["group"] == "demo"}
     for pid, t in twin.items():
         h = client.get(f"/api/cardio/{pid}").json()["profile"]
-        assert h["name"] == t["name"] and h["age"] == round(t["age"]) and h["sex"] == t["sex"]
+        assert h["name"] == names.localize_name(t["name"], pid) and h["age"] == round(t["age"]) and h["sex"] == t["sex"]
         assert h["hba1c"] == round(t["hba1c"], 1) and h["on_insulin_or_su"] == t["on_insulin_or_su"] and h["egfr"] == round(t["labs"]["egfr"])
     assert all(r["id"] >= 100000 for r in rows.values() if r["group"] == "edge")

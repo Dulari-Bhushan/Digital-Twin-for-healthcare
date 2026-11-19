@@ -241,7 +241,7 @@ function initialLang() {
   return 'en'
 }
 
-export default function PatientApp({ d, at, pid, changes }) {
+export default function PatientApp({ d, at, pid, changes, region }) {
   const [tab, setTab] = useState(Number(new URLSearchParams(window.location.search).get('tab') || 0))
   const [day, setDay] = useState(0)
   const [log, setLog] = useState(null)
@@ -257,7 +257,7 @@ export default function PatientApp({ d, at, pid, changes }) {
   const dueTests = useDueTests(pid)
   useEffect(() => { getVoiceStatus().then(setVoice) }, [])
   const locale = localeFor(lang)
-  const t = useMemo(() => makeT(lang), [lang])
+  const t = useMemo(() => makeT(lang, region), [lang, region])
   const pick = (code) => { setLang(code); try { window.localStorage.setItem('kaya-lang', code) } catch (e) { /* ignore */ } }
   useEffect(() => { setSeries14(null); setDay(Number(new URLSearchParams(window.location.search).get('day') || 0)); setLog(null); getLog(pid).then(setLog).catch(() => {}); getSeries(pid, 14).then(setSeries14) }, [pid])
   const logIt = (kind, value) => postLog(pid, { kind, value }).then(setLog).catch(() => {})
@@ -294,7 +294,7 @@ export default function PatientApp({ d, at, pid, changes }) {
           <ApptNotices t={t} locale={locale} appts={appts} />
           {(tab === 0 || tab === 4) && <ApptCard t={t} locale={locale} appts={appts} due={dueTests} always={tab === 4} onOpen={() => setBookOpen(true)} />}
           {!series14 ? <div className="muted" style={{ padding: 30 }}>{t('loading')}</div> : (
-            tab === 0 ? <Today t={t} name={d.profile.name || `Patient ${d.profile.id}`} series={series14} at={at} day={day} setDay={setDay} st={st} days={days} log={log} logIt={logIt} risky={!!d.profile.on_insulin_or_su} /> :
+            tab === 0 ? <Today t={t} name={(lang === 'ja' && d.profile.name_ja) || d.profile.name || `Patient ${d.profile.id}`} series={series14} at={at} day={day} setDay={setDay} st={st} days={days} log={log} logIt={logIt} risky={!!d.profile.on_insulin_or_su} /> :
             tab === 1 ? <Insights t={t} series={series14} st={st} d={d} locale={locale} /> :
             tab === 2 ? <Body t={t} d={d} /> : tab === 3 ? <Try t={t} pid={pid} /> : <PatientReports t={t} pid={pid} changes={changes} onContact={() => setContactOpen(true)} />
           )}
