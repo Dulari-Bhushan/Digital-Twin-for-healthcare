@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kaya 佳弥 – EMC poster (A0)</title>
+<style>
+@page { size: 841mm 1189mm; margin: 0; }
+:root {
+  --deep:#1d2b29; --teal:#4f9b8d; --teal2:#6bb0a3; --mint:#eaf4f0; --mint2:#d5e8e1;
+  --amber:#e0b862; --amber-d:#a8802f; --sand:#fbf3dc; --rose:#fae9e4; --rose-d:#cf6f61;
+  --slate:#7ea3b3; --ink:#1d2b29; --muted:#56635f; --cream:#ffffff; --line:#e6e1d3;
+}
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; }
+html { background:radial-gradient(circle at 4% 1%,#e3f0ed 0,rgba(227,240,237,0) 38%),radial-gradient(circle at 98% 60%,#f8ecd5 0,rgba(248,236,213,0) 30%),var(--cream); height:4488px; overflow:hidden; }
+body {
+  width:3178px; height:4488px; overflow:hidden; position:relative;
+  font-family:'Segoe UI','Yu Gothic UI','Yu Gothic',Meiryo,sans-serif;
+  font-size:31px; line-height:1.34; color:var(--ink);
+}
+a { color:var(--teal); text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:4px; font-weight:600; }
+/* virtual canvas 3739 x 5287, scaled .85 to A0 (3178 x 4494 px) */
+.page { position:absolute; left:0; top:0; width:3739px; height:5287px; transform:scale(.85); transform-origin:0 0;
+  padding:46px 70px 0 70px; display:flex; flex-direction:column; gap:26px; }
+.jp { font-family:'Yu Gothic','Yu Gothic UI',Meiryo,sans-serif; }
+
+/* header */
+.hero { height:340px; border-radius:48px; background:linear-gradient(115deg,var(--deep) 0%,#dcece7 55%,#4f9b8d 100%);
+  display:flex; align-items:center; gap:40px; padding:0 56px; color:#fff; position:relative; overflow:hidden; flex:none; }
+.hero::after { content:""; position:absolute; right:-140px; top:-180px; width:620px; height:620px; border-radius:50%;
+  background:radial-gradient(circle,rgba(232,161,61,.35),rgba(232,161,61,0) 70%); }
+.logo-wrap { background:var(--cream); border-radius:36px; padding:14px 26px; flex:none; }
+.logo-wrap img { width:520px; display:block; }
+.hero-title { flex:1; position:relative; z-index:1; }
+.hero-title .kicker { font-size:28px; letter-spacing:.18em; text-transform:uppercase; color:var(--amber); font-weight:700; }
+.hero-title h1 { margin:4px 0 8px; font-size:96px; line-height:1.02; font-weight:800; letter-spacing:-.01em; }
+.hero-title h1 em { font-style:normal; color:var(--amber); }
+.hero-title p { margin:0; font-size:35px; line-height:1.26; color:#d6ebe7; max-width:1500px; }
+.hero-photo { flex:none; width:470px; height:290px; object-fit:cover; object-position:center 20%; border-radius:30px; position:relative; z-index:1; border:5px solid rgba(255,255,255,.85); box-shadow:0 10px 30px rgba(0,0,0,.3); }
+.namecard { flex:none; width:640px; background:var(--amber); color:#2a1c05; border-radius:36px; padding:22px 32px; position:relative; z-index:1; }
+.namecard .big { font-size:120px; line-height:1; font-weight:800; letter-spacing:.04em; }
+.namecard .big small { font-size:34px; letter-spacing:0; font-weight:700; margin-left:12px; }
+.namecard .row { font-size:28px; line-height:1.28; margin-top:6px; }
+
+/* stats */
+.stats { display:grid; grid-template-columns:repeat(6,1fr); gap:26px; flex:none; }
+.stat { display:flex; align-items:center; justify-content:space-between; gap:10px; background:#fff; border-radius:30px; padding:20px 26px 18px 34px; border:3px solid var(--line); position:relative; overflow:hidden; }
+.stat::before { content:""; position:absolute; left:0; top:0; bottom:0; width:12px; background:var(--teal); }
+.stat.warn::before { background:var(--rose-d); }
+.stat.gold::before { background:var(--amber); }
+.stat svg { flex:none; width:96px; height:96px; }
+.stat .txt { min-width:0; }
+.stat .n { font-size:80px; line-height:1; font-weight:800; color:var(--deep); letter-spacing:-.02em; }
+.stat.warn .n { color:var(--rose-d); }
+.stat.gold .n { color:var(--amber-d); }
+.stat .l { font-size:28px; line-height:1.22; margin-top:6px; }
+.stat .s { font-size:22px; color:var(--muted); margin-top:5px; }
+
+/* cards */
+.grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:32px; flex:none; }
+.card { background:#fff; border-radius:40px; padding:36px 42px 40px; box-shadow:0 8px 30px rgba(15,59,56,.08); border:3px solid var(--line); position:relative; }
+.card h2 { margin:0 0 6px; font-size:62px; line-height:1.05; font-weight:800; display:flex; align-items:center; gap:20px; color:var(--deep); }
+.num { flex:none; width:80px; height:80px; border-radius:26px; background:var(--teal); color:#fff; font-size:48px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+.card .lead { font-size:34px; font-weight:600; color:var(--teal); margin:0 0 16px; line-height:1.24; }
+.card h3 { margin:18px 0 10px; font-size:32px; letter-spacing:.1em; text-transform:uppercase; color:var(--teal); font-weight:800; }
+.tint-rose { background:var(--rose); border-color:#f0d6cf; }
+.tint-mint { background:var(--mint); border-color:var(--mint2); }
+.tint-sand { background:var(--sand); border-color:#efe1b9; }
+.chips { display:flex; flex-wrap:wrap; gap:12px; }
+.chip { background:var(--mint); border:2px solid var(--mint2); border-radius:999px; padding:6px 20px; font-size:27px; font-weight:600; }
+.chip.r { background:var(--rose); border-color:#f0d6cf; color:var(--rose-d); }
+.chip.a { background:var(--sand); border-color:#efe1b9; color:var(--amber-d); }
+ul { margin:6px 0 0; padding-left:34px; }
+li { margin:4px 0; }
+.small { font-size:25px; color:var(--muted); }
+svg text { font-family:'Segoe UI','Yu Gothic UI',sans-serif; }
+
+/* pipeline */
+.pipe { display:flex; flex-direction:column; align-items:stretch; margin-top:4px; }
+.step { border-radius:24px; padding:14px 24px; font-size:29px; line-height:1.24; }
+.step b { display:block; font-size:32px; }
+.step.s1 { background:var(--mint); border:3px solid var(--mint2); }
+.step.s2 { background:var(--sand); border:3px solid #efe1b9; }
+.step.s3 { background:var(--rose); border:3px solid #f0d6cf; }
+.step.s4 { background:var(--rose-d); color:#fff; }
+.arrow { text-align:center; font-size:30px; line-height:26px; color:var(--muted); height:26px; }
+.reachbar { height:24px; border-radius:12px; background:#e8efed; margin-top:10px; position:relative; overflow:hidden; }
+.reachbar i { position:absolute; left:0; top:0; bottom:0; width:2%; background:var(--rose-d); }
+.reachbar span { position:absolute; right:12px; top:-2px; font-size:20px; color:var(--muted); }
+
+/* usp */
+.usp { flex:none; border-radius:44px; background:linear-gradient(100deg,var(--amber) 0%,#f2b85a 100%); color:#2a1c05;
+  display:flex; align-items:center; gap:46px; padding:22px 56px; box-shadow:0 10px 36px rgba(168,101,13,.25); }
+.usp .tag { flex:none; background:var(--deep); color:var(--amber); font-size:34px; letter-spacing:.16em; font-weight:800; padding:14px 30px; border-radius:20px; }
+.usp .txt { font-size:44px; line-height:1.18; font-weight:700; }
+.usp .txt b { color:var(--deep); }
+
+/* screenshots */
+.shots4 { display:grid; grid-template-columns:repeat(4,1fr); gap:26px; }
+.shot { background:var(--cream); border-radius:26px; border:3px solid var(--line); overflow:hidden; display:flex; flex-direction:column; }
+.shot img { width:100%; height:240px; object-fit:cover; object-position:top left; display:block; }
+.shot .cap { padding:12px 20px 14px; font-size:26px; line-height:1.24; min-height:122px; }
+.shot .cap b { color:var(--teal); font-size:29px; display:block; }
+.phones { display:flex; gap:20px; justify-content:center; }
+.phone { text-align:center; width:21%; }
+.phone img { width:100%; border-radius:24px; border:3px solid var(--line); display:block; }
+.phone .cap { font-size:24px; line-height:1.2; margin-top:8px; }
+.phone .cap b { color:var(--teal); display:block; font-size:27px; }
+
+/* table */
+table { border-collapse:separate; border-spacing:0; width:100%; font-size:27px; }
+th, td { padding:10px 10px; text-align:center; border-bottom:2px solid var(--line); }
+th { font-size:25px; line-height:1.15; vertical-align:bottom; color:var(--deep); }
+td:first-child, th:first-child { text-align:left; font-weight:600; }
+th.kaya { background:var(--teal); color:#fff; border-radius:20px 20px 0 0; font-size:30px; }
+td.k { background:var(--mint); color:var(--teal); font-size:34px; font-weight:800; }
+.dot { display:inline-block; width:30px; height:30px; border-radius:50%; vertical-align:middle; border:4px solid var(--teal); background:var(--teal); }
+.dot.big { width:40px; height:40px; border-width:0; background:var(--teal); box-shadow:0 0 0 6px rgba(15,110,102,.18); }
+.dot.half { border-color:var(--amber-d); background:linear-gradient(90deg,var(--amber-d) 50%,transparent 50%); }
+.dot.no { border-color:#c5d0cd; background:transparent; }
+.lg .dot { width:22px; height:22px; border-width:3px; margin:0 4px 0 12px; }
+table.mk td { text-align:left; font-size:26px; }
+table.mk th { font-size:30px; text-align:left; }
+
+/* rings */
+.rings { display:flex; gap:18px; margin:6px 0 4px; }
+.ring { flex:1; text-align:center; background:var(--mint); border-radius:24px; padding:10px 6px 10px; }
+.ring svg { width:92px; height:92px; display:block; margin:0 auto; }
+.ring b { display:block; font-size:27px; line-height:1.15; color:var(--deep); margin-top:2px; }
+.ring span { display:block; font-size:22px; line-height:1.2; color:var(--muted); }
+/* roadmap */
+.road { display:flex; }
+.phase { flex:1; background:var(--mint); padding:20px 30px 20px 58px; clip-path:polygon(0 0,calc(100% - 40px) 0,100% 50%,calc(100% - 40px) 100%,0 100%,40px 50%); margin-left:-20px; }
+.phase:first-child { margin-left:0; clip-path:polygon(0 0,calc(100% - 40px) 0,100% 50%,calc(100% - 40px) 100%,0 100%); padding-left:34px; }
+.phase:nth-child(2) { background:var(--mint2); }
+.phase:nth-child(3) { background:#b5d8d1; }
+.phase:nth-child(4) { background:var(--teal); color:#fff; }
+.phase .t { font-size:34px; font-weight:800; color:var(--deep); }
+.phase:nth-child(4) .t { color:var(--amber); }
+.phase .d { font-size:26px; line-height:1.24; margin-top:4px; }
+.phase .g { font-size:24px; margin-top:8px; font-weight:700; color:var(--teal); }
+.phase:nth-child(4) .g { color:#d6ebe7; }
+
+/* criteria */
+.crit { display:flex; flex-direction:column; gap:12px; margin-top:12px; }
+.crit .c { display:flex; gap:20px; align-items:flex-start; background:var(--mint); border-radius:24px; padding:14px 22px; }
+.crit .ic { flex:none; width:68px; height:68px; border-radius:50%; background:var(--teal); color:#fff; display:flex; align-items:center; justify-content:center; font-size:34px; font-weight:800; }
+.crit b { font-size:32px; color:var(--deep); display:block; }
+.crit span { font-size:26px; line-height:1.24; display:block; }
+
+footer { flex:none; margin-top:auto; margin-left:-70px; margin-right:-70px; background:var(--deep); color:#cfe3df; padding:18px 70px 20px; font-size:22px; line-height:1.36; display:flex; gap:50px; }
+footer a { color:#f2c46c; font-weight:600; }
+footer b { color:#fff; }
+footer .refs { flex:1; columns:3; column-gap:44px; }
+footer .refs div { break-inside:avoid; margin-bottom:4px; }
+footer .disc { flex:none; width:860px; }
+footer code { background:rgba(255,255,255,.12); padding:1px 8px; border-radius:6px; }
+
+/* ================= CLASSY SKIN ================= */
+:root { --ivory:#ffffff; --gold:#e0b862; --verm:#cf6f61; --rule:#e6e1d3; --serif:'Palatino Linotype','Book Antiqua',Georgia,'Yu Mincho',serif; }
+html { background:var(--ivory) !important; }
+body { color:var(--ink); }
+.page { gap:34px; }
+
+/* hero */
+.hero { border-radius:0; background:linear-gradient(110deg,#1d2b29 0%,#dcece7 100%); }
+.hero::after { background:radial-gradient(circle,rgba(181,138,60,.22),rgba(181,138,60,0) 70%); }
+.logo-wrap { border-radius:2px; }
+.hero-title .kicker { color:var(--gold); letter-spacing:.3em; font-weight:600; font-size:26px; }
+.hero-title h1 { font-family:var(--serif); font-weight:400; letter-spacing:0; }
+.hero-title h1 em { color:#d9b36a; font-style:italic; }
+.hero-title p { color:#d3dcd6; }
+.hero-photo { border-radius:2px; border:3px solid var(--gold); box-shadow:none; }
+.namecard { background:transparent; color:#efe6d2; width:660px; display:flex; gap:26px; align-items:center; border-radius:0; padding:0; }
+.seal { flex:none; width:158px; height:158px; background:var(--verm); border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; color:#f6e9d9; font-size:68px; line-height:1.02; font-weight:700; box-shadow:inset 0 0 0 5px rgba(246,233,217,.28); }
+.nametext { font-size:27px; line-height:1.3; }
+.nametext .nm { font-family:var(--serif); font-size:60px; line-height:1.05; color:#fff; margin-bottom:6px; }
+.nametext b { color:#d9b36a; }
+.nametext .q { margin-top:8px; font-style:italic; color:#cfd8d2; }
+
+/* stats: one band, hairline dividers */
+.stats { gap:0; border-top:3px solid var(--deep); border-bottom:1px solid var(--rule); padding:6px 0; }
+.stat { background:transparent; border:none; border-left:1px solid var(--rule); border-radius:0; padding:8px 26px; }
+.stat:first-child { border-left:none; padding-left:6px; }
+.stat::before { display:none; }
+.stat .n { font-family:var(--serif); font-weight:400; font-size:88px; letter-spacing:-.01em; color:var(--deep); }
+.stat.warn .n { color:var(--verm); }
+.stat.gold .n { color:var(--amber-d); }
+.stat .l { font-size:27px; }
+
+/* sections: rules instead of boxes */
+.grid3 { gap:0; }
+.card:not(.ask) { background:transparent !important; border:none !important; border-radius:0 !important; box-shadow:none !important; border-top:3px solid var(--deep) !important; padding:22px 40px 10px 40px !important; }
+.grid3 > .card:first-child { padding-left:6px !important; }
+.grid3 > .card + .card { border-left:1px solid var(--rule) !important; }
+.grid3 > .card:last-child { padding-right:6px !important; }
+.card.ask { border-radius:0 !important; box-shadow:none !important; border:none !important; border-top:3px solid var(--gold) !important; margin-left:34px; padding:22px 34px 18px !important; }
+.card h2 { font-family:var(--serif); font-weight:400; font-size:66px; letter-spacing:0; padding-bottom:10px; border-bottom:1px solid var(--rule); margin-bottom:14px; }
+.num { background:none !important; color:var(--gold) !important; font-family:var(--serif); font-weight:400; width:auto; height:auto; border-radius:0; font-size:66px; }
+.card .lead { font-family:var(--serif); font-style:italic; font-weight:400; font-size:35px; color:var(--teal) !important; }
+.card h3 { color:var(--amber-d); letter-spacing:.2em; font-size:26px; font-weight:700; }
+
+/* chips become quiet tags */
+.chip { background:transparent !important; border:1px solid var(--rule) !important; border-radius:2px !important; color:var(--ink) !important; font-weight:500; }
+.chip.r { border-color:var(--verm) !important; color:var(--verm) !important; }
+.chip.a { border-color:var(--gold) !important; color:var(--amber-d) !important; }
+
+/* pipeline */
+.step { background:transparent !important; border:none !important; border-left:5px solid var(--teal) !important; border-radius:0 !important; padding:8px 20px !important; }
+.step.s2 { border-left-color:var(--gold) !important; }
+.step.s3 { border-left-color:var(--verm) !important; }
+.step.s4 { border-left:none !important; color:#fff; padding:14px 22px !important; }
+.arrow { color:var(--rule); }
+
+/* usp */
+.usp { background:var(--deep) !important; color:var(--ivory) !important; border-radius:0 !important; box-shadow:none !important; padding:26px 60px; }
+.usp .tag { background:transparent; border:1px solid var(--gold); color:var(--gold); border-radius:0; letter-spacing:.3em; font-weight:600; }
+.usp .txt { font-family:var(--serif); font-weight:400; font-size:46px; }
+.usp .txt b { color:#d9b36a; font-style:italic; font-weight:400; }
+
+/* images */
+.shot { border-radius:0; background:#fff; border:1px solid var(--rule); }
+.shot .cap b { color:var(--deep); font-family:var(--serif); font-weight:700; }
+.phone img { border-radius:2px; }
+.shots4 { gap:30px; }
+
+/* tables */
+th.kaya { background:var(--deep) !important; border-radius:0 !important; }
+td.k { background:#eaf4f0; }
+.dot.big { box-shadow:none; }
+
+/* rings */
+.ring { background:transparent; border:1px solid var(--rule); border-radius:2px; }
+
+/* roadmap: a quiet timeline */
+.road { gap:34px; }
+.phase { background:transparent !important; clip-path:none !important; margin-left:0 !important; padding:16px 0 0 0 !important; border-top:3px solid var(--teal); color:var(--ink) !important; }
+.phase:nth-child(2) { border-top-color:#6bb0a3; }
+.phase:nth-child(3) { border-top-color:#6b9a90; }
+.phase:nth-child(4) { border-top-color:var(--gold); }
+.phase .t { font-family:var(--serif); font-weight:700; color:var(--deep) !important; font-size:36px; }
+.phase .g { color:var(--teal) !important; font-style:italic; }
+.phase:nth-child(4) .g { color:var(--amber-d) !important; }
+
+/* criteria */
+.crit { gap:16px; }
+.crit .c { background:transparent; border-left:3px solid var(--gold); border-radius:0; padding:4px 18px; }
+.crit .ic { background:transparent; border:1.5px solid var(--teal); }
+.crit .ic svg { stroke:var(--teal); }
+.crit b { font-family:var(--serif); font-size:34px; }
+
+/* strips and footer */
+.card.tint-rose { border-top:3px solid var(--verm) !important; padding:18px 6px 6px !important; }
+.card.tint-rose > div > div:first-child { font-family:var(--serif); font-weight:400 !important; }
+footer { background:#1d2b29; }
+svg rect[rx] { rx:5px; }
+.step.s4 { background:linear-gradient(90deg,rgba(207,111,97,.97) 0%,rgba(207,111,97,.90) 55%,rgba(207,111,97,.30) 100%),url(img/dialysis_arm.jpg) center 40%/cover !important; }
+.step.s4 b { font-family:var(--serif); font-size:36px; }
+.shots4 .shot img { height:335px; }
+.page { gap:40px; }
+.hero { height:360px; }
+.seal { font-size:74px; }
+svg path[d*="Z"][fill="#e8a13d"] { }
+
+/* ================= PASTEL OVERRIDES ================= */
+:root { --deep:#1d2b29; --ink:#1d2b29; --teal:#4f9b8d; --teal2:#6bb0a3; --mint:#eaf4f0; --mint2:#d5e8e1; --gold:#e0b862; --amber:#e0b862; --amber-d:#a8802f; --sand:#fbf3dc; --rose:#fae9e4; --rose-d:#cf6f61; --verm:#df8f80; --rule:#e6e1d3; --line:#e6e1d3; --slate:#7ea3b3; --muted:#56635f; --cream:#ffffff; --ivory:#ffffff; }
+html, body { background:#ffffff !important; }
+a { color:#3f8576; }
+
+.hero { background:linear-gradient(110deg,#e1f0ea 0%,#e9f2f6 55%,#faf1da 100%) !important; color:#1d2b29; }
+.hero::after { background:radial-gradient(circle,rgba(224,184,98,.28),rgba(224,184,98,0) 70%); }
+.logo-wrap { background:#ffffff; box-shadow:0 2px 14px rgba(58,85,80,.08); }
+.hero-title .kicker { color:#a8802f; }
+.hero-title h1 { color:#1d2b29; }
+.hero-title h1 em { color:#cf6f61; }
+.hero-title p { color:#3b4a47; }
+.hero-photo { border:4px solid #ffffff; box-shadow:0 6px 22px rgba(58,85,80,.18); }
+.namecard { color:#1d2b29; }
+.seal { background:#e49a8c; color:#fff; box-shadow:inset 0 0 0 5px rgba(255,255,255,.4); }
+.nametext .nm { color:#1d2b29; }
+.nametext b { color:#a8802f; }
+.nametext .q { color:#3b4a47; }
+
+.stats { border-top:2px solid #cfe8e0; border-bottom:1px solid #e6e1d3; }
+.stat .n { color:#4f9b8d; }
+.stat.warn .n { color:#d97a6b; }
+.stat.gold .n { color:#c79a3e; }
+
+.card:not(.ask) { border-top:2px solid #cfe8e0 !important; }
+.card h2 { color:#1d2b29; border-bottom:1px solid #eee9db; }
+.num { color:#d9b25a !important; }
+.card .lead { color:#4f9b8d !important; }
+.card h3 { color:#b38a38; }
+
+.chip { color:#1d2b29 !important; border-color:#e6e1d3 !important; background:#fcfbf7 !important; }
+.chip.r { color:#c8665a !important; border-color:#f0cfc8 !important; background:#fdf3f0 !important; }
+.chip.a { color:#a8802f !important; border-color:#f0e0b4 !important; background:#fdf8e8 !important; }
+
+.step { border-left-width:4px !important; }
+.step.s4 { background:linear-gradient(90deg,rgba(247,214,207,.98) 0%,rgba(247,214,207,.9) 55%,rgba(247,214,207,.25) 100%),url(img/dialysis_arm.jpg) center 40%/cover !important; color:#1d2b29 !important; }
+.step.s4 b { color:#b4574a; }
+
+.usp { background:#fbf3dc !important; color:#1d2b29 !important; box-shadow:none !important; border-top:2px solid #f0e0b4; border-bottom:2px solid #f0e0b4; }
+.usp .tag { border-color:#d9b25a; color:#a8802f; background:#fffdf5; }
+.usp .txt b { color:#c9695b; }
+
+.shot { background:#fcfbf7; }
+.shot .cap b { color:#1d2b29; }
+th.kaya { background:#cfe8e0 !important; color:#1d2b29 !important; }
+td.k { background:#eef7f3; }
+.dot.big { background:#7fbcae; }
+.dot { background:#7fbcae; border-color:#7fbcae; }
+.dot.half { border-color:#d9b25a; background:linear-gradient(90deg,#d9b25a 50%,transparent 50%); }
+.dot.no { background:transparent; border-color:#d9e1de; }
+.ring { background:#fcfbf7; }
+
+.phase { border-top:3px solid #bfe0d7; }
+.phase:nth-child(2) { border-top-color:#a9d3c8; }
+.phase:nth-child(3) { border-top-color:#8fc4b7; }
+.phase:nth-child(4) { border-top-color:#e0b862; }
+.phase .t { color:#1d2b29 !important; }
+.phase .g { color:#4f9b8d !important; }
+.phase:nth-child(4) .g { color:#a8802f !important; }
+
+.crit .c { border-left-color:#e0b862; }
+.crit .ic { border-color:#8fc4b7; }
+.crit .ic svg { stroke:#4f9b8d; }
+
+.card.ask { color:#1d2b29 !important; border-top:2px solid #f0e0b4 !important; background:linear-gradient(rgba(255,255,255,.88),rgba(250,248,243,.93)),url(img/dialysis_room.jpg) center/cover !important; }
+.card.ask h2 { color:#4f9b8d !important; }
+.card.ask b { color:#1d2b29; }
+.card.ask div[style] { background:rgba(255,255,255,.75) !important; color:#1d2b29; }
+.card.ask div[style] b { color:#a8802f !important; }
+.card.tint-rose { border-top:2px solid #f0cfc8 !important; }
+.card.tint-rose > div > div:first-child { color:#cf6f61 !important; }
+
+footer { background:#eaf4f0 !important; color:#3b4a47 !important; border-top:1px solid #d5e8e1; }
+footer b { color:#1d2b29 !important; }
+footer a { color:#3f8576 !important; }
+footer code { background:rgba(255,255,255,.7); }
+
+/* ================= REFERENCE-STYLE (pastel fills, dark text, thin outlines) ================= */
+:root { --ink:#1d2b29; --deep:#1d2b29; --muted:#56635f; --edge:#33423f; --hl:#f6efb2; --hl2:#d8ecdf; --hl3:#fadcd4; }
+body { color:#1d2b29; }
+a { color:#14574c; font-weight:600; }
+.page { gap:30px; }
+
+/* title banner */
+.hero { background:linear-gradient(100deg,#dff0d6 0%,#e6f1e4 40%,#f4f0c8 100%) !important; border:1.5px solid var(--edge); border-radius:0; }
+.hero::after { display:none; }
+.hero-title .kicker { color:#3b4a47; font-weight:700; letter-spacing:.24em; }
+.hero-title h1 { color:#1d2b29; font-weight:700; }
+.hero-title h1 em { color:#1d2b29; font-style:normal; background:linear-gradient(transparent 58%,#f8cfc4 58%); padding:0 6px; }
+.hero-title p { color:#2c3a37; }
+.hero-photo { border:1.5px solid var(--edge); box-shadow:none; }
+.namecard { color:#1d2b29; }
+.seal { background:#ee9d8e; color:#1d2b29; box-shadow:inset 0 0 0 4px rgba(255,255,255,.5); }
+.nametext .nm { color:#1d2b29; }
+.nametext b { color:#1d2b29; background:var(--hl); padding:0 4px; }
+.nametext .q { color:#2c3a37; }
+.logo-wrap { box-shadow:none; border:1.5px solid var(--edge); }
+
+/* stat strip as an outlined band */
+.stats { border:1.5px solid var(--edge); padding:12px 8px; background:#fff; }
+.stat .n, .stat.warn .n, .stat.gold .n { color:#1d2b29 !important; font-weight:700; }
+.stat .l { color:#1d2b29; }
+.stat .s { color:#56635f; }
+
+/* section boxes, like the reference */
+.grid3 { gap:28px; }
+.card:not(.ask) { border:1.5px solid var(--edge) !important; border-radius:0 !important; padding:22px 30px 22px 30px !important; background:#fff !important; }
+.grid3 > .card:first-child, .grid3 > .card:last-child { padding-left:30px !important; padding-right:30px !important; }
+.grid3 > .card + .card { border-left:1.5px solid var(--edge) !important; }
+.card h2 { color:#1d2b29; font-weight:700; border-bottom:none; padding-bottom:0; margin-bottom:10px; font-size:64px; }
+.num { color:#1d2b29 !important; font-weight:700; }
+.card .lead { color:#1d2b29 !important; font-style:normal; font-weight:600; }
+.card h3 { display:inline-block; background:var(--hl); color:#1d2b29; letter-spacing:.03em; text-transform:none; font-size:30px; font-weight:700; padding:2px 14px; }
+.card.ask { border:1.5px solid var(--edge) !important; border-radius:0 !important; margin-left:0; }
+.card.ask h2 { color:#1d2b29 !important; }
+.card.ask b, .card.ask div[style] b { color:#1d2b29 !important; background:var(--hl); padding:0 4px; }
+.card.tint-rose { border:1.5px solid var(--edge) !important; background:#fdf1ee !important; padding:16px 30px !important; }
+.card.tint-rose > div > div:first-child { color:#1d2b29 !important; }
+
+.chip, .chip.r, .chip.a { color:#1d2b29 !important; border:1px solid #9aa8a4 !important; }
+.chip { background:#eef6f1 !important; }
+.chip.r { background:#fbe6e0 !important; }
+.chip.a { background:#fbf1cf !important; }
+
+.step { border-left-color:#7fbcae !important; background:#f3f9f6 !important; }
+.step.s2 { border-left-color:#e0b862 !important; background:#fdf8e6 !important; }
+.step.s3 { border-left-color:#e49a8c !important; background:#fdf1ee !important; }
+.step.s4 { color:#1d2b29 !important; }
+.step.s4 b { color:#1d2b29; }
+.arrow { color:#9aa8a4; }
+
+.usp { background:#fbf1cf !important; border:1.5px solid var(--edge) !important; color:#1d2b29 !important; }
+.usp .tag { background:#fff; border:1.5px solid var(--edge); color:#1d2b29; font-weight:700; }
+.usp .txt { color:#1d2b29; }
+.usp .txt b { color:#1d2b29; font-style:normal; font-weight:700; background:linear-gradient(transparent 55%,#f8cfc4 55%); }
+
+.shot { border:1.5px solid var(--edge); }
+.shot .cap b { color:#1d2b29; }
+.shot .cap { color:#1d2b29; }
+th, th.kaya { color:#1d2b29 !important; }
+th.kaya { background:#d8ecdf !important; }
+table, td { color:#1d2b29; }
+.ring b { color:#1d2b29; }
+.ring span, .small { color:#3b4a47; }
+.phase .t, .phase .g, .phase:nth-child(4) .g { color:#1d2b29 !important; }
+.phase .g { font-style:normal; font-weight:700; }
+.phase { border-top-width:5px; }
+.crit b, .crit span { color:#1d2b29; }
+.crit .ic svg { stroke:#1d2b29; }
+
+/* technology stack + references */
+.card.stack { padding:14px 30px 16px !important; }
+.stackrow { display:flex; align-items:center; gap:34px; }
+.stackrow h2 { margin:0; font-size:52px; white-space:nowrap; }
+.stackrow .chips { flex:1; gap:10px; }
+footer { font-size:17px !important; line-height:1.25 !important; background:#fff !important; border:1.5px solid var(--edge) !important; color:#1d2b29 !important; margin-left:0; margin-right:0; padding:18px 30px 20px; }
+footer .reft { font-family:var(--serif); font-size:34px; font-weight:700; color:#1d2b29; margin-bottom:6px; column-span:all; }
+footer .reft span { font-size:24px; font-weight:400; color:#56635f; }
+footer b, footer a { color:#14574c !important; }
+footer b { color:#1d2b29 !important; }
+footer code { background:#eef6f1; }
+.hero { height:335px !important; }
+.shots4 .shot img { height:305px !important; }
+.page { padding-bottom:34px !important; }
+
+/* ---- fixes ---- */
+.hero-title h1 em { background:linear-gradient(transparent 50%, #f8cfc4 50%, #f8cfc4 88%, transparent 88%) !important; padding:0 8px; margin:0 -2px; -webkit-box-decoration-break:clone; box-decoration-break:clone; }
+.usp .txt b { background:linear-gradient(transparent 52%, #f8cfc4 52%, #f8cfc4 90%, transparent 90%) !important; padding:0 4px; -webkit-box-decoration-break:clone; box-decoration-break:clone; }
+.nametext b { background:linear-gradient(transparent 50%, #f6efb2 50%, #f6efb2 90%, transparent 90%) !important; }
+.shots4 .shot img { height:auto !important; aspect-ratio:1.75; object-fit:contain; object-position:center top; background:#fcfbf7; border-bottom:1px solid #e6e1d3; }
+.shots4 .shot .cap { min-height:0; padding:12px 18px 14px; font-size:27px; }
+.shots4 .shot .cap b { font-size:30px; margin-bottom:2px; }
+.hero { height:318px !important; }
+.phone { width:19% !important; }
+.step.s2 { padding-right:14px !important; }
+.hero { height:336px !important; }
+.page { gap:26px !important; }
+.shots4 .shot img { aspect-ratio:2 !important; }
+.usp .txt { font-size:42px !important; }
+.usp { padding:20px 60px !important; }
+.logo-wrap { background:#faf9f5 !important; padding:0 !important; overflow:hidden; }
+.logo-wrap img { width:500px !important; }
+.hero-title h1 em { background:none !important; color:#b3382c !important; font-weight:800 !important; font-style:normal; padding:0; margin:0; -webkit-text-stroke:1.4px #b3382c; }
+.hero-title h1 { font-size:104px !important; margin:0 0 12px !important; }
+.hero-title p { font-size:34px !important; white-space:nowrap; }
+.usp .txt b { background:none !important; text-decoration:underline; text-decoration-color:#f3bfb3; text-decoration-thickness:.4em; text-underline-offset:-.1em; text-decoration-skip-ink:none; padding:0; }
+.nametext b { background:#f6efb2 !important; padding:0 4px; }
+
+/* ---- patient app row ---- */
+.patrow { display:flex; gap:34px; align-items:flex-start; margin-top:6px; }
+.phones5 { display:flex; gap:20px; flex:none; }
+.phones5 .phone { width:290px !important; flex:none; }
+.phones5 .phone img { border:none; border-radius:0; }
+.phones5 .phone .cap { margin-top:6px; }
+.patfeat { flex:1; min-width:0; font-size:29px; line-height:1.3; }
+.patfeat p { margin:0 0 14px; }
+.patfeat b { background:#f6efb2; padding:0 4px; }
+.shots4 .shot img { aspect-ratio:2.5 !important; }
+.phones5 .phone { width:290px !important; }
+.page { gap:24px !important; }
+/*RECOLOR*/
+:root{--red:#e0665b;--red-d:#b4574a;--red-l:#fbe3e0;--yellow:#e8b93e;--yellow-d:#8a6a12;--yellow-l:#fbf0cf;--blue:#4f93c8;--blue-d:#2f6b9a;--blue-l:#e0eef8;--orange:#e99b49;--orange-d:#a8661f;--orange-l:#fbe8d2;--teal:#4f9b8d;--teal-d:#2f6d62;--teal-l:#dcefeb;
+ --amber:#e8b93e;--gold:#e8b93e;--amber-d:#a8661f;--sand:#fbf0cf;--rose:#fbe3e0;--rose-d:#e0665b;--verm:#e0665b;--mint:#dcefeb;--mint2:#b9ddd5;--slate:#4f93c8;}
+html{background:#fff !important}
+.hero{background:linear-gradient(100deg,#dcefeb 0%,#ffffff 50%,#fbf0cf 100%) !important;border-style:solid !important;border-width:0 0 16px 0 !important;border-image:linear-gradient(90deg,#e0665b 0 20%,#e8b93e 20% 40%,#4f93c8 40% 60%,#e99b49 60% 80%,#4f9b8d 80%) 1 !important}
+.page .card:not(.ask),.page .card.tint-rose,.page .card.tint-mint,.page .card.tint-sand{background:#fff !important;border:2px solid #e3e6e8 !important;border-top:14px solid var(--cc,#4f9b8d) !important;border-radius:34px !important;box-shadow:0 10px 28px rgba(20,40,50,.10) !important}
+.c-red{--cc:var(--red)}.c-yellow{--cc:var(--yellow)}.c-blue{--cc:var(--blue)}.c-orange{--cc:var(--orange)}.c-teal{--cc:var(--teal)}
+.c-red .num{color:var(--red) !important}.c-yellow .num{color:var(--yellow) !important}.c-blue .num{color:var(--blue) !important}.c-orange .num{color:var(--orange) !important}.c-teal .num{color:var(--teal) !important}
+.c-red .lead{color:var(--red-d) !important}.c-yellow .lead{color:var(--yellow-d) !important}.c-blue .lead{color:var(--blue-d) !important}.c-orange .lead{color:var(--orange-d) !important}.c-teal .lead{color:var(--teal-d) !important}
+.stat:nth-child(1)::before{background:var(--red)}.stat:nth-child(2)::before{background:var(--yellow)}.stat:nth-child(3)::before{background:var(--blue)}.stat:nth-child(4)::before{background:var(--orange)}.stat:nth-child(5)::before{background:var(--teal)}.stat:nth-child(6)::before{background:var(--red)}
+.stat:nth-child(1) .n{color:var(--red-d)}.stat:nth-child(2) .n{color:var(--yellow-d)}.stat:nth-child(3) .n{color:var(--blue-d)}.stat:nth-child(4) .n{color:var(--orange-d)}.stat:nth-child(5) .n{color:var(--teal-d)}.stat:nth-child(6) .n{color:var(--red-d)}
+.step.s1{background:var(--blue-l) !important;border-left-color:var(--blue) !important}
+.step.s2{background:var(--yellow-l) !important;border-left-color:var(--yellow) !important}
+.step.s3{background:var(--orange-l) !important;border-left-color:var(--orange) !important}
+.usp{background:var(--yellow-l) !important;border-top:4px solid var(--yellow) !important;border-bottom:4px solid var(--yellow) !important}
+.chip{background:var(--teal-l) !important;border:1px solid #b9ddd5 !important;color:var(--ink) !important}
+.chip.r{background:var(--red-l) !important;border-color:#e8a29a !important;color:var(--red-d) !important}
+.chip.a{background:var(--yellow-l) !important;border-color:#f0d78a !important;color:var(--yellow-d) !important}
+/*END RECOLOR*/
+/*FONTUP*/
+.step { font-size:34px !important; line-height:1.2 !important; padding:14px 24px !important; }
+.step b { font-size:40px !important; }
+.step.s4 b { font-size:42px !important; }
+.arrow { font-size:34px !important; height:30px !important; line-height:30px !important; }
+.crit { gap:26px !important; }
+.crit .c { padding:10px 20px !important; gap:24px !important; }
+.crit .ic { width:92px !important; height:92px !important; }
+.crit .ic svg { width:52px; height:52px; }
+.crit b { font-size:48px !important; }
+.crit span { font-size:36px !important; line-height:1.22 !important; }
+.patfeat { font-size:40px !important; line-height:1.28 !important; }
+.patfeat p { margin:0 0 22px !important; }
+/*END FONTUP*/
+/* scale-up */ .page > section:not(.hero) { zoom:1.06; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ================= HEADER ================= -->
+<section class="hero">
+  <div class="logo-wrap"><img src="img/logo.png" alt="Kaya digital health twin"></div>
+  <div class="hero-title">
+    <h1>Stop diabetic <em>kidney</em> and <em>eye</em> failure before it starts</h1>
+    <p>A digital twin that lets doctors <b>watch every patient</b> and act early.</p>
+  </div>
+  <img class="hero-photo" src="img/hero_photo.jpg" alt="Health professional and older patient reviewing a record together">
+  <div class="namecard">
+    <div class="seal jp"><span>佳</span><span>弥</span></div>
+    <div class="nametext">
+      <div class="nm"><span class="jp">佳弥</span> Kaya</div>
+      <div><b>佳 ka</b> excellent, good &nbsp;·&nbsp; <b>弥 ya</b> to restore, to steadily progress</div>
+      <div class="q">A quiet promise that health improves, step by step.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= USP ================= -->
+<section class="usp" style="flex-direction:column;align-items:stretch;gap:22px;padding:30px 60px 34px">
+  <div style="display:flex;align-items:center;gap:36px">
+    <div class="tag">OUR USPs</div>
+    <div class="txt" style="font-size:58px;line-height:1.14">The only tool we found that connects <b>glucose, kidney and eye risk, and the screening that must follow</b>, in one workspace for the doctor.</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:22px">
+    <div style="display:flex;align-items:center;justify-content:center;border-radius:26px;padding:16px 30px;font-size:38px;font-weight:800;color:#fff;text-align:center;line-height:1.1;flex:1;box-shadow:0 5px 12px rgba(0,0,0,.18);background:#4f93c8">Glucose</div>
+    <div style="font-size:54px;color:#8a6a12;font-weight:800;flex:none">→</div>
+    <div style="display:flex;align-items:center;justify-content:center;border-radius:26px;padding:16px 30px;font-size:38px;font-weight:800;color:#fff;text-align:center;line-height:1.1;flex:1;box-shadow:0 5px 12px rgba(0,0,0,.18);background:#e0665b">Kidney and eye risk</div>
+    <div style="font-size:54px;color:#8a6a12;font-weight:800;flex:none">→</div>
+    <div style="display:flex;align-items:center;justify-content:center;border-radius:26px;padding:16px 30px;font-size:38px;font-weight:800;color:#fff;text-align:center;line-height:1.1;flex:1;box-shadow:0 5px 12px rgba(0,0,0,.18);background:#e99b49">Screening gap</div>
+    <div style="font-size:54px;color:#8a6a12;font-weight:800;flex:none">→</div>
+    <div style="display:flex;align-items:center;justify-content:center;border-radius:26px;padding:16px 30px;font-size:38px;font-weight:800;color:#fff;text-align:center;line-height:1.1;flex:1;box-shadow:0 5px 12px rgba(0,0,0,.18);background:#4f9b8d">Doctor acts</div>
+  </div>
+  <div style="display:flex;align-items:stretch;gap:22px">
+    <div style="display:flex;flex-direction:column;gap:6px;background:#fff;border:3px solid #e8b93e;border-radius:26px;padding:16px 26px 18px;flex:1;font-size:32px;line-height:1.2;color:#1d2b29"><div style="font-size:36px;font-weight:800;color:#a8661f">Test medicines on the twin</div>The doctor tries a dose change or a new drug and sees the likely glucose effect first (a simulation).</div>
+    <div style="display:flex;flex-direction:column;gap:6px;background:#fff;border:3px solid #e8b93e;border-radius:26px;padding:16px 26px 18px;flex:1;font-size:32px;line-height:1.2;color:#1d2b29"><div style="font-size:36px;font-weight:800;color:#a8661f">All data in one place</div>Glucose sensors, wearables, labs and retina photos come together on one screen.</div>
+  </div>
+</section>
+
+<!-- ================= STATS ================= -->
+<section class="stats">
+  <div class="stat warn"><div class="txt"><div class="n">41.6%</div><div class="l">of new dialysis in Japan starts with diabetes</div><div class="s">JSDT Renal Data Registry 2019</div></div><svg class="donut" data-v="41.6" data-c="#cf6f61" viewBox="0 0 120 120"></svg></div>
+  <div class="stat warn"><div class="txt"><div class="n">¥5M</div><div class="l">a year per dialysis patient</div><div class="s">HGPI estimate, ¥4–6 million</div></div>
+    <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="#fae9e4" stroke="#cf6f61" stroke-width="5"/><text x="60" y="80" text-anchor="middle" font-size="62" font-weight="800" fill="#1d2b29">¥</text></svg></div>
+  <div class="stat gold"><div class="txt"><div class="n">47%</div><div class="l">of patients get a yearly eye exam</div><div class="s">J Diabetes Investig 2023, national claims data</div></div><svg class="donut" data-v="47" data-c="#e0b862" viewBox="0 0 120 120"></svg></div>
+  <div class="stat gold"><div class="txt"><div class="n">15% <span style="font-size:46px">vs 59%</span></div><div class="l">yearly urine albumin test, Japan vs Europe</div><div class="s">BMJ Open Diabetes Res Care</div></div>
+    <svg viewBox="0 0 120 120"><rect x="16" y="86" width="36" height="22" rx="5" fill="#e0b862"/><rect x="68" y="20" width="36" height="88" rx="5" fill="#4f9b8d"/><text x="34" y="80" text-anchor="middle" font-size="15" font-weight="700" fill="#1d2b29">JP</text><text x="86" y="14" text-anchor="middle" font-size="15" font-weight="700" fill="#1d2b29">EU</text></svg></div>
+  <div class="stat warn"><div class="txt"><div class="n">~1%</div><div class="l">reached by the prevention program</div><div class="s">Kyoto city, Frontiers in Endocrinology 2023</div></div><svg class="donut" data-v="1" data-c="#cf6f61" viewBox="0 0 120 120"></svg></div>
+  <div class="stat"><div class="txt"><div class="n">101M</div><div class="l">Indians have diabetes</div><div class="s"><a href="https://www.downtoearth.org.in/health/india-s-diabetes-epidemic-just-got-more-grim-lancet-report-reveals-why-89946">ICMR-INDIAB, Lancet 2023</a></div></div><svg class="people9" viewBox="0 0 120 120"></svg></div>
+</section>
+
+<!-- ================= ROW 1 : PROBLEM / MARKET / SOLUTION ================= -->
+<section class="grid3">
+
+  <!-- 1 PROBLEM -->
+  <div class="c-red card">
+    <h2><span class="num">1</span>Problem</h2>
+    <p class="lead">Japan has the policy and the data, but not the hands.</p>
+    <div class="pipe">
+      <div class="step s1"><b>Yearly health checkup (ages 40–74)</b>Insurers hold everyone’s data.</div>
+      <div class="arrow">▼</div>
+      <div class="step s2" style="display:flex;gap:22px;align-items:center"><div><b>National prevention program</b>Nurses find high-risk people by hand.<div style="margin-top:6px;font-weight:700;color:var(--rose-d)">About 1 in 100 reached a year</div></div><svg id="picto100" viewBox="-20 -6 368 140" style="flex:none;width:420px;height:auto"></svg></div>
+      <div class="arrow">▼</div>
+      <div class="step s3"><b>Early-warning tests are skipped</b>Eye exam ≈ 47%, urine albumin ≈ 15%.</div>
+      <div class="arrow">▼</div>
+      <div class="step s4" style="background:linear-gradient(90deg,rgba(207,111,97,.96) 0%,rgba(207,111,97,.88) 55%,rgba(207,111,97,.25) 100%),url(img/dialysis_arm.jpg) center 40%/cover"><b>Kidney failure or lost sight</b>40,885 new dialysis patients in 2019.</div>
+    </div>
+    <p style="font-size:34px;margin:16px 0 8px"><b>Why not hire more?</b> Doctor overtime is capped.</p>
+    <p style="font-size:34px;margin:0;color:var(--amber-d)"><b>India, same gap:</b> ≈2 lakh new kidney failures a year (<a href="https://prsindia.org/policy/report-summaries/prevalence-of-chronic-kidney-disease-in-india">committee</a>).</p>
+  </div>
+
+  <!-- 2 MARKET -->
+  <div class="c-blue card">
+    <h2><span class="num">2</span>Market potential</h2>
+    <p class="lead">One product for doctors in two markets.</p>
+    <svg viewBox="0 0 1050 492" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="ah" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8aa9a4"/></marker></defs>
+      <text x="165" y="30" text-anchor="middle" font-size="28" font-weight="800" fill="#1d2b29" letter-spacing="3">JAPAN · FIRST</text>
+      <text x="885" y="30" text-anchor="middle" font-size="28" font-weight="800" fill="#1d2b29" letter-spacing="3">INDIA · SCALE</text>
+      <g font-size="26" fill="#1d2b29" text-anchor="middle">
+        <rect x="0" y="46" width="330" height="92" rx="22" fill="#fbe3e0" stroke="#e8a29a" stroke-width="3"/><text x="165" y="83" font-weight="700">Clinics, hospital groups</text><text x="165" y="115">(the doctors who use Kaya)</text>
+        <rect x="0" y="152" width="330" height="92" rx="22" fill="#fbe3e0" stroke="#e8a29a" stroke-width="3"/><text x="165" y="189" font-weight="700">Municipal insurers fund</text><text x="165" y="221">(NHI, about 1,700)</text>
+        <rect x="0" y="258" width="330" height="92" rx="22" fill="#fbe3e0" stroke="#e8a29a" stroke-width="3"/><text x="165" y="295" font-weight="700">Employer societies fund</text><text x="165" y="327">(1,383 societies)</text>
+        <rect x="0" y="364" width="330" height="92" rx="22" fill="#fbe3e0" stroke="#e8a29a" stroke-width="3"/><text x="165" y="401" font-weight="700">Prefecture and 75+</text><text x="165" y="433">wide-area unions fund</text>
+        <rect x="720" y="46" width="330" height="92" rx="22" fill="#fbe8d2" stroke="#f0c08a" stroke-width="3"/><text x="885" y="83" font-weight="700">Hospital and lab chains</text><text x="885" y="115">(lead buyer)</text>
+        <rect x="720" y="152" width="330" height="92" rx="22" fill="#fbe8d2" stroke="#f0c08a" stroke-width="3"/><text x="885" y="189" font-weight="700">Diabetes clinic</text><text x="885" y="221">networks</text>
+        <rect x="720" y="258" width="330" height="92" rx="22" fill="#fbe8d2" stroke="#f0c08a" stroke-width="3"/><text x="885" y="295" font-weight="700">State health missions,</text><text x="885" y="327">NCD screening programs</text>
+        <rect x="720" y="364" width="330" height="92" rx="22" fill="#fff" stroke="#efe1b9" stroke-width="3" stroke-dasharray="9 7"/><text x="885" y="401" font-weight="700">Private insurers,</text><text x="885" y="433">employers (later)</text>
+      </g>
+      <g stroke="#8aa9a4" stroke-width="4" fill="none" marker-end="url(#ah)">
+        <path d="M330,92 C400,92 420,200 446,222"/>
+        <path d="M330,198 C390,198 410,230 440,240"/>
+        <path d="M330,304 C390,304 410,280 440,270"/>
+        <path d="M330,410 C410,410 420,330 450,292"/>
+        <path d="M720,92 C650,92 630,200 604,222"/>
+        <path d="M720,198 C660,198 640,230 610,240"/>
+        <path d="M720,304 C660,304 640,280 610,270"/>
+        <path d="M720,410 C640,410 630,330 600,292" stroke-dasharray="9 7"/>
+      </g>
+      <circle cx="525" cy="255" r="84" fill="#cfe8e0"/><circle cx="525" cy="255" r="84" fill="none" stroke="#e0b862" stroke-width="8"/>
+      <text x="525" y="256" text-anchor="middle" font-size="46" font-weight="800" fill="#1d2b29">Kaya</text>
+      <text x="525" y="294" text-anchor="middle" font-size="28" font-weight="700" fill="#1d2b29" class="jp">佳弥</text>
+      <text x="525" y="486" text-anchor="middle" font-size="25" fill="#1d2b29"><tspan font-weight="800" fill="#1d2b29">PARTNERS IN BOTH: </tspan>patient apps (e.g. Welby) · CGM makers · EHR vendors</text>
+    </svg>
+    <table class="mk" style="margin-top:10px">
+      <tr><th></th><th style="color:#b4574a">Japan</th><th style="color:#a8661f">India</th></tr>
+      <tr><td>People with diabetes</td><td>10M+ suspected, +10M at risk</td><td>≈101M adults, +136M prediabetes</td></tr>
+      <tr><td>Who pays for dialysis</td><td>Insurers and the state</td><td>Mostly <a href="https://www.ispor.org/heor-resources/presentations-database/presentation/intl2022-3463/116805">patients</a>; the state for poor patients (<a href="https://nhsrcindia.org/sites/default/files/2026-07/Operational%20Guidelines%20for%20PMNDP.pdf">PMNDP</a>)</td></tr>
+  <tr><td>Paid digital diabetes market, 2024</td><td><a href="https://imarcgroup.com/japan-digital-diabetes-management-market">US$0.2–1.2B</a></td><td><a href="https://www.imarcgroup.com/india-digital-diabetes-management-market">US$0.34–0.58B</a></td></tr>
+    </table>
+    <p class="small" style="margin:6px 0 0">Analyst estimates differ about 2×.</p>
+  </div>
+
+  <!-- 3 SOLUTION -->
+  <div class="c-teal card tint-mint" style="background:var(--mint)">
+    <h2><span class="num">3</span>Solution</h2>
+    <p class="lead">One twin per patient. One live priority list for the doctor.</p>
+    <svg viewBox="0 0 1050 800" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="ah2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#4f9b8d"/></marker></defs>
+      <text x="0" y="26" font-size="26" font-weight="800" fill="#1d2b29" letter-spacing="3">1 · WHAT GOES IN</text>
+      <text x="1050" y="26" text-anchor="end" font-size="22" fill="#56635f">dashed = optional add-on</text>
+      <g font-size="25" fill="#1d2b29" text-anchor="middle">
+        <rect x="0" y="40" width="194" height="92" rx="20" fill="#fff" stroke="#4f9b8d" stroke-width="3"/><text x="97" y="80" font-weight="700">Health</text><text x="97" y="110">checkup</text>
+        <rect x="214" y="40" width="194" height="92" rx="20" fill="#fff" stroke="#4f9b8d" stroke-width="3"/><text x="311" y="80" font-weight="700">Monthly</text><text x="311" y="110">claims</text>
+        <rect x="428" y="40" width="194" height="92" rx="20" fill="#fff" stroke="#4f9b8d" stroke-width="3"/><text x="525" y="80" font-weight="700">Lab</text><text x="525" y="110">results</text>
+        <rect x="642" y="40" width="194" height="92" rx="20" fill="#fff" stroke="#e99b49" stroke-width="3" stroke-dasharray="9 6"/><text x="739" y="80" font-weight="700">Glucose sensor</text><text x="739" y="110">and wearable</text>
+        <rect x="856" y="40" width="194" height="92" rx="20" fill="#fff" stroke="#e99b49" stroke-width="3" stroke-dasharray="9 6"/><text x="953" y="80" font-weight="700">Retina</text><text x="953" y="110">photo</text>
+      </g>
+      <g stroke="#4f9b8d" stroke-width="4" marker-end="url(#ah2)"><path d="M97,132 L97,172"/><path d="M311,132 L311,172"/><path d="M525,132 L525,172"/><path d="M739,132 L739,172"/><path d="M953,132 L953,172"/></g>
+      <rect x="0" y="182" width="1050" height="430" rx="34" fill="#fff" stroke="#4f9b8d" stroke-width="4"/>
+      <text x="30" y="222" font-size="26" font-weight="800" fill="#1d2b29" letter-spacing="3">2 · THE KAYA TWIN</text>
+      <rect x="30" y="238" width="990" height="62" rx="18" fill="#d6ebe4"/>
+      <text x="525" y="279" text-anchor="middle" font-size="30" font-weight="700" fill="#1d2b29">Patient state encoder · one fused twin per patient</text>
+      <g font-size="25" fill="#1d2b29">
+        <rect x="30" y="316" width="488" height="116" rx="20" fill="#fbe3e0" stroke="#e0665b" stroke-width="5"/>
+        <text x="50" y="354" font-size="30" font-weight="800">Kidney</text><text x="190" y="352" font-size="21" font-weight="800" fill="#1d2b29">LEAD IN JAPAN</text>
+        <text x="50" y="388">eGFR path, albuminuria risk,</text><text x="50" y="418">rapid-decliner flag</text>
+        <rect x="532" y="316" width="488" height="116" rx="20" fill="#eaf4f0" stroke="#4f9b8d" stroke-width="3"/>
+        <text x="552" y="354" font-size="30" font-weight="800">Eye</text>
+        <text x="552" y="388">retinopathy grade, heatmap,</text><text x="552" y="418">referral tracking</text>
+        <rect x="30" y="446" width="320" height="100" rx="20" fill="#eaf4f0" stroke="#4f9b8d" stroke-width="3"/>
+        <text x="48" y="482" font-size="28" font-weight="800">Glucose</text><text x="48" y="512">30/60/120-min forecast,</text><text x="48" y="536">alerts</text>
+        <rect x="365" y="446" width="320" height="100" rx="20" fill="#eaf4f0" stroke="#4f9b8d" stroke-width="3"/>
+        <text x="383" y="482" font-size="28" font-weight="800">Liver</text><text x="383" y="512">fatty liver,</text><text x="383" y="536">fibrosis risk</text>
+        <rect x="700" y="446" width="320" height="100" rx="20" fill="#fff" stroke="#4f93c8" stroke-width="3" stroke-dasharray="9 6"/>
+        <text x="718" y="482" font-size="28" font-weight="800">Heart watch</text><text x="718" y="512">72-hour flag,</text><text x="718" y="536">research mode</text>
+        <rect x="30" y="556" width="990" height="44" rx="14" fill="#c4e3da"/>
+        <text x="525" y="587" text-anchor="middle" font-size="25" font-weight="700" fill="#1d2b29">What-if engine: change diet, walking or sleep, see glucose and organ risk move</text>
+      </g>
+      <g stroke="#4f9b8d" stroke-width="4" marker-end="url(#ah2)"><path d="M262,612 L262,646"/><path d="M788,612 L788,646"/></g>
+      <g font-size="25">
+        <rect x="0" y="654" width="515" height="140" rx="24" fill="#cfe8e0"/>
+        <text x="24" y="694" font-size="30" font-weight="800" fill="#1d2b29">3 · Doctor's priority list</text>
+        <text x="24" y="730" fill="#3b4a47">ranked by risk, with alerts, records and</text><text x="24" y="762" fill="#3b4a47">messages; the reason for every flag</text>
+        <rect x="535" y="654" width="515" height="140" rx="24" fill="#fbf0cf"/>
+        <text x="559" y="694" font-size="30" font-weight="800" fill="#2a1c05">3 · Screening-gap tracker</text>
+        <text x="559" y="730" fill="#2a1c05">who missed the eye or urine test,</text><text x="559" y="762" fill="#2a1c05">reminders, referral completed?</text>
+      </g>
+    </svg>
+    <p class="small" style="margin:10px 0 0">Doctors monitor, get alerts, read records and message patients. Prescribing is planned.</p>
+  </div>
+</section>
+
+
+<!-- ================= ROW 3 : VALUE PROPOSITION / BUSINESS MODEL ================= -->
+<section class="grid3">
+  <div class="c-yellow card tint-sand" style="background:var(--sand)">
+    <h2><span class="num" style="background:var(--amber-d)">4</span>Value proposition</h2>
+    <p class="lead" style="color:var(--amber-d)">Doctors use it; whoever saves from prevention pays.</p>
+    <svg viewBox="0 0 1050 520" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="ah3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a8802f"/></marker></defs>
+      <g font-size="25" fill="#1d2b29">
+        <rect x="0" y="0" width="330" height="196" rx="26" fill="#fff" stroke="#efe1b9" stroke-width="3"/>
+        <text x="22" y="40" font-size="28" font-weight="800" fill="#1d2b29">JAPAN pays</text>
+        <text x="22" y="78">Municipal insurers,</text><text x="22" y="108">then employer societies</text>
+        <text x="22" y="154" font-size="22" fill="#56635f">They fund clinics to use it;</text><text x="22" y="182" font-size="22" fill="#56635f">they pay for dialysis</text>
+        <rect x="0" y="214" width="330" height="196" rx="26" fill="#fff" stroke="#efe1b9" stroke-width="3"/>
+        <text x="22" y="254" font-size="28" font-weight="800" fill="#1d2b29">INDIA pays</text>
+        <text x="22" y="292">Hospital and lab chains,</text><text x="22" y="322">then state programs</text>
+        <text x="22" y="368" font-size="22" fill="#56635f">Chains earn from more</text><text x="22" y="396" font-size="22" fill="#56635f">tests, returning patients</text>
+        <path d="M330,98 L392,176" stroke="#a8802f" stroke-width="4" marker-end="url(#ah3)" fill="none"/>
+        <path d="M330,312 L392,236" stroke="#a8802f" stroke-width="4" marker-end="url(#ah3)" fill="none"/>
+        <rect x="396" y="146" width="238" height="120" rx="30" fill="#cfe8e0"/>
+        <text x="515" y="194" text-anchor="middle" font-size="32" font-weight="800" fill="#1d2b29">Kaya</text>
+        <text x="515" y="226" text-anchor="middle" font-size="22" fill="#3b4a47">annual software</text><text x="515" y="252" text-anchor="middle" font-size="22" fill="#3b4a47">subscription</text>
+        <path d="M634,206 L700,206" stroke="#a8802f" stroke-width="4" marker-end="url(#ah3)" fill="none"/>
+        <rect x="710" y="0" width="340" height="410" rx="26" fill="#fff" stroke="#efe1b9" stroke-width="3"/>
+        <text x="732" y="40" font-size="28" font-weight="800" fill="#1d2b29">Value they get</text>
+        <text x="732" y="88" font-weight="700">Dialysis avoided</text><text x="732" y="116" font-size="22" fill="#56635f">≈ ¥5M a year each</text>
+        <text x="732" y="164" font-weight="700">Eye and urine tests</text><text x="732" y="192" font-size="22" fill="#56635f">actually completed</text>
+        <text x="732" y="240" font-weight="700">Doctor time on the</text><text x="732" y="268" font-weight="700">right few patients</text>
+        <text x="732" y="316" font-weight="700">Reach beyond the ≈1%</text><text x="732" y="344" font-size="22" fill="#56635f">served today</text>
+        <text x="732" y="384" font-weight="700">Low cost to serve</text>
+      </g>
+      <text x="0" y="446" font-size="22" font-weight="800" fill="#1d2b29" letter-spacing="2">HOW IT GROWS</text>
+      <g font-size="23" fill="#1d2b29" font-weight="700">
+        <polygon points="0,456 290,456 320,488 290,520 0,520" fill="#f4e5bd"/><text x="20" y="494">LAND: free pilot</text>
+        <polygon points="300,456 700,456 730,488 700,520 300,520 330,488" fill="#cfe8e0"/><text x="350" y="494">EXPAND: paid contract + modules</text>
+        <polygon points="710,456 1050,456 1050,520 710,520 740,488" fill="#dfeef5"/><text x="764" y="494">SPREAD: Asia</text>
+      </g>
+    </svg>
+    <ul style="font-size:27px;margin-top:10px">
+      <li><b>Flat software fee</b>, no commission. No price quoted yet.</li>
+    </ul>
+  </div>
+<div class="c-orange card" style="grid-column:span 2;background:var(--sand)">
+    <h2><span class="num" style="background:var(--amber-d)">5</span>Business model</h2>
+    <p class="lead" style="color:var(--amber-d)">Subscription: payers fund it, doctors use it, patients benefit.</p>
+    <svg viewBox="0 0 2100 572" width="100%" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity=".22"/></filter></defs><path d="M300,274 L179.5,108.2 A205,205 0 0 1 420.5,108.2 Z" fill="#e0665b" stroke="#fff" stroke-width="9" stroke-linejoin="round"/><path d="M300,274 L420.5,108.2 A205,205 0 0 1 495.0,337.3 Z" fill="#e8b93e" stroke="#fff" stroke-width="9" stroke-linejoin="round"/><path d="M300,274 L495.0,337.3 A205,205 0 0 1 300.0,479.0 Z" fill="#4f93c8" stroke="#fff" stroke-width="9" stroke-linejoin="round"/><path d="M300,274 L300.0,479.0 A205,205 0 0 1 105.0,337.3 Z" fill="#e99b49" stroke="#fff" stroke-width="9" stroke-linejoin="round"/><path d="M300,274 L105.0,337.3 A205,205 0 0 1 179.5,108.2 Z" fill="#4f9b8d" stroke="#fff" stroke-width="9" stroke-linejoin="round"/><text x="300.0" y="164.1" text-anchor="middle" font-size="28" font-weight="800" fill="#fff">Payers</text><text x="413.1" y="246.3" text-anchor="middle" font-size="28" font-weight="800" fill="#1d2b29">Revenue</text><text x="369.9" y="379.2" text-anchor="middle" font-size="28" font-weight="800" fill="#fff">Users</text><text x="230.1" y="379.2" text-anchor="middle" font-size="28" font-weight="800" fill="#fff">Reach</text><text x="186.9" y="246.3" text-anchor="middle" font-size="28" font-weight="800" fill="#fff">Costs</text><circle cx="300" cy="274" r="42" fill="#fff" filter="url(#sh)"/><text x="300" y="276" text-anchor="middle" font-size="25" font-weight="800" fill="#1d2b29">Kaya</text><text x="300" y="299" text-anchor="middle" font-size="19" font-weight="700" fill="#1d2b29" class="jp">佳弥</text><circle cx="300.0" cy="54.6" r="50" fill="#fff" filter="url(#sh)"/><circle cx="300.0" cy="54.6" r="42" fill="#fff" stroke="#e0665b" stroke-width="4"/><g fill="#e0665b"><path d="M279.0,48.6 L300.0,31.6 L321.0,48.6 Z"/><rect x="283.0" y="52.6" width="7" height="21"/><rect x="296.5" y="52.6" width="7" height="21"/><rect x="310.0" y="52.6" width="7" height="21"/><rect x="277.0" y="75.6" width="46" height="6"/></g><circle cx="508.6" cy="206.2" r="50" fill="#fff" filter="url(#sh)"/><circle cx="508.6" cy="206.2" r="42" fill="#fff" stroke="#e8b93e" stroke-width="4"/><text x="508.6" y="220.2" text-anchor="middle" font-size="40" font-weight="800" fill="#e8b93e">¥</text><circle cx="428.9" cy="451.5" r="50" fill="#fff" filter="url(#sh)"/><circle cx="428.9" cy="451.5" r="42" fill="#fff" stroke="#4f93c8" stroke-width="4"/><g fill="#4f93c8"><circle cx="428.9" cy="440.5" r="11"/><path d="M407.9,474.5 Q407.9,453.5 428.9,453.5 Q449.9,453.5 449.9,474.5 Z"/></g><circle cx="171.1" cy="451.5" r="50" fill="#fff" filter="url(#sh)"/><circle cx="171.1" cy="451.5" r="42" fill="#fff" stroke="#e99b49" stroke-width="4"/><g stroke="#e99b49" stroke-width="5" fill="#e99b49"><line x1="154.1" y1="463.5" x2="171.1" y2="439.5"/><line x1="188.1" y1="463.5" x2="171.1" y2="439.5"/><line x1="154.1" y1="463.5" x2="188.1" y2="463.5"/><circle cx="171.1" cy="437.5" r="8"/><circle cx="152.1" cy="465.5" r="8"/><circle cx="190.1" cy="465.5" r="8"/></g><circle cx="91.4" cy="206.2" r="50" fill="#fff" filter="url(#sh)"/><circle cx="91.4" cy="206.2" r="42" fill="#fff" stroke="#4f9b8d" stroke-width="4"/><path d="M70.4,219.2 a12,12 0 0 1 4,-24 a15,15 0 0 1 29,-4 a12,12 0 0 1 2,28 Z" fill="#4f9b8d"/><rect x="660" y="14" width="14" height="76" rx="7" fill="#e0665b"/><text x="696" y="48" font-size="38" font-weight="800" fill="#b4574a">Payers</text><text x="696" y="82" font-size="31" fill="#1d2b29">Japan: insurers and private clinics. India: hospital and lab chains.</text><rect x="660" y="108" width="14" height="76" rx="7" fill="#e8b93e"/><text x="696" y="142" font-size="38" font-weight="800" fill="#8a6a12">Revenue</text><text x="696" y="176" font-size="31" fill="#1d2b29">Annual subscription per enrolled patient, by module. Flat fee, no commission.</text><rect x="660" y="202" width="14" height="76" rx="7" fill="#4f93c8"/><text x="696" y="236" font-size="38" font-weight="800" fill="#2f6b9a">Users</text><text x="696" y="270" font-size="31" fill="#1d2b29">Doctors and clinics use it daily; patients get earlier, better care.</text><rect x="660" y="296" width="14" height="76" rx="7" fill="#e99b49"/><text x="696" y="330" font-size="38" font-weight="800" fill="#a8661f">Reach</text><text x="696" y="364" font-size="31" fill="#1d2b29">Free insurer look-back, then partner clinics, then more insurers.</text><rect x="660" y="390" width="14" height="76" rx="7" fill="#4f9b8d"/><text x="696" y="424" font-size="38" font-weight="800" fill="#2f6d62">Costs</text><text x="696" y="458" font-size="31" fill="#1d2b29">Cloud only (no GPU), validation and regulation, Japanese localisation.</text><rect x="0" y="514" width="2100" height="58" rx="20" fill="#f6e7bd"/><text x="1050" y="553" font-size="30" font-weight="700" fill="#2a1c05" text-anchor="middle">One avoided dialysis start (≈ ¥5M a year) covers many subscriptions. Price set with pilot partners.</text></svg>
+  </div>
+</section>
+
+<!-- ================= ROW 4 : COMPETITION / CRITERIA ================= -->
+<section class="grid3">
+  <div class="c-blue card" style="grid-column:span 2">
+    <h2><span class="num" style="background:var(--slate)">6</span>Competition</h2>
+    <p class="lead" style="color:var(--slate)">Nobody we found covers organ complications and the screening loop.</p>
+    <table>
+      <tr><th></th><th class="kaya">Kaya 佳弥</th><th>CureApp<br><span class="small" style="font-size:20px">JP · lifestyle Rx apps</span></th><th>Welby<br><span class="small" style="font-size:20px">JP · patient logging</span></th><th><a href="https://pharmaphorum.com/news/twin-health-raises-140m-for-digital-twin-diabetes-reversal-app">Twin Health</a><br><span class="small" style="font-size:20px">IN/US · metabolic twin</span></th><th>sugar.fit, BeatO, Fitterfly<br><span class="small" style="font-size:20px">IN · glucose coaching</span></th></tr>
+      <tr><td>Glucose forecast and coaching</td><td class="k"><span class="dot big"></span></td><td><span class="dot"></span></td><td><span class="dot half"></span></td><td><span class="dot"></span></td><td><span class="dot"></span></td></tr>
+      <tr><td>Kidney risk and eGFR path</td><td class="k"><span class="dot big"></span></td><td><span class="dot no"></span></td><td><span class="dot no"></span></td><td><span class="dot no"></span></td><td><span class="dot no"></span></td></tr>
+      <tr><td>Eye risk with explanation</td><td class="k"><span class="dot big"></span></td><td><span class="dot no"></span></td><td><span class="dot no"></span></td><td><span class="dot no"></span></td><td><span class="dot no"></span></td></tr>
+      <tr><td>Screening-gap and referral loop</td><td class="k"><span class="dot big"></span></td><td><span class="dot no"></span></td><td><span class="dot no"></span></td><td><span class="dot no"></span></td><td><span class="dot no"></span></td></tr>
+      <tr><td>What-if on organ risk</td><td class="k"><span class="dot big"></span></td><td><span class="dot no"></span></td><td><span class="dot no"></span></td><td><span class="dot no"></span></td><td><span class="dot no"></span></td></tr>
+    </table>
+    <p class="small lg" style="margin:8px 0 14px"><span class="dot"></span>offered <span class="dot half"></span>partial <span class="dot no"></span>not found in our search (to be verified)</p>
+    <div class="chips"><span class="chip">Kidney + eye together, with the reason</span><span class="chip">Closed referral loop</span><span class="chip">Honest uncertainty on every score</span></div>
+  </div>
+  <div class="c-teal card tint-mint" style="background:var(--mint)">
+    <h2 style="font-size:52px">Why Kaya fits the criteria</h2>
+    <div class="crit">
+      <div class="c"><div class="ic"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></div><div><b>Global perspective</b><span>Built in India, adapted for Japan, the most aged society. Next: Korea and Taiwan.</span></div></div>
+      <div class="c"><div class="ic"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg></div><div><b>Technology-driven</b><span>Multi-organ twin, explained alerts, calibrated uncertainty, FHIR API.</span></div></div>
+      <div class="c"><div class="ic"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg></div><div><b>Betterment of society</b><span>Fewer people on dialysis or losing sight; less load on doctors.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ROW 5 : PATIENT APP / VALIDATION ================= -->
+<section class="grid3" style="grid-template-columns:2fr 1fr">
+  <div class="c-orange card patient">
+    <h3 style="margin-top:0">For the patient: one next step, in plain language</h3>
+    <div class="patrow">
+      <div class="phones5">
+        <div class="phone"><img src="img/app_today_s.png" alt=""><div class="cap"><b>Today</b>glucose outlook</div></div>
+        <div class="phone"><img src="img/app_try_s.png" alt=""><div class="cap"><b>Try a change</b>walk after meals</div></div>
+        <div class="phone"><img src="img/app_ask2_s.png" alt=""><div class="cap"><b>Ask Kaya</b>chat or voice</div></div>
+        <div class="phone"><img src="img/app_reports_s.png" alt=""><div class="cap"><b>Add a report</b>PDF or photo</div></div>
+      </div>
+      <div class="patfeat">
+        <p><b>One next step.</b> A plain-language Today screen.</p>
+        <p><b>Try a change.</b> See what a walk does to glucose and liver risk.</p>
+        <p><b>Ask Kaya.</b> A chat and voice assistant in the patient's language. Medicine questions go to the doctor.</p>
+        <p><b>Add a report.</b> The patient uploads a PDF or photo; the doctor sees it marked “not verified”.</p>
+        <p><b>Four languages.</b> English, Hindi, Telugu, Kannada, with <span class="jp">日本語</span> planned.</p>
+      </div>
+    </div>
+  </div>
+  <div class="c-blue card">
+    <h3 style="margin-top:0">Validated on real open data, honestly</h3>
+    <svg viewBox="0 0 1050 270" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="24" font-size="25" font-weight="700" fill="#1d2b29">Glucose forecast error, mg/dL (lower is better); real CGM, 34 people</text>
+      <g font-size="24" fill="#1d2b29">
+        <text x="0" y="74">30 min</text>
+        <rect x="120" y="52" width="302" height="26" rx="8" fill="#4f9b8d"/><text x="432" y="74" font-weight="800">12.6 Kaya</text>
+        <rect x="120" y="82" width="390" height="26" rx="8" fill="#d3dcda"/><text x="520" y="104" fill="#56635f">16.3 no change</text>
+        <text x="0" y="164">60 min</text>
+        <rect x="120" y="142" width="506" height="26" rx="8" fill="#4f9b8d"/><text x="636" y="164" font-weight="800">21.1</text>
+        <rect x="120" y="172" width="619" height="26" rx="8" fill="#d3dcda"/><text x="749" y="194" fill="#56635f">25.8</text>
+        <text x="0" y="254">120 min</text>
+        <rect x="120" y="232" width="677" height="26" rx="8" fill="#4f9b8d"/><text x="807" y="254" font-weight="800">28.2</text>
+      </g>
+    </svg>
+    <div class="rings">
+      <div class="ring"><svg class="donut" data-v="72" data-c="#4f9b8d" data-t="1" viewBox="0 0 120 120"></svg><b>72% of lows caught</b></div>
+      <div class="ring"><svg class="donut" data-v="83" data-c="#4f9b8d" data-t="1" viewBox="0 0 120 120"></svg><b>Liver AUROC 0.83</b></div>
+      <div class="ring"><svg class="donut" data-v="92" data-c="#4f9b8d" data-t="1" viewBox="0 0 120 120"></svg><b>Eye AUROC 0.92</b></div>
+    </div>
+    <div class="chips" style="margin-top:8px">
+      <span class="chip a">Kidney ≈ simple baseline</span><span class="chip">FIB-4 liver score: 0.63</span>
+      <span class="chip r">Not yet tested in Japan</span>
+    </div>
+  </div>
+</section>
+
+<section class="c-red card tint-rose" style="flex:none;background:var(--rose);padding:20px 44px 24px;border-color:#f0d6cf">
+  <div style="display:grid;grid-template-columns:270px repeat(5,1fr);gap:28px;align-items:start;font-size:27px;line-height:1.28">
+    <div style="font-size:42px;font-weight:800;color:var(--rose-d);line-height:1.05">What we do not claim</div>
+    <div><b>Decision support, not diagnosis.</b> The doctor decides.</div>
+    <div><b>Not yet tested on Japanese patients.</b></div>
+    <div>Organ links and what-if effects are <b>simulations</b>, always labelled.</div>
+    <div>Heart watch is <b>research-only</b>; eye grading waits for regulatory review.</div>
+    <div>Health data <b>stays in Japan</b>.</div>
+  </div>
+</section>
+
+<section class="c-yellow card stack" style="flex:none">
+  <div class="stackrow">
+    <h2>Technology stack</h2>
+    <div class="chips">
+      <span class="chip">PyTorch · GRU glucose forecaster</span>
+      <span class="chip">LightGBM · kidney and liver risk</span>
+      <span class="chip">Conformal prediction · uncertainty bands</span>
+      <span class="chip">SHAP and Grad-CAM · explanations</span>
+      <span class="chip">FastAPI · FHIR R4 · React dashboard</span>
+      <span class="chip">Docker · 149 automated tests · CI</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="refs">
+    <div class="reft">References <span>(click a name)</span></div>
+    <div>Diabetes in India: <a href="https://www.downtoearth.org.in/health/india-s-diabetes-epidemic-just-got-more-grim-lancet-report-reveals-why-89946">ICMR-INDIAB, Lancet 2023</a></div>
+    <div>Kidney failure in India: <a href="https://prsindia.org/policy/report-summaries/prevalence-of-chronic-kidney-disease-in-india">parliamentary committee summary</a></div>
+    <div>Dialysis cost in India: <a href="https://www.ispor.org/heor-resources/presentations-database/presentation/intl2022-3463/116805">scoping review</a>; <a href="https://nhsrcindia.org/sites/default/files/2026-07/Operational%20Guidelines%20for%20PMNDP.pdf">PMNDP guidelines</a></div>
+    <div>Japan prevention program: <a href="https://www.mhlw.go.jp/content/12400000/001333978.pdf">MHLW 2023 municipal survey</a>; <a href="https://mhlw-grants.niph.go.jp/project/25317">MHLW-funded eligibility study</a></div>
+    <div>Insurers in Japan: <a href="https://dev.japanhpn.org/en/?p=6336">Japan’s health insurance system</a> (1,383 societies, Mar 2023)</div>
+    <div>Market estimates: <a href="https://imarcgroup.com/japan-digital-diabetes-management-market">IMARC Japan</a>, <a href="https://www.imarcgroup.com/india-digital-diabetes-management-market">IMARC India</a>, <a href="https://datamintelligence.com/research-report/japan-digital-therapeutics-for-diabetes-market">DataM</a>; Twin Health: <a href="https://pharmaphorum.com/news/twin-health-raises-140m-for-digital-twin-diabetes-reversal-app">PharmaPhorum</a></div>
+  </div>
+  <div class="disc">
+    <b>Try it:</b> open source (Apache 2.0), no GPU or account: <a href="https://github.com/Dulari-Bhushan/Digital-Twin-for-healthcare">github.com/Dulari-Bhushan/Digital-Twin-for-healthcare</a>. Prototype by Team Kaya, IIT Hyderabad.<br>
+    <b>Re-check before submission.</b> All prototype patients are synthetic.
+  </div>
+<!-- Photo credits to add: hero_photo.jpg, dialysis_arm.jpg, dialysis_room.jpg (source and licence) -->
+</footer>
+
+</div>
+<script>
+(function(){
+  function person(x,y,sc,col){return '<g transform="translate('+x+','+y+') scale('+sc+')"><circle cx="5" cy="4" r="4" fill="'+col+'"/><path d="M0,21 v-8 a5,5 0 0 1 10,0 v8 z" fill="'+col+'"/></g>';}
+  document.querySelectorAll('svg.donut').forEach(function(sv){
+    var v=+sv.dataset.v,c=sv.dataset.c,r=44,C=2*Math.PI*r,t=sv.dataset.t;
+    sv.innerHTML='<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="#dfe8e5" stroke-width="18"/><circle cx="60" cy="60" r="'+r+'" fill="none" stroke="'+c+'" stroke-width="18" stroke-dasharray="'+(C*v/100)+' '+C+'" transform="rotate(-90 60 60)"/>'+(t?'<text x="60" y="69" text-anchor="middle" font-size="26" font-weight="800" fill="'+c+'">'+v+'</text>':'');
+  });
+  var p=document.getElementById('picto100');
+  if(p){var h='';for(var i=0;i<100;i++){h+=person((i%20)*17,Math.floor(i/20)*25.5,1.1,i===0?'#d9604f':'#cdbfb2');}h+='<circle cx="8" cy="13" r="15" fill="none" stroke="#d9604f" stroke-width="2"/>';p.innerHTML=h;}
+  document.querySelectorAll('svg.people9').forEach(function(sv){var h='';for(var i=0;i<9;i++){h+=person((i%3)*40+4,Math.floor(i/3)*40+2,1.5,i===0?'#4f9b8d':'#bcd3cf');}sv.innerHTML=h;});
+})();
+</script>
+</body>
+</html>
